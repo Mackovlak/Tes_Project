@@ -27,7 +27,7 @@ import {Outlet} from "react-router"
 const App = () => {
   
   return (
-    <div className='bg-purple-300'>
+    <div>
       <SidebarProvider>
       <AppSidebar />
       <SidebarInset>
