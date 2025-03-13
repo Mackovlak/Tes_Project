@@ -295,7 +295,7 @@ const Search_case = () => {
                       <TableBody>
                         {
                           filteredAssets.length > 0 ? (
-                            filteredAssets.map((asset, index) => (
+                            filteredAssets.map((asset) => (
                               <TableRow key={asset.AssetID}>
                                 <TableCell className="font-medium">{asset.SerialNumber}</TableCell>
                                 <TableCell>{asset.ProductName}</TableCell>
@@ -305,7 +305,7 @@ const Search_case = () => {
                               </TableRow>
                             ))
                           ) : assets.length > 0 ? (
-                            assets.map((asset, index) => (
+                            assets.map((asset) => (
                               <TableRow key={asset.AssetID}>
                                 <TableCell className="font-medium">{asset.SerialNumber}</TableCell>
                                 <TableCell>{asset.ProductName}</TableCell>
