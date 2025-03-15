@@ -6,6 +6,7 @@ import App from './App';
 import Landing from './landing';
 import Lorem from './Lorem';
 import Search_case from './search_case';
+import { Case } from './Case';
 
 
 createRoot(document.getElementById('root')).render(
@@ -15,6 +16,7 @@ createRoot(document.getElementById('root')).render(
         <Route path='/' element={<App />}>
           <Route index element={<Landing />} /> 
           <Route path='/search_case' element={<Search_case />} /> 
+          <Route path='/case' element={<Case />} /> 
         </Route>
         <Route path="/lorem" element={<Lorem />}/>
       </Routes>

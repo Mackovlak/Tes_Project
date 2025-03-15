@@ -59,124 +59,21 @@ import {
   TabsTrigger,
 } from "@/components/ui/tabs"
 
-// import {
-//   Sheet,
-//   SheetTrigger,
-//   SheetClose,
-//   SheetContent,
-//   SheetHeader,
-//   SheetFooter,
-//   SheetTitle,
-//   SheetDescription 
-// } from "@/components/ui/sheet"
+import { DialogCloseButton } from './components/assets-modal'
+import { SelectBar } from './components/sc-select'
+import { SelectBar1 } from './components/sc-select'
+import { SelectBar2 } from './components/sc-select'
+import { BtnModal } from './components/sc-modal'
+import { TableCompany } from './components/sc-table'
+import { TableContact } from './components/sc-table'
+import { TableAsset } from './components/sc-table'
 
-import {
-  Dialog,
-  DialogClose,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogOverlay,
-  DialogPortal,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog"
-
-
-import TabsDialog from "@/components/Tabs-dialog"
-import {DialogDemo} from "@/components/modals-dialog"
-const data = {
-  navMain: [
-    {
-      title: "Account info",
-      icon: SquareTerminal,
-      isActive: true,
-      items: [
-        {
-          title: "History",
-          value: "#",
-        },
-        {
-          title: "Starred",
-          value: "#",
-        },
-        {
-          title: "Settings",
-          value: "#",
-        },
-      ],
-    },
-    {
-      title: "Contact info",
-      icon: Bot,
-      items: [
-        {
-          title: "Genesis",
-          value: "#",
-        },
-        {
-          title: "Explorer",
-          value: "#",
-        },
-        {
-          title: "Quantum",
-          value: "#",
-        },
-      ],
-    },
-    {
-      title: "Asset info",
-      icon: BookOpen,
-      items: [
-        {
-          title: "Introduction",
-          value: "#",
-        },
-        {
-          title: "Get Started",
-          value: "#",
-        },
-        {
-          title: "Tutorials",
-          value: "#",
-        },
-        {
-          title: "Changelog",
-          value: "#",
-        },
-      ],
-    },
-    {
-      title: "Entitlement info",
-      icon: Settings2,
-      items: [
-        {
-          title: "General",
-          value: "#",
-        },
-        {
-          title: "Team",
-          value: "#",
-        },
-        {
-          title: "Billing",
-          value: "#",
-        },
-        {
-          title: "Limits",
-          value: "#",
-        },
-      ],
-    },
-  ],
-}
 const Search_case = () => {
 
   //create search state
   const [search, setSearch] = useState("");
+  
   const [isModalAssetOpen, setIsModalAssetOpen] = useState(false);
-  //tab
 
   const [activeTab, setActiveTab] = useState("search"); // Default active tab
 
@@ -250,261 +147,393 @@ const Search_case = () => {
 
   //filter item
   
-  const filteredAssets = assets.filter((asset) =>
-    asset.SerialNumber?.toLowerCase().includes(search.toLowerCase()) ||
-    asset.ProductName?.toLowerCase().includes(search.toLowerCase())
-  );
+  // const filteredAssets = assets.filter((asset) =>
+  //   asset.SerialNumber?.toLowerCase().includes(search.toLowerCase()) ||
+  //   asset.ProductName?.toLowerCase().includes(search.toLowerCase())
+  // );
   // console.log("filtered Asset")
   // console.log(filteredAssets);
 
 
 
 
+  //form section
+  // section account
+  //set Form Data
+  const [formDataSiteAccount, setFormDataSiteAccount] = useState({
+    Company: '',
+    Email: '',
+    PrimaryPhone: '',
+    AddressLine1: '',
+    AddressLine2: '',
+    City: '',
+    StateProvince: '',
+    Country: '',
+    ZipPostalCode: ''
+  })
+
+  //make handler
+  const handlerInputSiteAccountChange = (e) => {
+    const { id, value } = e.target
+    setFormDataSiteAccount(prevState => ({
+      ...prevState,
+      [id]:value
+    }))
+  }
+
+  //handler submit
+  // console.log(formData)
+  const handlerSiteAccountSubmit = async () => {
+    // console.log(formDataSiteAccount)
+    try {
+      const response = await ApiCustomer.post("/api/site_account", formDataSiteAccount);
+      console.log("Success:", response.data);
+      alert("Customer Saved successfully")
+    } catch (err){
+      console.error("Error saving customer: ", err)
+      alert("Failed to save customer")
+    }
+  }
+
+  const [formDataContact, setFormDataContact] = useState({
+    Salutation: '',
+    FirstName: '',
+    LastName: '',
+    Email: '',
+    PreferredLanguage: '',
+    Phone: '',
+    Mobile: '',
+    WorkPhone: '',
+    WorkExtension: '',
+    OtherPhone: '',
+    OtherExtension: '',
+    Fax: '',
+    AddressLine1: '',
+    AddressLine2: '',
+    City: '',
+    StateProvince: '',
+    Country: '',
+    ZipPostalCode: ''
+  });
+  
+  const handlerInputContactChange = (e) => {
+    const { id, value } = e.target;
+    setFormDataContact(prevState => ({
+      ...prevState,
+      [id]: value
+    }));
+  };
+  
+  const handlerContactSubmit = async () => {
+    console.log(formDataContact);
+    console.log("formDataContact");
+    try {
+      const response = await ApiCustomer.post("/api/contact-information", formDataContact);
+      console.log("Success:", response.data);
+      alert("Contact Information Saved Successfully");
+    } catch (err) {
+      console.error("Error saving contact information: ", err);
+      alert("Failed to save contact information");
+    }
+  };
+
+  //handler table selected
+  const [selectedAsset, setSelectedAsset] = useState(null); // Store selected asset data
+
+  const handleSelectedAsset = (asset) => {
+    console.log("Asset received in parent:", asset);
+    setSelectedAsset(asset);
+  };
+  
+
   return (
-    
-    <div className="flex flex-1  gap-4 p-4 pt-0">
-      <div className="flex  min-h-[100vh] flex-1 rounded-xl bg-muted/50 md:min-h-min">
-        <Tabs defaultValue="search" value={activeTab} className="w-full" onValueChange={setActiveTab}>
-          <TabsList className=" w-full flex justify-between h-[3em]">
-            <div className="w-2xs">
-              <TabsTrigger value="search">Search</TabsTrigger>
-              <TabsTrigger value="ci">Costumer Information</TabsTrigger>
+    <div className="flex flex-1 mt-2  gap-4 p-4 pt-0">
+      <div className="flex min-h-[100vh] flex-1 rounded-xl md:min-h-min">
+        <Tabs defaultValue="search" className="w-full" value={activeTab} onValueChange={setActiveTab}>
+          <TabsList className="drop-shadow-xl bg-sky-700 w-full h-15 flex justify-between">
+            <div className="w-2xs p-2 text-white ">
+              <TabsTrigger value="search" className="cursor-pointer">Search</TabsTrigger>
+              <TabsTrigger value="ci" className="cursor-pointer">Costumer Information</TabsTrigger>
             </div>
-            <Button><span><Plus></Plus></span>Create Case</Button>
-
-            {/* Modal/Dialog Assets */}
-            <AlertDialog open={isModalAssetOpen} onOpenChange={setIsModalAssetOpen}>
-              <AlertDialogTrigger asChild>
-                <Button className="bg-black text-white" variant="outline">Assets</Button>
-              </AlertDialogTrigger>
-              <AlertDialogContent className="bg-gray-100 max-w-3xl w-full ">
-                <AlertDialogHeader>
-                  <AlertDialogTitle>Asset List</AlertDialogTitle>
-                  <AlertDialogDescription className="max-h-[70vh] overflow-auto">
-                    <Table>
-                      <TableCaption>A list of your assets.</TableCaption>
-                      <TableHeader>
-                        <TableRow>
-                          <TableHead className="w-[150px]">Serial Number</TableHead>
-                          <TableHead>Product Name</TableHead>
-                          <TableHead>Product Number</TableHead>
-                          <TableHead>Product Line</TableHead>
-                          <TableHead className="text-right">Site Account ID</TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {
-                          filteredAssets.length > 0 ? (
-                            filteredAssets.map((asset, index) => (
-                              <TableRow key={asset.AssetID}>
-                                <TableCell className="font-medium">{asset.SerialNumber}</TableCell>
-                                <TableCell>{asset.ProductName}</TableCell>
-                                <TableCell>{asset.ProductNumber}</TableCell>
-                                <TableCell>{asset.ProductLine}</TableCell>
-                                <TableCell className="text-right">{asset.SiteAccountID}</TableCell>
-                              </TableRow>
-                            ))
-                          ) : assets.length > 0 ? (
-                            assets.map((asset, index) => (
-                              <TableRow key={asset.AssetID}>
-                                <TableCell className="font-medium">{asset.SerialNumber}</TableCell>
-                                <TableCell>{asset.ProductName}</TableCell>
-                                <TableCell>{asset.ProductNumber}</TableCell>
-                                <TableCell>{asset.ProductLine}</TableCell>
-                                <TableCell className="text-right">{asset.SiteAccountID}</TableCell>
-                              </TableRow>
-                            ))
-                          ) 
-                          :
-                          <TableRow>
-                              <TableCell className="font-medium">Data Belum Tersedia</TableCell>
-                            </TableRow>
-                        }
-                      </TableBody>
-                    </Table>
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel>Cancel</AlertDialogCancel>
-                  <AlertDialogAction>Continue</AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
-
-            {/* Modal/Dialog Contacts */}
-            <AlertDialog>
-              <AlertDialogTrigger asChild>
-                <Button className="bg-black text-white" variant="outline">Contacts</Button>
-              </AlertDialogTrigger>
-              <AlertDialogContent className="bg-white shadow-lg rounded-lg w-full max-w-[85vw] max-h-[80vh] overflow-auto">
-                <AlertDialogHeader>
-                  <AlertDialogTitle className="text-lg font-bold">Contact List</AlertDialogTitle>
-                  <AlertDialogDescription>
-                    <div className="overflow-x-auto">
-                      <Table className="min-w-full">
-                        <TableCaption>A list of your contacts.</TableCaption>
-                        <TableHeader className="bg-gray-200">
-                          <TableRow>
-                            <TableHead className="w-[180px]">Name</TableHead>
-                            <TableHead className="w-[200px]">Email</TableHead>
-                            <TableHead className="w-[150px]">Phone</TableHead>
-                            <TableHead className="w-[120px] text-right">City</TableHead>
-                            <TableHead className="w-[150px] text-right">Country</TableHead>
-                          </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                          {contacts.map((contact) => (
-                            <TableRow key={contact.ContactID} className="even:bg-gray-100 hover:bg-gray-200">
-                              <TableCell className="font-medium">{contact.Salutation} {contact.FirstName} {contact.LastName}</TableCell>
-                              <TableCell>{contact.Email}</TableCell>
-                              <TableCell>{contact.Phone || contact.Mobile}</TableCell>
-                              <TableCell className="text-right">{contact.City}</TableCell>
-                              <TableCell className="text-right">{contact.Country}</TableCell>
-                            </TableRow>
-                          ))}
-                        </TableBody>
-                      </Table>
-                    </div>
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter className="bg-gray-100 px-4 py-2">
-                  <AlertDialogCancel className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600">Cancel</AlertDialogCancel>
-                  <AlertDialogAction className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Continue</AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
-
-            {/* Modal/Dialog siteAccounts */}
-            <AlertDialog>
-              <AlertDialogTrigger asChild>
-                <Button className="bg-black text-white" variant="outline">
-                  Site Accounts
-                </Button>
-              </AlertDialogTrigger>
-              <AlertDialogContent className="bg-gray-100 max-w-5xl w-full ">
-                <AlertDialogHeader>
-                  <AlertDialogTitle>Site Accounts List</AlertDialogTitle>
-                  <AlertDialogDescription className="max-h-[70vh] overflow-y-auto">
-                    <Table>
-                      <TableCaption>A list of registered site accounts.</TableCaption>
-                      <TableHeader>
-                        <TableRow>
-                          <TableHead className="w-[150px]">Company</TableHead>
-                          <TableHead>Email</TableHead>
-                          <TableHead>Phone</TableHead>
-                          <TableHead>Address</TableHead>
-                          <TableHead className="text-right">Country</TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {siteAccounts.map((account) => (
-                          <TableRow key={account.SiteAccountID}>
-                            <TableCell className="font-medium">{account.Company}</TableCell>
-                            <TableCell>{account.Email}</TableCell>
-                            <TableCell>{account.PrimaryPhone}</TableCell>
-                            <TableCell>
-                              {account.AddressLine1}
-                              {account.AddressLine2 ? `, ${account.AddressLine2}` : ""}, {account.City}
-                              {account.StateProvince ? `, ${account.StateProvince}` : ""}
-                              , {account.ZipPostalCode}
-                            </TableCell>
-                            <TableCell className="text-right">{account.Country}</TableCell>
-                          </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel>Close</AlertDialogCancel>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>            
-
+            {/* <Button className="ml-50 cursor-pointer "><span></span>Customer Complaint</Button>
+            <Button className="cursor-pointer"><span></span>Customer Complaint Legal</Button> */}
+            {/* <Button className="mr-1.5 cursor-pointer"><span><Plus></Plus></span>Create Case</Button> */}
+            <BtnModal></BtnModal>
           </TabsList>
 
           {/* search tab */}
           <TabsContent value="search">
-            <Card>
-              <CardContent className="space-y-2 grid gap-1 grid-cols-3">
-                <div className="space-y-1">
+            <Card className="drop-shadow-md">
+              <CardContent className="grid gap-5 grid-cols-3">
+                <div className="space-y-0.5"> 
                   <Label htmlFor="email">Email</Label>
-                  <Input id="email"  />
+                  <Input id="email" className="border-b-black p-1 "  />
                 </div>
-                <div className="space-y-1">
+                <div className="space-y-0.5">
                   <Label htmlFor="serialnumber">Serial Number</Label>
-                  <Input id="serialnumber" onChange={handleInputChange}/>
+                  <Input id="serialnumber" onChange={handleInputChange} className="border-b-black p-1"/>
                 </div>
-                <div className="space-y-1">
+                <div className="space-y-0.5">
                   <Label htmlFor="country">Country</Label>
-                  <Input id="country" />
+                  <SelectBar></SelectBar>
                 </div>
-                <div className="space-y-1">
+                <div className="space-y-0.5">
                   <Label htmlFor="company">Company</Label>
-                  <Input id="company"  />
+                  <Input id="company" className="border-b-black p-1"   />
                 </div>
-                <div className="space-y-1">
+                <div className="space-y-0.5">
                   <Label htmlFor="zippostal">Zip/Postal</Label>
-                  <Input id="zippostal" />
+                  <Input id="zippostal" className="border-b-black p-1"  />
                 </div>
-                <div className="space-y-1">
+                <div className="space-y-0.5">
                   <Label htmlFor="city">City</Label>
-                  <Input id="city" />
+                  <Input id="city" className="border-b-black p-1"  />
                 </div>
-                <div className="space-y-1">
+                <div className="space-y-0.5">
                   <Label htmlFor="phone">Phone</Label>
-                  <Input id="phone"  />
+                  <Input id="phone" className="border-b-black p-1"   />
                 </div>
-                <div className="space-y-1">
+                <div className="space-y-0.5">
                   <Label htmlFor="assettag">Asset Tag</Label>
-                  <Input id="assettag" />
+                  <Input id="assettag" className="border-b-black p-1" />
                 </div>
-                <div className="space-y-1">
+                <div className="space-y-0.5">
                   <Label htmlFor="contrackid">Contrack Id</Label>
-                  <Input id="contrackid" />
+                  <Input id="contrackid" className="border-b-black p-1"  />
                 </div>
-                <div className="space-y-1">
+                <div className="space-y-0.5">
                   <Label htmlFor="transactiontype">Transaction Type</Label>
-                  <Input id="transactiontype"  />
+                  <Input id="transactiontype" className="border-b-black p-1"  />
                 </div>
-                <div className="space-y-1">
+                <div className="space-y-0.5">
                   <Label htmlFor="transactiontid">Transaction Id</Label>
-                  <Input id="transactiontid" />
+                  <Input id="transactiontid" className="border-b-black p-1" />
                 </div>
-                <div className="space-y-1">
+                <div className="space-y-0.5">
                   <Label htmlFor="opsi">Opsi</Label>
-                  <Input id="opsi" />
+                  <Input id="opsi" className="border-b-black p-1" />
                 </div>
-                <div className="space-y-1">
+                <div className="space-y-0.5">
                   <Label htmlFor="lisensekey">Lisense key</Label>
-                  <Input id="lisensekey"  />
+                  <Input id="lisensekey" className="border-b-black p-1"  />
+                </div>
+                <div className="space-y-0.5">
+                  <Label htmlFor="pin">Pin</Label>
+                  <Input id="pin" className="border-b-black p-1" />
+                </div>
+              </CardContent>
+              <CardFooter className="flex justify-end">
+                <Button variant="secondary" className="bg-white drop-shadow-md border-1 cursor-pointer w-40 h-11"><p className='text-2xl mb-1' onClick={handleSearchClick}>Search</p></Button>
+              </CardFooter>
+            </Card>
+          </TabsContent>  
+          
+          <TabsContent value="ci">
+          <TabsList className="bg-white float-right mr-5">   
+              <TabsTrigger value="Account" className="cursor-pointer"><span><Plus></Plus></span>Create New</TabsTrigger>
+              <DialogCloseButton 
+                isModalAssetOpen={isModalAssetOpen} 
+                setIsModalAssetOpen={setIsModalAssetOpen} 
+                search={search} 
+                setSearch={setSearch} 
+                onSelectAsset={handleSelectedAsset} 
+              />
+          </TabsList>
+          <div className='mb-5'>
+            {/* TODO : Change this Variable Name */}
+            <TableCompany selectedAsset={selectedAsset} />
+            <TableContact selectedAsset={selectedAsset}></TableContact>
+            <TableAsset selectedAsset={selectedAsset}></TableAsset>
+          </div>
+          </TabsContent>
+
+         
+          <TabsContent value="Account">
+          <TabsList className="flex h-[3em] bg-white">
+            <div className="w-2xs p-2 text-black">
+              <TabsTrigger value="Account" className="cursor-pointer" >Account</TabsTrigger>
+              <TabsTrigger value="Contact" className="ml-2 cursor-pointer">Contact</TabsTrigger>
+            </div>
+          </TabsList>
+            <Card className="drop-shadow-md">
+              {/* <CardHeader>
+                <CardTitle>Password</CardTitle>
+                <CardDescription>
+                  Change your password here. After saving, you'll be logged out.
+                </CardDescription>
+              </CardHeader> */}
+              <CardHeader>
+                <CardTitle className="flex justify-end">
+                  
+                </CardTitle>
+                <CardTitle >
+                  Basic Information
+                </CardTitle>
+              </CardHeader>
+              
+              <CardContent className="grid gap-5 grid-cols-3">
+              <div className="space-y-0.5">
+                  <Label htmlFor="Company">Company</Label>
+                  <Input id="Company" className="border-b-black p-1" onChange={handlerInputSiteAccountChange} value={formDataSiteAccount.Company}/>
+                </div>
+                <div className="space-y-0.5">
+                  <Label htmlFor="Email">Email</Label>
+                  <Input id="Email" type="email" className="border-b-black p-1" onChange={handlerInputSiteAccountChange} value={formDataSiteAccount.Email}/>
+                </div>
+                <div className="space-y-0.5">
+                  <Label htmlFor="PrimaryPhone">Primary Phone</Label>
+                  <Input id="PrimaryPhone" type="text" className="border-b-black p-1" onChange={handlerInputSiteAccountChange} value={formDataSiteAccount.PrimaryPhone}/>
+                </div>
+              </CardContent>
+
+              <CardHeader className="mt-4">
+                <CardTitle>
+                  Address
+                </CardTitle>
+              </CardHeader>
+
+              <CardContent className="grid gap-5 grid-cols-3">
+              <div className="space-y-0.5">
+                  <Label htmlFor="AddressLine1">Addres Line 1</Label>
+                  <Input id="AddressLine1" type="email" className="border-b-black p-1" onChange={handlerInputSiteAccountChange} value={formDataSiteAccount.AddressLine1} />
+                </div>
+                <div className="space-y-0.5">
+                  <Label htmlFor="AddressLine2">Addres Line 2</Label>
+                  <Input id="AddressLine2" type="email" className="border-b-black p-1" onChange={handlerInputSiteAccountChange} value={formDataSiteAccount.AddressLine2}/>
                 </div>
                 <div className="space-y-1">
-                  <Label htmlFor="pin">Pin</Label>
-                  <Input id="pin" />
+                  <Label htmlFor="City">City</Label>
+                  <Input id="City" type="text" className="border-b-black p-1"  onChange={handlerInputSiteAccountChange} value={formDataSiteAccount.City}/>
                 </div>
-                
+                <div className="space-y-0.5">
+                  <Label htmlFor="StateProvince">State/Province</Label>
+                  <Input id="StateProvince" type="text" className="border-b-black p-1" onChange={handlerInputSiteAccountChange} value={formDataSiteAccount.StateProvince}/>
+                </div>
+                <div className="space-y-0.5">
+                  <Label htmlFor="current">Country</Label>
+                  <SelectBar></SelectBar>
+                </div>
+                <div className="space-y-0.5">
+                  <Label htmlFor="ZipPostalCode">Zip/Postal Code</Label>
+                  <Input id="ZipPostalCode" type="text" className="border-b-black p-1" onChange={handlerInputSiteAccountChange} value={formDataSiteAccount.ZipPostalCode}/>
+                </div>
               </CardContent>
-              <CardFooter>
-                <Button onClick={handleSearchClick}>Search</Button>
-                {/* <TabsDialog/> */}
+              <CardFooter className="flex justify-end">
+                <Button variant="secondary" className="bg-white drop-shadow-md border-1 cursor-pointer" onClick={handlerSiteAccountSubmit}>Verify & Save</Button>
               </CardFooter>
             </Card>
           </TabsContent>
-          <TabsContent value="ci">
-            <Card>
-              <DialogDemo></DialogDemo>
+
+          <TabsContent value="Contact">
+            <TabsList className="flex h-[3em] bg-white">
+              <div className="w-2xs p-2 text-black">
+                <TabsTrigger value="Account" className="cursor-pointer">Account</TabsTrigger>
+                <TabsTrigger value="Contact" className="ml-2 cursor-pointer">Contact</TabsTrigger>
+              </div>
+            </TabsList>
+            <Card className="drop-shadow-md">
+              <CardHeader>
+              <CardTitle className="flex justify-end">
+                  Clear All
+                </CardTitle>  
+                <CardTitle>
+                  Basic Information
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="grid gap-5 grid-cols-3">
+                <div className="space-y-0.5">
+                  <Label htmlFor="Salutation">Salutation</Label>
+                  <SelectBar1 id="Salutation" onChange={handlerInputContactChange} />
+                  <Label htmlFor="PreferredLanguage" className="mt-2">Preferred Language</Label>
+                  <SelectBar2 id="PreferredLanguage" onChange={handlerInputContactChange} />
+                </div>
+                <div className="space-y-0.5">
+                  <Label htmlFor="FirstName">First Name</Label>
+                  <Input id="FirstName" type="text" className="border-b-black p-1" onChange={handlerInputContactChange} />
+                </div>
+                <div className="space-y-0.5">
+                  <Label htmlFor="LastName">Last Name</Label>
+                  <Input id="LastName" type="text" className="border-b-black p-1" onChange={handlerInputContactChange} />
+                </div>
+              </CardContent>
+              <CardHeader className="mt-2">
+                <CardTitle>Phone Preferences</CardTitle>
+              </CardHeader>
+              <CardContent className="grid gap-5 grid-cols-3">
+                <div className="space-y-0.5">
+                  <Label htmlFor="Phone">Phone</Label>
+                  <Input id="Phone" type="text" className="border-b-black p-1" onChange={handlerInputContactChange} />
+                </div>
+                <div className="space-y-0.5">
+                  <Label htmlFor="Mobile">Mobile</Label>
+                  <Input id="Mobile" type="text" className="border-b-black p-1" onChange={handlerInputContactChange} />
+                </div>
+                <div className="space-y-0.5">
+                  <Label htmlFor="WorkPhone">Work</Label>
+                  <Input id="WorkPhone" type="text" className="border-b-black p-1" onChange={handlerInputContactChange} />
+                </div>
+                <div className="space-y-0.5">
+                  <Label htmlFor="WorkExtension">EXTN</Label>
+                  <Input id="WorkExtension" type="text" className="border-b-black p-1" onChange={handlerInputContactChange} />
+                </div>
+                <div className="space-y-0.5">
+                  <Label htmlFor="OtherPhone">Other</Label>
+                  <Input id="OtherPhone" type="text" className="border-b-black p-1" onChange={handlerInputContactChange} />
+                </div>
+                <div className="space-y-0.5">
+                  <Label htmlFor="OtherExtension">EXTN</Label>
+                  <Input id="OtherExtension" type="text" className="border-b-black p-1" onChange={handlerInputContactChange} />
+                </div>
+                <div className="space-y-0.5">
+                  <Label htmlFor="Fax">FAX</Label>
+                  <Input id="Fax" type="text" className="border-b-black p-1" onChange={handlerInputContactChange} />
+                </div>
+              </CardContent>
+              <CardHeader className="mt-2">
+                <CardTitle>Address</CardTitle>
+              </CardHeader>
+              <CardContent className="grid gap-5 grid-cols-3">
+                <div className="space-y-0.5">
+                  <Label htmlFor="AddressLine1">Address Line 1</Label>
+                  <Input id="AddressLine1" type="text" className="border-b-black p-1" onChange={handlerInputContactChange} />
+                </div>
+                <div className="space-y-0.5">
+                  <Label htmlFor="AddressLine2">Address Line 2</Label>
+                  <Input id="AddressLine2" type="text" className="border-b-black p-1" onChange={handlerInputContactChange} />
+                </div>
+                <div className="space-y-1">
+                  <Label htmlFor="City">City</Label>
+                  <Input id="City" type="text" className="border-b-black p-1" onChange={handlerInputContactChange} />
+                </div>
+                <div className="space-y-0.5">
+                  <Label htmlFor="StateProvince">State/Province</Label>
+                  <Input id="StateProvince" type="text" className="border-b-black p-1" onChange={handlerInputContactChange} />
+                </div>
+                <div className="space-y-0.5">
+                  <Label htmlFor="current">Country</Label>
+                  <SelectBar onChange={handlerInputContactChange}/>
+                </div>
+                <div className="space-y-0.5">
+                  <Label htmlFor="ZipPostalCode">Zip/Postal Code</Label>
+                  <Input id="ZipPostalCode" type="text" className="border-b-black p-1" onChange={handlerInputContactChange} />
+                </div>
+              </CardContent>
+
+              <CardFooter className="flex justify-end gap-4">
+              <Button variant="secondary" className="bg-white drop-shadow-md border-1 cursor-pointer w-20" onClick={handlerContactSubmit}>Save</Button>
+                <Button variant="secondary" className="bg-white drop-shadow-md border-1 cursor-pointer" onClick={handlerContactSubmit}>Verify & Save</Button>
+              </CardFooter>
             </Card>
           </TabsContent>
         </Tabs>
       </div>
-      <div className="flex  flex-col min-h-[100vh]  rounded-xl bg-muted/50 md:min-h-min">
+      {/* <div className="flex  flex-col min-h-[100vh]  rounded-xl bg-muted/50 md:min-h-min">
         <Sidebar side='right' className="relative" collapsible='icon'>
           <SidebarContent>
             <InfoSide items={data.navMain} />
           </SidebarContent>
         </Sidebar>
-      </div>
+      </div> */}
     </div>
   )
 }
