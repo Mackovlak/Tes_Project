@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -258,7 +258,10 @@ export function BtnModalAsset() {
       console.error("Error fetching assets: ", error)
     }
   }
-  fetchDataAssets();
+  //prevent infinite loop of calling fetchDataAssets
+  useEffect(() => {
+    fetchDataAssets();
+  }, []); 
 
   //set search state
   const [searchAsset, setSearchAsset] = useState("");
@@ -266,17 +269,42 @@ export function BtnModalAsset() {
   const handleSearchInputAssetsChange = (e) =>{
     const searchQuery = e.target.value;
     setSearchAsset(searchQuery);
-    console.log("SearchInput : "+searchAsset)
   }
   const filteredAssets = searchAsset !== "" ? assets.filter(
     (asset) => 
+      asset.SerialNumber?.toLowerCase().includes(searchAsset.toLowerCase()) || 
       asset.ProductName?.toLowerCase().includes(searchAsset.toLowerCase()) || 
       asset.ProductNumber?.toLowerCase().includes(searchAsset.toLowerCase())
   ) : [];
+
+
+  //handling dialog state
+  const [isOpen, setIsOpen] = useState(false);
+
+  //handling save button
+  const [newSearchedAsset, setNewSearchedAsset] = useState({
+    SerialNumber: "",
+    ProductName: "",
+    ProductNumber: "",
+    HWProfitCenter: "",
+    ContactFirstName: "",
+    ContactLastName: "",
+  })
+
+  const handleNewAssetChange = (e) => {
+    setNewSearchedAsset({
+      ...newSearchedAsset,
+      [e.target.name]: e.target.value,
+    })
+  }
+
+  //TODO : Post new Save Asset after created the serial number file
   return (
-    <Dialog>
+    <Dialog
+      open={isOpen} onOpenChange={setIsOpen}
+    >
     <DialogTrigger asChild>
-      <Button variant="outline" className="bg-white mt-0.5">
+      <Button variant="outline" className="bg-white mt-0.5" onClick={() => setIsOpen(true)}>
         New Asset
       </Button>
     </DialogTrigger>
@@ -311,7 +339,6 @@ export function BtnModalAsset() {
         <Table className="table-fixed border-spacing-0 mx-auto">
           <TableHeader>
             <TableRow className="bg-blue-200">
-              <TableHead className="text-black">Serial Number</TableHead>
               <TableHead className="text-black">Product Name</TableHead>
               <TableHead className="text-black">Product Number</TableHead>
               <TableHead className="text-black">HW Profit Center</TableHead>
@@ -320,7 +347,16 @@ export function BtnModalAsset() {
           </TableHeader>
 
           <TableBody >
-            {assets.length > 0 ? ( assets.map((asset) => (
+            {filteredAssets.length > 0 ? (
+              filteredAssets.map((asset) => (
+                <TableRow key={asset?.AssetID}>
+                <TableCell className="whitespace-break-spaces ">{asset?.ProductName}</TableCell>
+                <TableCell>{asset?.ProductNumber}</TableCell>
+                <TableCell>{asset?.HWPorfitCenter ? asset?.HWPorfitCenter : '-' }</TableCell>
+                <TableCell>{asset?.contact_information !== null ? asset?.contact_information?.FirstName + ' ' + asset?.contact_information?.LastName : '-'   }</TableCell>
+              </TableRow>
+              ))
+            ) : assets.length > 0 ? ( assets.map((asset) => (
               <TableRow key={asset?.AssetID}>
                 <TableCell className="whitespace-break-spaces ">{asset?.ProductName}</TableCell>
                 <TableCell>{asset?.ProductNumber}</TableCell>
@@ -341,7 +377,7 @@ export function BtnModalAsset() {
           </Table>
 
           <div className="flex justify-end gap-2">
-            <Button variant="outline" className="w-20 border-2 border-blue-500">Back</Button>
+            <Button variant="outline" className="w-20 border-2 border-blue-500" onClick={() => setIsOpen(false)}>Back</Button>
             <Button variant="outline" className="w-20 bg-blue-700 text-white">Save</Button>
           </div>
       </DialogContent>

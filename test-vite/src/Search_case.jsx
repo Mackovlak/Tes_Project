@@ -69,16 +69,43 @@ import { TableContact, TableCompany, TableAsset } from './components/sc-table'
 const Search_case = () => {
 
   //create search state
-  const [search, setSearch] = useState("");
+  const [search, setSearch] = useState({
+    Email: "",
+    SerialNumber: "",
+    Country: "",
+    Company: "",
+    ZipPostalCode: "",
+    City: "",
+    Phone: "",
+    AssetTag: "",
+    ContractID: "",
+    TransactionType: "",
+    TransactionID: "",
+    Opsi: "",
+    LicenseKey: "",
+    PIN: ""
+  });
+
   
+  //state modal
   const [isModalAssetOpen, setIsModalAssetOpen] = useState(false);
-
+  const [isModalCompanyOpen, setIsModalCompanyOpen] = useState(false);
+  
   const [activeTab, setActiveTab] = useState("search"); // Default active tab
-
+  
   const handleSearchClick = () => {
-    console.log("BeforeChange" + activeTab)
-    setIsModalAssetOpen(true); // Open modal
-    setActiveTab('ci'); // Switch tab to target
+    console.log("BeforeChange:", activeTab);
+    console.log("Search Data:", search);
+    console.log(search);
+    // setIsModalAssetOpen(true); // Open modal
+    if(search.SerialNumber !== ""){
+      setIsModalAssetOpen(true);
+      setActiveTab('ci'); // Switch tab to target
+    }else if(search.Company !== ""){
+      setIsModalCompanyOpen(true);
+      setActiveTab('ci'); // Switch tab to target
+    }
+    
   };
   useEffect(() => {
     console.log("Updated Active Tab:", activeTab);
@@ -86,33 +113,37 @@ const Search_case = () => {
   
   const handleInputChange = (e) =>{
     // if (search.trim() !== "") { 
-      const searchQuery = e.target.value;
-      setSearch(searchQuery);
-      console.log("search" + search)
-    // }
-    // console.log(search)
-  }
-
-  //creating Asset Data
-  const [assets, setAssets] = useState([]);
-  const [contacts, setContacts] = useState([]);
-  const [siteAccounts, setSiteAccounts] = useState([]);
-  
-  
-  //define method
-  const fetchDataAssets = async () => {
-
-    //fetch data from API with Axios
-    await ApiCustomer.get('/api/asset-information')
-        .then(response => {
-            // console.log("Asset");
-            // console.log(response.data.data)
-            //assign response data to state "asset"
-            setAssets(response.data.data);
-          })
-          
-        }
-        
+      const { id, value } = e.target; // Get input field ID and value
+      setSearch((prev) => ({
+        ...prev,
+        [id]: value, // Update the corresponding field
+      }));
+      console.log(`Updated searchData:`, search);
+      // }
+      // console.log(search)
+      
+    }
+    
+    //creating Asset Data
+    const [assets, setAssets] = useState([]);
+    const [contacts, setContacts] = useState([]);
+    const [siteAccounts, setSiteAccounts] = useState([]);
+    
+    
+    //define method
+    const fetchDataAssets = async () => {
+      
+      //fetch data from API with Axios
+      await ApiCustomer.get('/api/asset-information')
+      .then(response => {
+        // console.log("Asset");
+        // console.log(response.data.data)
+        //assign response data to state "asset"
+        setAssets(response.data.data);
+      })
+      
+    }
+    
         const fetchDataContacts = async () => {
           //fetch data from API with Axios
           await ApiCustomer.get('/api/contact-information')
@@ -132,9 +163,9 @@ const Search_case = () => {
             // console.log(response.data.data)
             //assign response data to state "asset"
             setSiteAccounts(response.data.data);
-        })
-  }
-
+          })
+        }
+        
   //run hook useEffect
   useEffect(() => {
     //call method
@@ -142,19 +173,60 @@ const Search_case = () => {
     fetchDataContacts();
     fetchDataSiteAccounts();
   }, []);
+  
+  //resetData Search
+  useEffect(() => {
+    if (!isModalAssetOpen) {
+      setSearch({
+        Email: "",
+        SerialNumber: "",
+        Country: "",
+        Company: "",
+        ZipPostalCode: "",
+        City: "",
+        Phone: "",
+        AssetTag: "",
+        ContractID: "",
+        TransactionType: "",
+        TransactionID: "",
+        Opsi: "",
+        LicenseKey: "",
+        PIN: ""
+      });
+    }
+  }, [isModalAssetOpen]); // Runs whenever modal state changes
+  useEffect(() => {
+    if (!isModalCompanyOpen) {
+      setSearch({
+        Email: "",
+        SerialNumber: "",
+        Country: "",
+        Company: "",
+        ZipPostalCode: "",
+        City: "",
+        Phone: "",
+        AssetTag: "",
+        ContractID: "",
+        TransactionType: "",
+        TransactionID: "",
+        Opsi: "",
+        LicenseKey: "",
+        PIN: ""
+      });
+    }
+  }, [isModalCompanyOpen]); // Runs whenever modal state changes
 
   //filter item
-  
   // const filteredAssets = assets.filter((asset) =>
-  //   asset.SerialNumber?.toLowerCase().includes(search.toLowerCase()) ||
+    //   asset.SerialNumber?.toLowerCase().includes(search.toLowerCase()) ||
   //   asset.ProductName?.toLowerCase().includes(search.toLowerCase())
   // );
   // console.log("filtered Asset")
   // console.log(filteredAssets);
-
-
-
-
+  
+  
+  
+  
   //form section
   // section account
   //set Form Data
@@ -169,7 +241,7 @@ const Search_case = () => {
     Country: '',
     ZipPostalCode: ''
   })
-
+  
   //make handler
   const handlerInputSiteAccountChange = (e) => {
     const { id, value } = e.target
@@ -239,10 +311,26 @@ const Search_case = () => {
   const [selectedAsset, setSelectedAsset] = useState(null); // Store selected asset data
 
   const handleSelectedAsset = (asset) => {
-    console.log("Asset received in parent:", asset);
     setSelectedAsset(asset);
   };
+
+  useEffect(() => {
+    console.log("Updated selectedAsset:", selectedAsset);
+  }, [selectedAsset]); // Runs when `selectedAsset` updates
   
+
+  //handler site accunt
+  const [selectedSiteAccounts, setSelectedSiteAccounts] = useState(null);
+  
+  const handleSelectedSiteAccount = (company) => {
+    setSelectedSiteAccounts(company);
+    console.log("Company Selected:", selectedSiteAccounts);
+  };
+  
+
+  //todo : handler selected contact
+  const [selectedContact, setSelectedContact] = useState(null);
+
 
   return (
     <div className="flex flex-1 mt-2  gap-4 p-4 pt-0">
@@ -262,60 +350,60 @@ const Search_case = () => {
             <Card className="drop-shadow-md">
               <CardContent className="grid gap-5 grid-cols-3">
                 <div className="space-y-0.5"> 
-                  <Label htmlFor="email">Email</Label>
-                  <Input id="email" className="border-b-black p-1 "  />
+                  <Label htmlFor="Email">Email</Label>
+                  <Input id="Email" className="border-b-black p-1 "  />
                 </div>
                 <div className="space-y-0.5">
-                  <Label htmlFor="serialnumber">Serial Number</Label>
-                  <Input id="serialnumber" onChange={handleInputChange} className="border-b-black p-1"/>
+                  <Label htmlFor="SerialNumber">Serial Number</Label>
+                  <Input id="SerialNumber" onChange={handleInputChange} className="border-b-black p-1"/>
                 </div>
                 <div className="space-y-0.5">
-                  <Label htmlFor="country">Country</Label>
+                  <Label htmlFor="Country">Country</Label>
                   <SelectBar id="Country" onChange={handleInputChange}></SelectBar>
                 </div>
                 <div className="space-y-0.5">
-                  <Label htmlFor="company">Company</Label>
-                  <Input id="company" className="border-b-black p-1"   />
+                  <Label htmlFor="Company">Company</Label>
+                  <Input id="Company" className="border-b-black p-1"   onChange={handleInputChange} />
                 </div>
                 <div className="space-y-0.5">
-                  <Label htmlFor="zippostal">Zip/Postal</Label>
-                  <Input id="zippostal" className="border-b-black p-1"  />
+                  <Label htmlFor="ZipPostalCode">Zip/Postal</Label>
+                  <Input id="ZipPostalCode" className="border-b-black p-1"  />
                 </div>
                 <div className="space-y-0.5">
-                  <Label htmlFor="city">City</Label>
-                  <Input id="city" className="border-b-black p-1"  />
+                  <Label htmlFor="City">City</Label>
+                  <Input id="City" className="border-b-black p-1"  />
                 </div>
                 <div className="space-y-0.5">
-                  <Label htmlFor="phone">Phone</Label>
-                  <Input id="phone" className="border-b-black p-1"   />
+                  <Label htmlFor="Phone">Phone</Label>
+                  <Input id="Phone" className="border-b-black p-1"   />
                 </div>
                 <div className="space-y-0.5">
-                  <Label htmlFor="assettag">Asset Tag</Label>
-                  <Input id="assettag" className="border-b-black p-1" />
+                  <Label htmlFor="AssetTag">Asset Tag</Label>
+                  <Input id="AssetTag" className="border-b-black p-1" />
                 </div>
                 <div className="space-y-0.5">
-                  <Label htmlFor="contrackid">Contrack Id</Label>
-                  <Input id="contrackid" className="border-b-black p-1"  />
+                  <Label htmlFor="ContractID">Contrack Id</Label>
+                  <Input id="ContractID" className="border-b-black p-1"  />
                 </div>
                 <div className="space-y-0.5">
-                  <Label htmlFor="transactiontype">Transaction Type</Label>
-                  <Input id="transactiontype" className="border-b-black p-1"  />
+                  <Label htmlFor="TransactionType">Transaction Type</Label>
+                  <Input id="TransactionType" className="border-b-black p-1"  />
                 </div>
                 <div className="space-y-0.5">
-                  <Label htmlFor="transactiontid">Transaction Id</Label>
-                  <Input id="transactiontid" className="border-b-black p-1" />
+                  <Label htmlFor="TransactiontID">Transaction Id</Label>
+                  <Input id="TransactiontID" className="border-b-black p-1" />
                 </div>
                 <div className="space-y-0.5">
-                  <Label htmlFor="opsi">Opsi</Label>
-                  <Input id="opsi" className="border-b-black p-1" />
+                  <Label htmlFor="Opsi">Opsi</Label>
+                  <Input id="Opsi" className="border-b-black p-1" />
                 </div>
                 <div className="space-y-0.5">
-                  <Label htmlFor="lisensekey">Lisense key</Label>
-                  <Input id="lisensekey" className="border-b-black p-1"  />
+                  <Label htmlFor="LicenseKey">Lisense key</Label>
+                  <Input id="LicenseKey" className="border-b-black p-1"  />
                 </div>
                 <div className="space-y-0.5">
-                  <Label htmlFor="pin">Pin</Label>
-                  <Input id="pin" className="border-b-black p-1" />
+                  <Label htmlFor="PIN">Pin</Label>
+                  <Input id="PIN" className="border-b-black p-1" />
                 </div>
               </CardContent>
               <CardFooter className="flex justify-end">
@@ -334,12 +422,26 @@ const Search_case = () => {
                 setSearch={setSearch} 
                 onSelectAsset={handleSelectedAsset} 
               />
+              <DialogCompanyBtn 
+                isModalCompanyOpen={isModalCompanyOpen}
+                setIsModalCompanyOpen={setIsModalCompanyOpen}
+                search={search}
+                setSearch={setSearch}
+                onSelectCompany={handleSelectedSiteAccount}
+              />
           </TabsList>
           <div className='mb-5'>
             {/* TODO : Change this Variable Name */}
-            <TableCompany selectedAsset={selectedAsset} />
-            <TableContact selectedAsset={selectedAsset}></TableContact>
-            <TableAsset selectedAsset={selectedAsset}></TableAsset>
+            <TableCompany 
+              selectedAsset={selectedAsset} 
+              selectedCompany={selectedSiteAccounts} 
+              selectedContact={selectedContact}
+              setSelectedAsset={setSelectedAsset}
+              setSelectedSiteAccounts={setSelectedSiteAccounts}
+              setSelectedContact={setSelectedContact}
+            />
+            {/* <TableContact selectedAsset={selectedAsset} selectedCompany={selectedSiteAccounts} ></TableContact>
+            <TableAsset selectedAsset={selectedAsset} selectedCompany={selectedSiteAccounts} ></TableAsset> */}
           </div>
           </TabsContent>
 
