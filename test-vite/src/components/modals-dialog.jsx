@@ -24,7 +24,7 @@ export function DialogDemo() {
         setValue(e.target.value);
     }
   return (
-    <Dialog className="bg-amber-300">
+    <Dialog >
       <DialogTrigger asChild>
         <Button variant="outline">Edit Profile</Button>
       </DialogTrigger>

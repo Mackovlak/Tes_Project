@@ -37,8 +37,8 @@ export function LoginForm({
                 Login
               </Button>
               <div
-                className="after:border-border relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t">
-                <span className="bg-background text-muted-foreground relative z-10 px-2">
+                className="after:border-border relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center">
+                <span className=" text-muted-foreground relative z-10 px-2">
                   Or continue with
                 </span>
               </div>
@@ -78,9 +78,9 @@ export function LoginForm({
           </form>
           <div className="bg-muted relative hidden md:block">
             <img
-              src="/vite.svg"
+              src="/hp.png"
               alt="Image"
-              className="absolute inset-0 h-full w-full object-cover dark:brightness-[0.2] dark:grayscale" />
+              className="p-10 mt-15" />
           </div>
         </CardContent>
       </Card>

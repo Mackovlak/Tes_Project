@@ -10,12 +10,20 @@ import {
   Home,
   Map,
   PieChart,
+  Pin,
+  Search,
+  ServerCogIcon,
+  ServerIcon,
   Settings2,
   SquareTerminal,
+  Table,
 } from "lucide-react"
 
 import { NavMain } from "@/components/nav-main"
 import { NavProjects } from "@/components/nav-projects"
+import { NavRecent } from "@/components/nav-projects"
+import { NavPinned } from "@/components/nav-projects"
+import { NavMywork } from "@/components/nav-projects"
 import { NavUser } from "@/components/nav-user"
 import { TeamSwitcher } from "@/components/team-switcher"
 import {
@@ -25,6 +33,9 @@ import {
   SidebarHeader,
   SidebarRail,
 } from "@/components/ui/sidebar"
+
+ 
+import { ScrollArea } from "@/components/ui/scroll-area"
 
 // This is sample data.
 const data = {
@@ -52,27 +63,34 @@ const data = {
   ],
   navMain: [
     {
-      title: "Case",
+      title: "Service",
+      title: "Service",
       url: "#",
-      icon: SquareTerminal,
+      icon: ServerIcon,
+      icon: ServerIcon,
       isActive: true,
       items: [
         {
-          title: "History",
+          title: "Case",
+          url: "/Case",
+          title: "Case",
+          url: "/Case",
+        },
+        {
+          title: "Work Order",
+          title: "Work Order",
           url: "#",
         },
         {
-          title: "Starred",
-          url: "#",
-        },
-        {
-          title: "Settings",
+          title: "Material Order",
+          title: "Material Order",
           url: "#",
         },
       ],
     },
     {
-      title: "Models",
+      title: "Unnable",
+      title: "Unnable",
       url: "#",
       icon: Bot,
       items: [
@@ -143,21 +161,31 @@ const data = {
       url: "/",
       icon: Home,
     },
+  ],
+
+  recent: [
     {
-      name: "Case",
+      name: "Pinned",
       url: "#",
       icon: PieChart,
-    },
+    }
+  ],
+
+  mywork: [
     {
-      name: "Recent",
-      url: "#",
-      icon: Map,
-    },
-    {
-      name: "Search Case",
+      name: "My work",
+      name: "My work",
       url: "/search_case",
-      icon: Eye,
-    },
+      icon: Table,
+    }
+  ],
+
+  pinned: [
+    {
+      name: "Pinned",
+      url: "#",
+      icon: Pin
+    }
   ],
 }
 
@@ -171,6 +199,9 @@ export function AppSidebar({
       </SidebarHeader>
       <SidebarContent>
         <NavProjects projects={data.projects} />
+        <NavRecent recent={data.recent}/>
+        <NavPinned pinned={data.pinned}></NavPinned>
+        <NavMywork mywork={data.mywork}/>
         <NavMain items={data.navMain} />
       </SidebarContent>
       <SidebarFooter>
