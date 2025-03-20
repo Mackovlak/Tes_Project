@@ -1,8 +1,8 @@
 import React from 'react'
-import { ServiceCase } from './components/service-case'
+import { Card } from './components/ui/card'
 
 export const Case = () => {
   return (
-    <ServiceCase></ServiceCase>
+    <div>Hello Word</div>
   )
 }

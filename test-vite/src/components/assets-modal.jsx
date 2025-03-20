@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Checkbox } from "@radix-ui/react-checkbox";
+
 import { Search } from "lucide-react";
 
 import {
@@ -158,7 +158,6 @@ export function DialogCloseButton({
                   className={`cursor-pointer hover:bg-gray-200 ${selectedAsset?.AssetID === asset.AssetID ? "bg-blue-300" : ""}`}
                   onClick={()=>handleSelectAsset(asset)}
                 >
-                    
                   <TableCell className="font-medium whitespace-break-spaces">
                     
                     {asset.ProductName}
@@ -178,9 +177,6 @@ export function DialogCloseButton({
                   className={`cursor-pointer hover:bg-gray-200 ${selectedAsset?.AssetID === asset.AssetID ? "bg-blue-300" : ""}`}
                   onClick={()=>handleSelectAsset(asset)}
                 >
-                  <TableCell>
-                  <input type="checkbox"/>
-                  </TableCell>
                   <TableCell className="font-medium whitespace-break-spaces">
                     {asset.ProductName}
                   </TableCell>
