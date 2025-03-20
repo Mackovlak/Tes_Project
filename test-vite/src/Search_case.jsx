@@ -66,6 +66,7 @@ import { SelectBar1 } from './components/sc-select'
 import { SelectBar2 } from './components/sc-select'
 import { BtnModal, BtnModalContact, BtnModalAsset } from './components/sc-modal'
 import { TableContact, TableCompany, TableAsset } from './components/sc-table'
+import { Checkbox } from './components/ui/checkbox'
 
 const Search_case = () => {
 
@@ -356,12 +357,15 @@ const Search_case = () => {
       <div className="flex min-h-[100vh] flex-1 rounded-xl md:min-h-min">
         <Tabs defaultValue="search" className="w-full" value={activeTab} onValueChange={setActiveTab}>
           <TabsList className="drop-shadow-xl bg-sky-700 w-full h-15 flex justify-between">
-            <div className="w-2xs p-2 text-white ">
-              <TabsTrigger value="search" className="cursor-pointer">Search</TabsTrigger>
-              <TabsTrigger value="ci" className="cursor-pointer">Costumer Information</TabsTrigger>
+            <div className="w-fit p-2 text-white ">
+              <TabsTrigger value="search" className="cursor-pointer p-2 text-md ">Search</TabsTrigger>
+              <TabsTrigger value="ci" className="cursor-pointer p-2 text-md">Costumer Information</TabsTrigger>
             </div>
-
-            <BtnModal></BtnModal>
+            <div className="flex gap-2 items-center">
+              <Button className="text-md rounded-2xl p-5 text-black bg-white font-bold">Create Legal Complaint</Button>
+              <Button className="text-md rounded-2xl p-5 bg-transparent border-black border-2">Create Complaint</Button>
+              <BtnModal></BtnModal>
+            </div>
           </TabsList>
 
           {/* search tab */}
@@ -416,14 +420,15 @@ const Search_case = () => {
                   <Label htmlFor="Opsi">Opsi</Label>
                   <Input id="Opsi" className="border-b-black p-1" />
                 </div>
-                <div className="space-y-0.5">
+                {/* <div className="space-y-0.5">
                   <Label htmlFor="LicenseKey">Lisense key</Label>
                   <Input id="LicenseKey" className="border-b-black p-1"  />
                 </div>
                 <div className="space-y-0.5">
                   <Label htmlFor="PIN">Pin</Label>
                   <Input id="PIN" className="border-b-black p-1" />
-                </div>
+                </div> */}
+                <div className="flex gap-2 items-center"><Checkbox className="ring-2"/>Include Subcription</div>
               </CardContent>
               <CardFooter className="flex justify-end">
                 <Button variant="secondary" className="bg-white drop-shadow-md border-1 cursor-pointer w-40 h-11" onClick={handleSearchClick}><p className='text-2xl mb-1'>Search</p></Button>
@@ -432,7 +437,7 @@ const Search_case = () => {
           </TabsContent>  
           
           <TabsContent value="ci" className="flex flex-col gap-1">
-          <TabsList className="bg-white float-right mr-5 self-end">   
+            <TabsList className="bg-white float-right mr-5 self-end">   
               <TabsTrigger value="Account" className="cursor-pointer"><span><Plus></Plus></span>Create New</TabsTrigger>
               <DialogCloseButton 
                 isModalAssetOpen={isModalAssetOpen} 
@@ -448,23 +453,22 @@ const Search_case = () => {
                 setSearch={setSearch}
                 onSelectCompany={handleSelectedSiteAccount}
               />
-          </TabsList>
-          <div className='mb-5'>
-            {/* TODO : Change this Variable Name */}
-            <TableCompany 
-              selectedAsset={selectedAsset} 
-              selectedCompany={selectedSiteAccounts} 
-              selectedContact={selectedContact}
-              setSelectedAsset={setSelectedAsset}
-              setSelectedSiteAccounts={setSelectedSiteAccounts}
-              setSelectedContact={setSelectedContact}
-            />
-            {/* <TableContact selectedAsset={selectedAsset} selectedCompany={selectedSiteAccounts} ></TableContact>
-            <TableAsset selectedAsset={selectedAsset} selectedCompany={selectedSiteAccounts} ></TableAsset> */}
-          </div>
+            </TabsList>
+            <div className='mb-5'>
+              {/* TODO : Change this Variable Name */}
+              <TableCompany 
+                selectedAsset={selectedAsset} 
+                selectedCompany={selectedSiteAccounts} 
+                selectedContact={selectedContact}
+                setSelectedAsset={setSelectedAsset}
+                setSelectedSiteAccounts={setSelectedSiteAccounts}
+                setSelectedContact={setSelectedContact}
+              />
+              {/* <TableContact selectedAsset={selectedAsset} selectedCompany={selectedSiteAccounts} ></TableContact>
+              <TableAsset selectedAsset={selectedAsset} selectedCompany={selectedSiteAccounts} ></TableAsset> */}
+            </div>
           </TabsContent>
 
-         
           <TabsContent value="Account">
           <TabsList className="flex h-[3em] bg-white">
             <div className="w-2xs p-2 text-black">

@@ -53,8 +53,8 @@ export function BtnModal() {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant="outline" className="bg-white mr-4">
-          <Plus></Plus>Create Case
+        <Button variant="outline" className="bg-white mr-4 p-5 text-md">
+          Create Case
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[700px] bg-white">
@@ -62,7 +62,7 @@ export function BtnModal() {
           <DialogTitle>Case Information</DialogTitle>
         </DialogHeader>
         <div className="flex items-center space-x-3">
-          <div className="w-55">
+          <div className="">
             <Label htmlFor="name" className="text-right">
               Case Subject
             </Label>
