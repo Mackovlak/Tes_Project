@@ -13,7 +13,7 @@ import {
   export function SelectBar({ id, onChange }) {
     return (
       <Select onValueChange={(value) => onChange({ target: { id, value}})}>
-        <SelectTrigger className="w-[full] border-black">
+        <SelectTrigger className="w-full border-black">
           <SelectValue placeholder="Select a Country"/>
         </SelectTrigger>
         <SelectContent>
@@ -126,6 +126,22 @@ import {
             <SelectItem value="Singapura">Singapura</SelectItem>
             <SelectItem value="Inggris">Inggris</SelectItem>
             <SelectItem value="Cina">Cina</SelectItem>
+          </SelectGroup>
+        </SelectContent>
+      </Select>
+    )
+  }
+
+  export function SelectBarContact4({ id, onChange }) {
+    return (
+      <Select onValueChange={(value) => onChange({ target: { id, value}})}>
+        <SelectTrigger className="w-[150px] border-black">
+          <SelectValue placeholder="Select Salutation"/>
+        </SelectTrigger>
+        <SelectContent>
+          <SelectGroup>
+            <SelectItem value="Mr. ">Mr. </SelectItem>
+            <SelectItem value="Mrs. ">Mrs. </SelectItem>
           </SelectGroup>
         </SelectContent>
       </Select>

@@ -1,91 +1,65 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import ApiCustomer from "@/api"; 
+import { ContactEdit, ContactDelete } from "@/components/sc-modal"
 
 export const Contact_table = () => {
+  const [contacts, setContacts] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const itemsPerPage = 10;
+
+  // Fungsi untuk mengambil data dari API
+    const fetchContacts = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const response = await ApiCustomer.get(`/api/contact-information?page=${currentPage}&limit=${itemsPerPage}&search=${searchTerm}`);
+        setContacts(response.data.data); 
+        setTotalPages(response.data.totalPages);
+      } catch (err) {
+        console.error("Error fetching contact data:", err);
+        setError("Failed to fetch data");
+      } finally {
+        setLoading(false);
+      }
+    };
   
-    const [currentPage, setCurrentPage] = useState(1);
-    const itemsPerPage = 1; // Jumlah data per halaman
-  const [contacts, setContacts] = useState([
-    {
-      ContactID: 1,
-      SiteAccountID: 101,
-      Salutation: "Mr.",
-      FirstName: "John",
-      LastName: "Doe",
-      Email: "john.doe@example.com",
-      PreferredLanguage: "English",
-      Phone: "+123456789",
-      Mobile: "+987654321",
-      WorkPhone: "+1122334455",
-      WorkExtension: "123",
-      OtherPhone: "+5544332211",
-      OtherExtension: "456",
-      Fax: "+6677889900",
-      AddressLine1: "123 Main St",
-      AddressLine2: "Apt 4B",
-      City: "New York",
-      StateProvince: "NY",
-      Country: "USA",
-      ZipPostalCode: "10001",
-    },
-    {
-      ContactID: 2,
-      SiteAccountID: 102,
-      Salutation: "Ms.",
-      FirstName: "Jane",
-      LastName: "Smith",
-      Email: "jane.smith@example.com",
-      PreferredLanguage: "French",
-      Phone: "+2233445566",
-      Mobile: "+7788990011",
-      WorkPhone: "+6655443322",
-      WorkExtension: "789",
-      OtherPhone: "+9988776655",
-      OtherExtension: "321",
-      Fax: "+5566778899",
-      AddressLine1: "456 Oak St",
-      AddressLine2: "Suite 300",
-      City: "Los Angeles",
-      StateProvince: "CA",
-      Country: "USA",
-      ZipPostalCode: "90012",
-    },
-  ]);
-
-  const filteredContacts = contacts.filter(contact =>
-    Object.values(contact).some(value => 
-      value.toString().toLowerCase().includes(searchTerm.toLowerCase())
-    )
-  );
-
-  
-  // Hitung total halaman
-  const totalPages = Math.ceil(filteredContacts.length / itemsPerPage);
-
-  // Ambil data sesuai halaman saat ini
-  const currentData = filteredContacts.slice(
-    (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
-  );
-
-  
+    useEffect(() => {
+      fetchContacts();
+    }, [currentPage, searchTerm]);
 
   return (
     <div className="p-4">
       <h2 className="text-xl font-bold mb-4">Contact Table</h2>
+
+      {/* Input Pencarian */}
       <input
         type="text"
-        placeholder="Search..."
-        className="mb-4 p-2 border rounded w-1/3"
+        placeholder="Search contacts..."
+        className="mb-4 p-2 border border-gray-300 rounded w-1/3"
         value={searchTerm}
-        onChange={(e) => setSearchTerm(e.target.value)}
+        onChange={(e) => {
+          setSearchTerm(e.target.value);
+          setCurrentPage(1); // Reset ke halaman pertama saat mencari
+        }}
       />
+
+      {/* Tampilkan loading jika sedang mengambil data */}
+      {loading && <p>Loading data...</p>}
+
+      {/* Tampilkan error jika terjadi kesalahan */}
+      {error && <p className="text-red-500">{error}</p>}
+
       <div className="overflow-x-auto">
         <table className="min-w-full border border-gray-300 shadow-lg">
           <thead>
             <tr className="bg-gray-200 text-gray-700 uppercase text-sm">
+              <th className="border p-2">No</th>
               <th className="border p-2">Contact ID</th>
-              <th className="border p-2">Site Account ID</th>
+              <th className="border p-2">Company</th>
               <th className="border p-2">Salutation</th>
               <th className="border p-2">First Name</th>
               <th className="border p-2">Last Name</th>
@@ -104,13 +78,18 @@ export const Contact_table = () => {
               <th className="border p-2">State/Province</th>
               <th className="border p-2">Country</th>
               <th className="border p-2">Zip/Postal Code</th>
+              <th className="border p-2">Actions</th>
             </tr>
           </thead>
           <tbody>
-            {currentData.map((contact) => (
+            {contacts.length > 0 ? (
+              contacts.map((contact, index) => (
               <tr key={contact.ContactID} className="hover:bg-gray-100 text-center">
+                <td className="border p-2 text-center">
+                  {(currentPage - 1) * itemsPerPage + index + 1}
+                </td>
                 <td className="border p-2">{contact.ContactID}</td>
-                <td className="border p-2">{contact.SiteAccountID}</td>
+                <td className="border p-2">{contact.Company}</td>
                 <td className="border p-2">{contact.Salutation}</td>
                 <td className="border p-2">{contact.FirstName}</td>
                 <td className="border p-2">{contact.LastName}</td>
@@ -129,33 +108,45 @@ export const Contact_table = () => {
                 <td className="border p-2">{contact.StateProvince}</td>
                 <td className="border p-2">{contact.Country}</td>
                 <td className="border p-2">{contact.ZipPostalCode}</td>
+                <td className="border p-2 flex space-x-2">
+                  <ContactEdit contactID={contact.ContactID} onUpdate={fetchContacts}/>
+                  <ContactDelete contactID={contact.ContactID}/>
+                </td>
               </tr>
-            ))}
+              ))
+            ) : (
+              <tr>
+                <td colSpan="7" className="text-center p-4">
+                  No data found.
+                </td>
+              </tr>
+            )}
           </tbody>
         </table>
-        {filteredContacts.length === 0 && (
-          <p className="text-center mt-4 text-gray-500">No contacts found.</p>
-        )}
       </div>
 
       {/* Pagination */}
-      <div className="flex justify-center items-center mt-4 space-x-2">
-        <button 
-          className="p-2 bg-gray-300 rounded disabled:opacity-50" 
-          onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))} 
-          disabled={currentPage === 1}
-        >
-          Previous
-        </button>
-        <span>Page {currentPage} of {totalPages}</span>
-        <button 
-          className="p-2 bg-gray-300 rounded disabled:opacity-50" 
-          onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))} 
-          disabled={currentPage === totalPages}
-        >
-          Next
-        </button>
-      </div>
+      {totalPages > 1 && (
+        <div className="flex justify-center items-center mt-4 space-x-2">
+          <button
+            className="p-2 bg-gray-300 rounded disabled:opacity-50"
+            onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+            disabled={currentPage === 1}
+          >
+            Previous
+          </button>
+          <span>
+            Page {currentPage} of {totalPages}
+          </span>
+          <button
+            className="p-2 bg-gray-300 rounded disabled:opacity-50"
+            onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+            disabled={currentPage === totalPages}
+          >
+            Next
+          </button>
+        </div>
+      )}
     </div>
   );
 };

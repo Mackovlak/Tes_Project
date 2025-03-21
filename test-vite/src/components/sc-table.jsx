@@ -60,6 +60,7 @@ export function TableCompany({
 
   //refactor any Data to Arry for accepting table
   const companyData = selectedCompany || selectedAsset?.site_account || null;
+  console.log("Selected Asset : ", selectedAsset)
 
   const companies = companyData ? [
     {
@@ -70,6 +71,9 @@ export function TableCompany({
       text: `${companyData.AddressLine1} ${companyData.City} ${companyData.StateProvince} ${companyData.Country}-${companyData.ZipPostalCode} | Email: ${companyData.Email} | Phone : ${companyData.PrimaryPhone}`,
     },
   ] : null;
+
+
+  //contacts
     const contacts = selectedContact 
     ? (Array.isArray(selectedContact) 
         ? selectedContact 
@@ -90,14 +94,15 @@ export function TableCompany({
   console.log("Final contact in TableCompany:", selectedContact); // ✅ Debugging log
   
 
+  //asset
   // const assets = Array.isArray(selectedAsset) ? selectedAsset : [];
   const assets = Array.isArray(selectedAsset) && selectedAsset.length > 0 
   ? selectedAsset.map((asset) => ({
       AssetID: asset.AssetID,
       SerialNumber: asset.SerialNumber,
-      ProductName: asset.ProductName,
+      ProductName: asset.product_information?.ProductName,
       ProductNumber: asset.ProductNumber,
-      ProductLine: asset.ProductLine,
+      ProductLine: asset.product_information?.ProductLine,
       isparent: "-",
       parentasset: "-",
       source: "CRM",
@@ -130,6 +135,7 @@ export function TableCompany({
   
           // ✅ Ensure correct state updates
           if (result.data.assets.length > 0) {
+            console.log("Fetched assets:", result.data.assets);
             setSelectedAsset(result.data.assets);
           } else {
             setSelectedAsset([]);
@@ -306,9 +312,9 @@ export function TableAsset({ selectedAsset }) {
     {
       assetID : selectedAsset.AssetID,
       serialNumber : selectedAsset.SerialNumber,
-      productName : selectedAsset.ProductName,
+      productName : selectedAsset.product_information?.ProductName,
       productNumber : selectedAsset.ProductNumber,
-      productLine : selectedAsset.ProductLine,
+      productLine : selectedAsset.product_information?.ProductLine,
       // TODO : Search what tf is this mean
       isparent: "-",
       parentasset: "-",
