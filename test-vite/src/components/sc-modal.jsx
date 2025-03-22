@@ -56,7 +56,7 @@ export function BtnModal() {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant="outline" className="bg-white mr-4 p-5 text-md">
+        <Button variant="outline" className="bg-white mr-4 p-4 text-md">
           Create Case
         </Button>
       </DialogTrigger>
