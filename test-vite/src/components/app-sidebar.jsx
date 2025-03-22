@@ -93,7 +93,7 @@ const data = {
         },
         {
           title: "Work Order",
-          url: "#",
+          url: "/Work",
         },
         {
           title: "Material Order",
@@ -158,7 +158,7 @@ const data = {
 
   recent: [
     {
-      name: "Pinned",
+      name: "Recent",
       url: "#",
       icon: PieChart,
     }

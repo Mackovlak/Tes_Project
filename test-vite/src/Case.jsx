@@ -1,11 +1,11 @@
 import React from 'react'
-import { TabsServiceCase } from './components/service-case'
+import { TabsService } from './components/service-case'
 import { ServiceCase } from './components/service-case'
 
 export const Case = () => {
   return (   
     <div>
-      <TabsServiceCase></TabsServiceCase>
+      <TabsService></TabsService>
       <ServiceCase></ServiceCase>
     </div>
   )
