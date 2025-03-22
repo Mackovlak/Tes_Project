@@ -1,91 +1,38 @@
-import React, { useState } from "react";
-// import { BMCCompany } from "./components/sc-modal";
+import React, { useState, useEffect } from "react";
+import ApiCustomer from "@/api"; 
+import { CompanyEdit, CompanyDelete } from "@/components/sc-modal"
 
 export const Company_table = () => {
+  const [companies, setCompanies] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 1; // Jumlah data per halaman
+  const [totalPages, setTotalPages] = useState(1);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const itemsPerPage = 10;
 
-  const companies = [
-    {
-      SiteAccountID: 101,
-      Company: "TechCorp",
-      Email: "contact@techcorp.com",
-      PrimaryPhone: "+1-800-555-1234",
-      AddressLine1: "123 Tech Street",
-      AddressLine2: "Suite 500",
-      City: "New York",
-      StateProvince: "NY",
-      Country: "USA",
-      ZipPostalCode: "10001",
-    },
-    {
-      SiteAccountID: 102,
-      Company: "FinBank",
-      Email: "support@finbank.com",
-      PrimaryPhone: "+44-20-7946-0123",
-      AddressLine1: "456 Finance Avenue",
-      AddressLine2: "",
-      City: "London",
-      StateProvince: "London",
-      Country: "UK",
-      ZipPostalCode: "EC1A 1BB",
-    },
-    {
-      SiteAccountID: 103,
-      Company: "HealthPlus",
-      Email: "info@healthplus.co.jp",
-      PrimaryPhone: "+81-3-1234-5678",
-      AddressLine1: "789 Wellness Road",
-      AddressLine2: "Building A",
-      City: "Tokyo",
-      StateProvince: "Tokyo",
-      Country: "Japan",
-      ZipPostalCode: "100-0001",
-    },
-    {
-      SiteAccountID: 104,
-      Company: "EduSmart",
-      Email: "hello@edusmart.edu",
-      PrimaryPhone: "+61-2-9876-5432",
-      AddressLine1: "12 Learning Lane",
-      AddressLine2: "Level 3",
-      City: "Sydney",
-      StateProvince: "NSW",
-      Country: "Australia",
-      ZipPostalCode: "2000",
-    },
-    {
-      SiteAccountID: 105,
-      Company: "GreenEnergy",
-      Email: "energy@green.com",
-      PrimaryPhone: "+49-30-123456",
-      AddressLine1: "99 Eco Blvd",
-      AddressLine2: "",
-      City: "Berlin",
-      StateProvince: "Berlin",
-      Country: "Germany",
-      ZipPostalCode: "10115",
-    },
-  ];
+  //set modal
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
-  // Filter data berdasarkan pencarian
-  const filteredCompanies = companies.filter(
-    (company) =>
-      company.Company.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      company.Email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      company.City.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      company.Country.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  // Fungsi untuk mengambil data dari API
+  const fetchCompanies = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await ApiCustomer.get(`/api/site_account?page=${currentPage}&limit=${itemsPerPage}&search=${searchTerm}`);
+      setCompanies(response.data.data); 
+      setTotalPages(response.data.totalPages);
+    } catch (err) {
+      console.error("Error fetching company data:", err);
+      setError("Failed to fetch data");
+    } finally {
+      setLoading(false);
+    }
+  };
 
-  // Hitung total halaman
-  const totalPages = Math.ceil(filteredCompanies.length / itemsPerPage);
-
-  // Ambil data sesuai halaman saat ini
-  const currentData = filteredCompanies.slice(
-    (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
-  );
+  useEffect(() => {
+    fetchCompanies();
+  }, [currentPage, searchTerm]);
 
   return (
     <div className="p-4">
@@ -103,59 +50,82 @@ export const Company_table = () => {
         }}
       />
 
+      {/* Tampilkan loading jika sedang mengambil data */}
+      {loading && <p>Loading data...</p>}
+
+      {/* Tampilkan error jika terjadi kesalahan */}
+      {error && <p className="text-red-500">{error}</p>}
+
+      {/* Tabel Data */}
       <div className="overflow-x-auto">
         <table className="min-w-full border border-gray-300">
           <thead>
             <tr className="bg-gray-200">
-              <th className="border p-2">Site Account ID</th>
+              <th className="border p-2">No</th>
               <th className="border p-2">Company</th>
               <th className="border p-2">Email</th>
               <th className="border p-2">Primary Phone</th>
-              <th className="border p-2">Address Line 1</th>
-              <th className="border p-2">Address Line 2</th>
               <th className="border p-2">City</th>
-              <th className="border p-2">State/Province</th>
               <th className="border p-2">Country</th>
-              <th className="border p-2">Zip/Postal Code</th>
+              <th className="border p-2">Actions</th>
             </tr>
           </thead>
           <tbody>
-            {currentData.map((company) => (
-              <tr key={company.SiteAccountID} className="hover:bg-gray-100">
-                <td className="border p-2 text-center">{company.SiteAccountID}</td>
-                <td className="border p-2">{company.Company}</td>
-                <td className="border p-2">{company.Email}</td>
-                <td className="border p-2">{company.PrimaryPhone}</td>
-                <td className="border p-2">{company.AddressLine1}</td>
-                <td className="border p-2">{company.AddressLine2}</td>
-                <td className="border p-2">{company.City}</td>
-                <td className="border p-2">{company.StateProvince}</td>
-                <td className="border p-2">{company.Country}</td>
-                <td className="border p-2">{company.ZipPostalCode}</td>
+            {companies.length > 0 ? (
+              companies.map((company, index) => (
+                <tr key={company.SiteAccountID} className="hover:bg-gray-100">
+                  <td className="border p-2 text-center">
+                    {(currentPage - 1) * itemsPerPage + index + 1}
+                  </td>
+                  <td className="border p-2">{company.Company}</td>
+                  <td className="border p-2">{company.Email}</td>
+                  <td className="border p-2">{company.PrimaryPhone}</td>
+                  <td className="border p-2">{company.City}</td>
+                  <td className="border p-2">{company.Country}</td>
+                  <td className="border p-2 flex space-x-2">
+                    <CompanyEdit siteAccountId={company.SiteAccountID} onUpdate={fetchCompanies}/>
+                    <CompanyDelete 
+                      siteAccountId={company.SiteAccountID}
+                      isModalOpen={isModalOpen}
+                      setIsModalOpen={setIsModalOpen}
+                      onUpdate={fetchCompanies}
+                    />
+                  </td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan="7" className="text-center p-4">
+                  No data found.
+                </td>
               </tr>
-            ))}
+            )}
           </tbody>
         </table>
       </div>
 
-      {/* Pagination */}      
-      <div className="flex justify-center items-center mt-4 space-x-2">
-        <button 
-          className="p-2 bg-gray-300 rounded disabled:opacity-50" 
-          onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))} 
-          disabled={currentPage === 1}
-        >
-          Previous
-        </button>
-        <span>Page {currentPage} of {totalPages}</span>
-        <button 
-          className="p-2 bg-gray-300 rounded disabled:opacity-50" 
-          onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))} 
-          disabled={currentPage === totalPages}
-        >
-          Next
-        </button>
-      </div>
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div className="flex justify-center items-center mt-4 space-x-2">
+          <button
+            className="p-2 bg-gray-300 rounded disabled:opacity-50"
+            onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+            disabled={currentPage === 1}
+          >
+            Previous
+          </button>
+          <span>
+            Page {currentPage} of {totalPages}
+          </span>
+          <button
+            className="p-2 bg-gray-300 rounded disabled:opacity-50"
+            onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+            disabled={currentPage === totalPages}
+          >
+            Next
+          </button>
+        </div>
+      )}
     </div>
   );
 };

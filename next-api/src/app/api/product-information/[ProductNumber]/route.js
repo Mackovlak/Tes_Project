@@ -3,49 +3,45 @@ import { NextResponse } from "next/server";
 import prisma from "../../../../../prisma/client";
 
 export async function GET(request, { params }) {
-    const assetID = parseInt(params.AssetID);
+    const productNumber = parseInt(params.ProductNumber);
 
-    if (isNaN(assetID)) {
+    if (isNaN(productNumber)) {
         return NextResponse.json({
             success: false,
-            message: "Invalid Asset ID"
+            message: "Invalid Product Number"
         }, { status: 400 });
     }
 
-    const asset_information = await prisma.asset_information.findUnique({
-        where: { AssetID: assetID },
+    const product_information = await prisma.product_information.findUnique({
+        where: { ProductNumber: productNumber },
     });
 
-    if (!asset_information) {
+    if (!product_information) {
         return NextResponse.json({
             success: false,
-            message: "Detail Data Asset Information Not Found!",
+            message: "Detail Data Product Information Not Found!",
             data: null
         }, { status: 404 });
     }
 
     return NextResponse.json({
         success: true,
-        message: "Detail Data Asset Information",
-        data: asset_information
+        message: "Detail Data Product Information",
+        data: product_information
     }, { status: 200 });
 }
 
 
 // update data
-/**
- * TODO 
- * MAKE UPDATE ASSET AND CREATE PRODUCT SEPARATELY
- */
 export async function PATCH(request, { params }) {
-    const assetID = parseInt(params.AssetID);
+    const productNumber = parseInt(params.ProductNumber);
 
     try {
         const body = await request.json();
-        const { SerialNumber, ProductName, ProductNumber, ProductLine, SiteAccountID, ContactID } = body;
+        const {  ProductLine, ProductName } = body;
 
         // Validasi input tidak boleh kosong
-        if (!SerialNumber || !ProductName || !ProductNumber || !ProductLine) {
+        if (!ProductName || !ProductLine) {
             return NextResponse.json({
                 success: false,
                 message: "All fields are required!"
@@ -53,25 +49,23 @@ export async function PATCH(request, { params }) {
         }
 
         // Cek apakah AssetID ada
-        const existingAsset = await prisma.asset_information.findUnique({
-            where: { AssetID: assetID }
+        const existingProductInformation = await prisma.product_information.findUnique({
+            where: { ProductNumber: productNumber }
         });
 
-        if (!existingAsset) {
+        if (!existingProductInformation) {
             return NextResponse.json({
                 success: false,
-                message: "Asset not found!"
+                message: "Product Information not found!"
             }, { status: 404 });
         }
 
         // Update data
-        const updatedAsset = await prisma.asset_information.update({
-            where: { AssetID: assetID },
+        const updatedProductInformation = await prisma.product_information.update({
+            where: { ProductNumber: productNumber },
             data: {
-                SerialNumber,
-                ProductNumber,
-                SiteAccountID,
-                ContactID
+                ProductName,
+                ProductLine
             }
         });
 
@@ -93,19 +87,19 @@ export async function PATCH(request, { params }) {
 
 //delete data
 export async function DELETE(request, { params }) {
-    const assetID = parseInt(params.AssetID);
+    const productNumber = parseInt(params.ProductNumber);
 
     try {
-        const deletedAsset = await prisma.asset_information.delete({
+        const deletedProductInformation = await prisma.product_information.delete({
             where: {
-                AssetID: assetID,
+                ProductNumber: productNumber,
             },
         });
 
         return NextResponse.json({
             success: true,
             message: "Data Asset Information deleted",
-            data: deletedAsset
+            data: deletedProductInformation
         }, { status: 200 });
 
     } catch (error) {

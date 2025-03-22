@@ -1,3 +1,5 @@
+
+
 import React, { useState, useEffect } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -24,7 +26,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Plus,PhoneCall, Copy } from "lucide-react";
 import { Checkbox } from "./ui/checkbox";
-import { SelectBar3 } from "./sc-select";
+import { SelectBar3, SelectBarContact4 } from "./sc-select";
 import { 
   SelectBarContact, 
   SelectBarContact2,
@@ -34,6 +36,7 @@ import {
   SelectBar2,
  } from "@/components/sc-select";
 
+import { Pencil, Trash } from "lucide-react";
 //import API
 import ApiCustomer from "@/api";
 import axios from "axios";
@@ -92,7 +95,16 @@ export function BtnModal() {
   );
 }
 
+/**
+ * TODO 
+ * VALIDATION WHERE INPUTED CONTACT ALREADY AVAILABLE
+ * CHECK EMAIL OR PHONE
+ */
+
 export function BtnModalContact({ selectedCompany, selectedContact, setSelectedContact }) {
+  //set modal state 
+  const [isModalContactSearchInput, setIsModalContactSearchInput] = useState(false);
+  
    const [formDataContact, setFormDataContact] = useState({
       Salutation: '',
       FirstName: '',
@@ -115,26 +127,50 @@ export function BtnModalContact({ selectedCompany, selectedContact, setSelectedC
       SiteAccountID: selectedCompany?.SiteAccountID || null
     });
     
+    
     //handle input
     const handlerInputContactChange = (e) => {
       const { id, value } = e.target;
       setFormDataContact((prev) => ({ ...prev, [id]: value }));
     };
     
-    // Handle form submission
+  // Function to fetch updated contacts
+  const fetchContacts = async (companyId) => {
+    try {
+      console.log("Fetching contacts for Company ID:", companyId); // ✅ Debugging
+      const response = await ApiCustomer.get(`/api/contact-information?SiteAccountID=${companyId}`);
+      console.log("response Fetch Contacts: ", response.data)
+      return response.data.data; // ✅ Return updated contacts
+    } catch (error) {
+      console.error("Error fetching contacts:", error);
+      return [];
+    }
+  };
+  // Handle form submission
   const handlerContactSubmit = async () => {
     console.log("formDataContact", formDataContact);
     try {
-      const response = await ApiCustomer.post("/api/contact-information", formDataContact);
-      if (response.data.success) {
-        alert("Contact added successfully!");
+      if (formDataContact.ContactID) {
+        // ✅ Update existing contact
+        await ApiCustomer.patch(`/api/contact-information/${formDataContact.ContactID}`, formDataContact);
+        setIsModalContactSearchInput(false)
+        alert("Contact updated successfully!");
       } else {
-        alert("Error adding contact.");
+        // ✅ Add new contact
+        await ApiCustomer.post("/api/contact-information", formDataContact);
+        setIsModalContactSearchInput(false)
+        alert("Contact added successfully!");
       }
 
-       // ✅ Reload contacts by fetching the latest data
-       const updatedContacts = await fetchContacts(selectedCompany.SiteAccountID);
-       setSelectedContact(updatedContacts); // ✅ Update state so table refreshes
+      // fetchContacts(); // ✅ Refresh contacts table
+
+       // ✅ Ensure selectedCompany is not null before fetching contacts
+    if (selectedCompany?.SiteAccountID) {
+      console.log("Selected Company :",selectedCompany);
+      const updatedContacts = await fetchContacts(selectedCompany.SiteAccountID);
+      setSelectedContact(updatedContacts); // ✅ Update state so table refreshes
+      console.log("Updated Selected Contacts:", updatedContacts);
+    }
 
     } catch (error) {
       console.error("Error adding contact:", error);
@@ -142,24 +178,23 @@ export function BtnModalContact({ selectedCompany, selectedContact, setSelectedC
   };
 
   
-  // Function to fetch updated contacts
-  const fetchContacts = async (companyId) => {
-    try {
-      const response = await ApiCustomer.get(`/api/contact-information?SiteAccountID=${companyId}`);
-      return response.data.data; // ✅ Return updated contacts
-    } catch (error) {
-      console.error("Error fetching contacts:", error);
-      return [];
-    }
+
+  // Edit function 
+
+  // ✅ Function to open Edit Modal
+  const openEditModal = (contact) => {
+    setFormDataContact(contact);
   };
+
+
   return (
-    <Dialog>
+    <Dialog open={isModalContactSearchInput} onOpenChange={setIsModalContactSearchInput}>
       <DialogTrigger asChild>
         <Button variant="outline" className="bg-white mt-0.5">
           New Contacts
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[1000px] h-145 bg-white">
+      <DialogContent className="sm:max-w-[1000px] h-150 bg-white">
         <DialogHeader>
           <div className="flex justify-between">
             <DialogTitle className="text-xl flex gap-2"><PhoneCall></PhoneCall>Contact Information</DialogTitle>
@@ -184,11 +219,11 @@ export function BtnModalContact({ selectedCompany, selectedContact, setSelectedC
           </div>
           <div className="space-y-0.5">
             <Label htmlFor="FirstName">First Name</Label>
-            <Input id="FirstName" type="text" className="border-b-black p-1" onChange={handlerInputContactChange} />
+            <Input id="FirstName" type="text" className="border-b-black p-1 " onChange={handlerInputContactChange} />
           </div>
           <div className="space-y-0.5 ">
             <Label htmlFor="LastName">Last Name</Label>
-            <Input id="LastName" type="text" className="border-b-black p-1" onChange={handlerInputContactChange} />
+            <Input id="LastName" type="text" className="border-b-black p-1 " onChange={handlerInputContactChange} />
           </div>
           <div className="space-y-0.5 col-span-2">
             <Label htmlFor="Email">Email</Label>
@@ -227,7 +262,7 @@ export function BtnModalContact({ selectedCompany, selectedContact, setSelectedC
           </div> 
           <div className="space-y-0.4 ">
             <Label htmlFor="OtherExtension"> Other EXTN</Label>
-            <Input id="OtherExtension" type="text" className="border-b-black p-1" onChange={handlerInputContactChange} />
+            <Input id="OtherExtension" type="text" className="border-b-black p-1 text-sm" onChange={handlerInputContactChange} />
           </div>
           <div className="space-y-0.4 col-span-2">
             <Label htmlFor="Fax">FAX</Label>
@@ -237,7 +272,7 @@ export function BtnModalContact({ selectedCompany, selectedContact, setSelectedC
 
         <DialogHeader className="flex-row justify-between items-center">
           <DialogTitle className="text-md">Address</DialogTitle>
-          <Button className="bg-white text-gray-400  "><Copy></Copy>Same in Account Adress </Button>
+          <Button className="bg-white text-gray-400   "><Copy></Copy>Same in Account Adress </Button>
         </DialogHeader>
 
         <div className="grid grid-cols-3 gap-3">
@@ -259,11 +294,13 @@ export function BtnModalContact({ selectedCompany, selectedContact, setSelectedC
           </div>
           <div className="space-y-0.4 ">
             <Label htmlFor="City">City</Label>
-            <Input id="City" type="text" className="border-b-black p-1" onChange={handlerInputContactChange} />
+            <Input id="City" type="text" className="border-b-black p-1 text-sm" onChange={handlerInputContactChange} />
+
+            
           </div>
           <div className="space-y-0.4 ">
             <Label htmlFor="StateProvince">State/Province</Label>
-            <Input id="StateProvince" type="text" className="border-b-black p-1" onChange={handlerInputContactChange} />
+            <Input id="StateProvince" type="text" className="border-b-black p-1 text-sm" onChange={handlerInputContactChange} />
 
             
                   {/* Hidden Input for SiteAccountID */}
@@ -288,6 +325,11 @@ export function BtnModalContact({ selectedCompany, selectedContact, setSelectedC
   );
 }
 
+
+/**
+ * TODO 
+ * MAKE ROUTE FOR PRODUCT
+ */
 export function BtnModalAsset() {
   //set asset
   const [assets, setAssets] = useState([])
@@ -315,7 +357,7 @@ export function BtnModalAsset() {
   const filteredAssets = searchAsset !== "" ? assets.filter(
     (asset) => 
       asset.SerialNumber?.toLowerCase().includes(searchAsset.toLowerCase()) || 
-      asset.ProductName?.toLowerCase().includes(searchAsset.toLowerCase()) || 
+      asset.product_information?.ProductName?.toLowerCase().includes(searchAsset.toLowerCase()) || 
       asset.ProductNumber?.toLowerCase().includes(searchAsset.toLowerCase())
   ) : [];
 
@@ -392,16 +434,16 @@ export function BtnModalAsset() {
             {filteredAssets.length > 0 ? (
               filteredAssets.map((asset) => (
                 <TableRow key={asset?.AssetID}>
-                <TableCell className="whitespace-break-spaces ">{asset?.ProductName}</TableCell>
-                <TableCell>{asset?.ProductNumber}</TableCell>
+                <TableCell className="whitespace-break-spaces ">{asset?.product_information?.ProductName}</TableCell>
+                <TableCell>{asset?.product_information?.ProductNumber}</TableCell>
                 <TableCell>{asset?.HWPorfitCenter ? asset?.HWPorfitCenter : '-' }</TableCell>
                 <TableCell>{asset?.contact_information !== null ? asset?.contact_information?.FirstName + ' ' + asset?.contact_information?.LastName : '-'   }</TableCell>
               </TableRow>
               ))
             ) : assets.length > 0 ? ( assets.map((asset) => (
               <TableRow key={asset?.AssetID}>
-                <TableCell className="whitespace-break-spaces ">{asset?.ProductName}</TableCell>
-                <TableCell>{asset?.ProductNumber}</TableCell>
+                <TableCell className="whitespace-break-spaces ">{asset?.product_information?.ProductName}</TableCell>
+                <TableCell>{asset?.product_information?.ProductNumber}</TableCell>
                 <TableCell>{asset?.HWPorfitCenter ? asset?.HWPorfitCenter : '-' }</TableCell>
                 <TableCell>{asset?.contact_information !== null ? asset?.contact_information?.FirstName + ' ' + asset?.contact_information?.LastName : '-'   }</TableCell>
               </TableRow>
@@ -426,3 +468,439 @@ export function BtnModalAsset() {
     </Dialog>
   )
 }
+
+export function AssetEdit ({ assetId, onUpdate }) {
+  const [asset, setAsset] = useState(null);
+  const [serialNumber, setSerialNumber] = useState("");
+  const [productName, setProductName] = useState("");
+  const [productNumber, setProductNumber] = useState("");
+  const [productLine, setProductLine] = useState("");
+  const [isOpen, setIsOpen] = useState(false);
+
+  const fetchAsset = async () => {
+    if (!assetId) return; // Cegah fetch jika assetId tidak ada
+    try {
+      const response = await ApiCustomer.get(`/api/asset-information/${assetId}`);
+      const data = response.data.data;
+      setAsset(data);
+      setSerialNumber(data?.SerialNumber || "");
+      setProductName(data?.ProductName || "");
+      setProductNumber(data?.ProductNumber || "");
+      setProductLine(data?.ProductLine || "");
+    } catch (error) {
+      console.error("Error fetching asset information:", error);
+    }
+  };
+
+  useEffect(() => {
+    if (assetId && isOpen) { 
+      fetchAsset();
+    }
+  }, [assetId, isOpen]);
+
+  // Reset state saat modal ditutup
+  useEffect(() => {
+    if (!isOpen) {
+      setSerialNumber("");
+      setProductName("");
+      setProductNumber("");
+      setProductLine("");
+    }
+  }, [isOpen]);
+
+  const handleUpdate = async () => {
+    if (!serialNumber || !productName || !productNumber) {
+      alert("Serial Number, Product Name dan Product Number wajib diisi!");
+      return;
+    }
+
+    try {
+      await ApiCustomer.patch(`/api/asset-information/${assetId}`, {
+        SerialNumber: serialNumber,
+        ProductName: productName,
+        ProductNumber: productNumber,
+        ProductLine: productLine,
+      });
+      onUpdate();
+      setIsOpen(false);
+    } catch (error) {
+      console.error("Error updating asset:", error);
+    }
+  };
+
+  return (
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+      <DialogTrigger asChild>
+        <Button  variant="outline" onClick={() => { setIsOpen(true); fetchAsset(); }}>
+          <Pencil />
+        </Button>
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Edit Asset Information</DialogTitle>
+          <DialogDescription>
+            Update the details of the asset. Fields marked with * are required.
+          </DialogDescription>
+        </DialogHeader>
+        <div className="space-y-3">
+          <Input value={serialNumber} onChange={(e) => setSerialNumber(e.target.value)} placeholder="Serial Number*" />
+          <Input value={productName} onChange={(e) => setProductName(e.target.value)} placeholder="Product Name*" />
+          <Input value={productNumber} onChange={(e) => setProductNumber(e.target.value)} placeholder="Product Number*" />
+          <Input value={productLine} onChange={(e) => setProductLine(e.target.value)} placeholder="Product Line" />
+        </div>
+        <DialogFooter>
+          <Button onClick={handleUpdate}>Update</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+};
+
+export function AssetDelete ({ assetId }) {
+  const handleDelete = async () => {
+    try {
+      await ApiCustomer.delete(`/api/asset-information/${assetId}`);
+    } catch (error) {
+      console.error("Error deleting asset:", error);
+    }
+  };
+
+  return (
+    <Dialog>
+      <DialogTrigger asChild>
+        <Button variant="outline" className="text-red-500 hover:text-red-700">
+          <Trash />
+        </Button>
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Delete Asset</DialogTitle>
+          <DialogDescription>
+            Delete asset confirm. 
+          </DialogDescription>
+        </DialogHeader>
+        <h1>Anda yakin ingin menghapus data ini?</h1>
+        <DialogFooter>
+          <Button variant="destructive" onClick={handleDelete}>Delete</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+};
+
+export function CompanyEdit({ siteAccountId, onUpdate }) {
+  const [company, setCompany] = useState(null);
+  const [companyName, setCompanyName] = useState("");
+  const [email, setEmail] = useState("");
+  const [primaryPhone, setPrimaryPhone] = useState("");
+  const [addressLine1, setAddressLine1] = useState("");
+  const [addressLine2, setAddressLine2] = useState("");
+  const [city, setCity] = useState("");
+  const [stateProvince, setStateProvince] = useState("");
+  const [country, setCountry] = useState("");
+  const [zipPostalCode, setZipPostalCode] = useState("");
+  const [isOpen, setIsOpen] = useState(false);
+
+  const fetchCompany = async () => {
+    if (!siteAccountId) return;
+    try {
+      const response = await ApiCustomer.get(`/api/site_account/${siteAccountId}`);
+      const data = response.data.data;
+      setCompany(data);
+      setCompanyName(data?.Company || "");
+      setEmail(data?.Email || "");
+      setPrimaryPhone(data?.PrimaryPhone || "");
+      setAddressLine1(data?.AddressLine1 || "");
+      setAddressLine2(data?.AddressLine2 || "");
+      setCity(data?.City || "");
+      setStateProvince(data?.StateProvince || "");
+      setCountry(data?.Country || "");
+      setZipPostalCode(data?.ZipPostalCode || "");
+    } catch (error) {
+      console.error("Error fetching company information:", error);
+    }
+  };
+
+  useEffect(() => {
+    if (siteAccountId && isOpen) {
+      fetchCompany();
+    }
+  }, [siteAccountId, isOpen]);
+
+  useEffect(() => {
+    if (!isOpen) {
+      setCompanyName("");
+      setEmail("");
+      setPrimaryPhone("");
+      setAddressLine1("");
+      setAddressLine2("");
+      setCity("");
+      setStateProvince("");
+      setCountry("");
+      setZipPostalCode("");
+    }
+  }, [isOpen]);
+
+  const handleUpdate = async () => {
+    if (!companyName || !email || !primaryPhone || !addressLine1 || !city || !country || !zipPostalCode) {
+      alert("Fields marked with * are required!");
+      return;
+    }
+
+    try {
+      await ApiCustomer.patch(`/api/site_account/${siteAccountId}`, {
+        Company: companyName,
+        Email: email,
+        PrimaryPhone: primaryPhone,
+        AddressLine1: addressLine1,
+        AddressLine2: addressLine2,
+        City: city,
+        StateProvince: stateProvince,
+        Country: country,
+        ZipPostalCode: zipPostalCode,
+      });
+      onUpdate();
+      setIsOpen(false);
+    } catch (error) {
+      console.error("Error updating company:", error);
+    }
+  };
+
+  return (
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+      <DialogTrigger asChild>
+        <Button variant="outline" onClick={() => { setIsOpen(true); fetchCompany(); }}>
+          <Pencil />
+        </Button>
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Edit Company Information</DialogTitle>
+          <DialogDescription>
+            Update the details of the company. Fields marked with * are required.
+          </DialogDescription>
+        </DialogHeader>
+        <div className="space-y-3">
+          <Input value={companyName} onChange={(e) => setCompanyName(e.target.value)} placeholder="Company Name *" />
+          <Input value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email *" />
+          <Input value={primaryPhone} onChange={(e) => setPrimaryPhone(e.target.value)} placeholder="Primary Phone *" />
+          <Input value={addressLine1} onChange={(e) => setAddressLine1(e.target.value)} placeholder="Address Line 1 *" />
+          <Input value={addressLine2} onChange={(e) => setAddressLine2(e.target.value)} placeholder="Address Line 2" />
+          <Input value={city} onChange={(e) => setCity(e.target.value)} placeholder="City *" />
+          <Input value={stateProvince} onChange={(e) => setStateProvince(e.target.value)} placeholder="State/Province" />
+          <Input value={country} onChange={(e) => setCountry(e.target.value)} placeholder="Country *" />
+          <Input value={zipPostalCode} onChange={(e) => setZipPostalCode(e.target.value)} placeholder="Zip/Postal Code *" />
+        </div>
+        <DialogFooter>
+          <Button onClick={handleUpdate}>Update</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+export function CompanyDelete ({ siteAccountId, isModalOpen, setIsModalOpen, onUpdate }) {
+    //set modal
+  const handleDelete = async () => {
+    try {
+      const response = await ApiCustomer.delete(`/api/site_account/${siteAccountId}`);
+      
+      console.log("Server Response:", response.data);
+      if (response.status === 409 || response.data.success === false) {
+        // 🚨 Restriction triggered - Show alert message
+        alert(response.data.message || "Cannot delete this company due to restrictions.");
+        return;
+      }
+      
+      alert("Site Account deleted successfully! ✅");
+      // ✅ Close the modal if it's open
+      setIsModalOpen(false);
+      // ✅ Refresh the table by calling `onUpdate()`
+      if (onUpdate) {
+        onUpdate();
+      }
+    } catch (error) {
+      if (error.response && error.response.status === 409) {
+        // 🚨 Handle 409 Conflict error from backend
+        alert(error.response.data.message || "Cannot delete! This company has related Contacts or Assets.");
+      } else {
+        alert("Failed to delete site account. Please try again.");
+      }
+    }
+  };
+
+  return (
+    <Dialog>
+      <DialogTrigger asChild>
+        <Button variant="outline" className="text-red-500 hover:text-red-700">
+          <Trash />
+        </Button>
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Delete Asset</DialogTitle>
+          <DialogDescription>
+            Delete asset confirm. 
+          </DialogDescription>
+        </DialogHeader>
+        <h1>Anda yakin ingin menghapus data ini?</h1>
+        <DialogFooter>
+          <Button variant="destructive" onClick={handleDelete}>Delete</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+};
+
+export function ContactEdit({ contactID, onUpdate }) {
+  const [contact, setContact] = useState(null);
+  const [salutation, setSalutation] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [email, setEmail] = useState("");
+  const [preferredLanguage, setPreferredLanguage] = useState("");
+  const [phone, setPhone] = useState("");
+  const [mobile, setMobile] = useState("");
+  const [workPhone, setWorkPhone] = useState("");
+  const [workExtension, setWorkExtension] = useState("");
+  const [addressLine1, setAddressLine1] = useState("");
+  const [addressLine2, setAddressLine2] = useState("");
+  const [city, setCity] = useState("");
+  const [stateProvince, setStateProvince] = useState("");
+  const [country, setCountry] = useState("");
+  const [zipPostalCode, setZipPostalCode] = useState("");
+  const [isOpen, setIsOpen] = useState(false);
+
+  const fetchContact = async () => {
+    if (!contactID) return;
+    try {
+      const response = await ApiCustomer.get(`/api/contact-information/${contactID}`);
+      const data = response.data.data;
+      setContact(data);
+      setSalutation(data?.Salutation || "");
+      setFirstName(data?.FirstName || "");
+      setLastName(data?.LastName || "");
+      setEmail(data?.Email || "");
+      setPreferredLanguage(data?.PreferredLanguage || "");
+      setPhone(data?.Phone || "");
+      setMobile(data?.Mobile || "");
+      setWorkPhone(data?.WorkPhone || "");
+      setWorkExtension(data?.WorkExtension || "");
+      setAddressLine1(data?.AddressLine1 || "");
+      setAddressLine2(data?.AddressLine2 || "");
+      setCity(data?.City || "");
+      setStateProvince(data?.StateProvince || "");
+      setCountry(data?.Country || "");
+      setZipPostalCode(data?.ZipPostalCode || "");
+    } catch (error) {
+      console.error("Error fetching contact information:", error);
+    }
+  };
+
+  useEffect(() => {
+    if (contactID && isOpen) {
+      fetchContact();
+    }
+  }, [contactID, isOpen]);
+
+  const handleUpdate = async () => {
+    if (!firstName || !lastName || !email || !phone || !city || !country) {
+      alert("Fields marked with * are required!");
+      return;
+    }
+
+    try {
+      await ApiCustomer.patch(`/api/contact-information/${contactID}`, {
+        Salutation: salutation,
+        FirstName: firstName,
+        LastName: lastName,
+        Email: email,
+        PreferredLanguage: preferredLanguage,
+        Phone: phone,
+        Mobile: mobile,
+        WorkPhone: workPhone,
+        WorkExtension: workExtension,
+        AddressLine1: addressLine1,
+        AddressLine2: addressLine2,
+        City: city,
+        StateProvince: stateProvince,
+        Country: country,
+        ZipPostalCode: zipPostalCode,
+      });
+      onUpdate();
+      setIsOpen(false);
+    } catch (error) {
+      console.error("Error updating contact:", error);
+    }
+  };
+
+  return (
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+      <DialogTrigger asChild>
+        <Button variant="outline" onClick={() => { setIsOpen(true); fetchContact(); }}>
+          <Pencil />
+        </Button>
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Edit Contact Information</DialogTitle>
+          <DialogDescription>
+            Update the details of the contact. Fields marked with * are required.
+          </DialogDescription>
+        </DialogHeader>
+        <div className="space-y-3">
+          <Input value={salutation} onChange={(e) => setSalutation(e.target.value)} placeholder="Salutation" />
+          <Input value={firstName} onChange={(e) => setFirstName(e.target.value)} placeholder="First Name *" />
+          <Input value={lastName} onChange={(e) => setLastName(e.target.value)} placeholder="Last Name *" />
+          <Input value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email *" />
+          <Input value={preferredLanguage} onChange={(e) => setPreferredLanguage(e.target.value)} placeholder="Preferred Language" />
+          <Input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="Phone *" />
+          <Input value={mobile} onChange={(e) => setMobile(e.target.value)} placeholder="Mobile" />
+          <Input value={workPhone} onChange={(e) => setWorkPhone(e.target.value)} placeholder="Work Phone" />
+          <Input value={workExtension} onChange={(e) => setWorkExtension(e.target.value)} placeholder="Work Extension" />
+          <Input value={addressLine1} onChange={(e) => setAddressLine1(e.target.value)} placeholder="Address Line 1" />
+          <Input value={addressLine2} onChange={(e) => setAddressLine2(e.target.value)} placeholder="Address Line 2" />
+          <Input value={city} onChange={(e) => setCity(e.target.value)} placeholder="City *" />
+          <Input value={stateProvince} onChange={(e) => setStateProvince(e.target.value)} placeholder="State/Province" />
+          <Input value={country} onChange={(e) => setCountry(e.target.value)} placeholder="Country *" />
+          <Input value={zipPostalCode} onChange={(e) => setZipPostalCode(e.target.value)} placeholder="Zip/Postal Code *" />
+        </div>
+        <DialogFooter>
+          <Button onClick={handleUpdate}>Update</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+export function ContactDelete ({ contactID }) {
+  const handleDelete = async () => {
+    try {
+      await ApiCustomer.delete(`/api/contact-information/${contactID}`);
+    } catch (error) {
+      console.error("Error deleting contact:", error);
+    }
+  };
+
+  return (
+    <Dialog>
+      <DialogTrigger asChild>
+        <Button variant="outline" className="text-red-500 hover:text-red-700">
+          <Trash />
+        </Button>
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Delete Asset</DialogTitle>
+          <DialogDescription>
+            Delete asset confirm. 
+          </DialogDescription>
+        </DialogHeader>
+        <h1>Anda yakin ingin menghapus data ini?</h1>
+        <DialogFooter>
+          <Button variant="destructive" onClick={handleDelete}>Delete</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+};

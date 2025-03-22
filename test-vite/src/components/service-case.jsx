@@ -36,7 +36,7 @@ export const ServiceCase = () => {
       </CardHeader>
 
       <CardContent>
-        <Tabs>
+        <Tabs defaultValue="case_info"> 
           <TabsList className="bg-white">
             <TabsTrigger value="case_info" className="cursor-pointer">Case Information</TabsTrigger>
             <TabsTrigger value="customer,add,entitement" className="cursor-pointer white">Customer, Asset & Entitement</TabsTrigger>

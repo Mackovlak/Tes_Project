@@ -13,6 +13,8 @@ pnpm dev
 # or
 bun dev
 ```
+<!-- # aws code : perid_racing
+# kuro_ferid177013 -->
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
