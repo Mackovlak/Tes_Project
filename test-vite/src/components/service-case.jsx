@@ -24,7 +24,7 @@ import {
   TabsTrigger,
 } from "@/components/ui/tabs"
 import { SelectBarRelated } from './sc-select'
-import { Lock } from 'lucide-react'
+import { FileSymlinkIcon, Link, Lock, UserPen } from 'lucide-react'
 import { CalendarDays } from 'lucide-react'
 import {
   Table,
@@ -42,7 +42,6 @@ import { Save } from 'lucide-react'
 import { FileSymlink } from 'lucide-react'
 import { RotateCw } from 'lucide-react'
 import { StepBack } from 'lucide-react'
-
 
 
 const workorder = [
@@ -76,73 +75,82 @@ const partsorder = [
 ]
 
 
-export const TabsServiceCase = () => {
+export const TabsService = () => {
   return (
-    <div>
-      <Button variant="outline" className="rounded-none w-10">
-       <ArrowLeftFromLine></ArrowLeftFromLine>
+    <div className='border-1 flex items-center'>
+      <Button variant="link" className="rounded-none">
+         <ArrowLeftFromLine></ArrowLeftFromLine>
       </Button>
 
-      <Button variant="outline" className="rounded-none w-10">
-       <SquareArrowOutUpRight></SquareArrowOutUpRight>
+      <Button variant="link" className="rounded-none">
+        <SquareArrowOutUpRight></SquareArrowOutUpRight>
       </Button>
 
-      <Button variant="outline" className="rounded-none w-20">
-        <Save></Save> Save
+      <Button variant="link" className="rounded-none">
+         <Save></Save>
+         <span>Save</span>
       </Button>
 
-      <Button variant="outline" className="rounded-none w-30">
-        <FileSymlink></FileSymlink>Save & Close
+      <Button variant="link" className="rounded-none">
+         <FileSymlink></FileSymlink>
+         <span>Save & Close</span>
       </Button>
 
-      <Button variant="outline" className="rounded-none w-26">
-        <StepBack></StepBack>Complaint
-      </Button>
+      <Button variant="link" className="rounded-none">
+        <RotateCw></RotateCw>
+         <span>Refresh</span>
+      </Button>    
 
-      <Button variant="outline" className="rounded-none w-16">
-      <StepBack></StepBack>CSR
-      </Button>
+       <Button variant="link" className="rounded-none">
+        <StepBack></StepBack>
+         <span>Complaint</span>
+      </Button>    
 
-      <Button variant="outline" className="rounded-none w-30">
-      <StepBack></StepBack>Service Order
-      </Button>
+      <Button variant="link" className="rounded-none">
+        <StepBack></StepBack>
+         <span>CSR</span>
+      </Button>    
 
-      <Button variant="outline" className="rounded-none w-27">
-      <StepBack></StepBack>Work Order
-      </Button>
+      <Button variant="link" className="rounded-none">
+        <StepBack></StepBack>
+         <span>Service Order</span>
+      </Button>    
 
-      <Button variant="outline" className="rounded-none w-25">
-      <StepBack></StepBack>Sales Offer
-      </Button>
+      <Button variant="link" className="rounded-none">
+        <StepBack></StepBack>
+         <span>Work Order</span>
+      </Button>    
 
-      <Button variant="outline" className="rounded-none w-25">
-      <StepBack></StepBack>Close Case
-      </Button>
+      <Button variant="link" className="rounded-none">
+        <StepBack></StepBack>
+         <span>Sales Offer</span>
+      </Button>    
 
-      <Button variant="outline" className="rounded-none w-15">
-      <StepBack></StepBack>Pick
-      </Button>
+      <Button variant="link" className="rounded-none">
+        <StepBack></StepBack>
+         <span>Close Case</span>
+      </Button>    
 
-      <Button variant="outline" className="rounded-none w-30">
-      <StepBack></StepBack>Queue Details
-      </Button>
+      <Button variant="link" className="rounded-none">
+        <StepBack></StepBack>
+         <span>Pick</span>
+      </Button>    
 
-      <Button variant="outline" className="rounded-none w-18">
-      <StepBack></StepBack>Assign
-      </Button>
+      <Button variant="link" className="rounded-none">
+        <StepBack></StepBack>
+         <span>Queue Details</span>
+      </Button>    
 
-      <Button variant="outline" className="rounded-none w-30">
-      <StepBack></StepBack>Add To Queue
-      </Button>
+      <Button variant="link" className="rounded-none">
+        <UserPen></UserPen>
+         <span>Assign</span>
+      </Button>    
 
-      <Button variant="outline" className="rounded-none w-17">
-        <RotateCw></RotateCw>Share
-      </Button>
-
+      <Button variant="link" className="rounded-none">
+        <StepBack></StepBack>
+         <span>Add to Queue</span>
+      </Button>    
     </div>
-    
-
-
   )
 }
 
@@ -173,7 +181,7 @@ export const ServiceCase = () => {
         <TabsContent value="case_info">
           <Card className="flex-col mt-7">
           <span className='ml-5 font-bold text-xl'>Uknown</span>
-            <CardContent className="grid gap-5 grid-flow-col grid-rows-6">
+            <CardContent className="grid gap-5.5 grid-flow-col grid-rows-6">
         
             <div className='font-bold flex'>
               <Lock className='size-5 mr-2'></Lock>
@@ -206,8 +214,8 @@ export const ServiceCase = () => {
               <Lock className='size-5 mr-2'></Lock>
               <span>Created ON</span>
               <span className='ml-32.5'>...</span>
-              <CalendarDays className='h-5 ml-14'></CalendarDays>
-              <span className='ml-10'>...</span>
+              <CalendarDays className='h-5 ml-11  '></CalendarDays>
+              <span className='ml-9'>...</span>
             </div>
 
             <div className='font-bold flex'>
@@ -280,7 +288,7 @@ export const ServiceCase = () => {
 
           <Card className="mt-5 flex-col">
           <span className='ml-5 font-bold text-xl'>Global Trade Check</span>
-            <CardContent className="grid gap-5 grid-flow-col grid-rows-3">
+            <CardContent className="grid gap-6 grid-flow-col grid-rows-3">
         
             <div className='font-bold flex'>
               <Lock className='size-5 mr-2'></Lock>
@@ -600,8 +608,8 @@ export const ServiceCase = () => {
           <span className='ml-5 font-bold text-xl'>Customer Issue Description & System Information</span>
             <CardContent className="grid gap-4.5 grid-flow-col grid-rows-4">
             
-            <div className=''>
-              <textarea className='w-[370px]'></textarea>
+            <div className='ml-7'>
+              <textarea className='border-2 border-black w-[370px] resize-none'></textarea>
             </div>
 
             <div className='ml-7 font-bold flex'>
@@ -659,9 +667,9 @@ export const ServiceCase = () => {
 
         <Card className="mt-5 flex-col">
           <span className='ml-5 font-bold text-xl'>Case Notes</span>
-            <CardContent className="grid gap-4.5 grid-flow-col grid-rows-6">
+            <CardContent className="grid grid-col grid-rows-5 gap-6">
 
-            <div className='font-bold flex'>
+            <div className='font-bold flex jus'>
               <span>Log Type</span>
               <span className='ml-72'>...</span>
             </div>
@@ -681,17 +689,21 @@ export const ServiceCase = () => {
               <span className='ml-57'>...</span>
             </div>
 
-            <div className='font-bold flex'>
+            <div className='font-bold flex '>
               <span>Number of Minutes Spent</span>
               <span className='ml-40.5'>...</span>
             </div>
 
-            <div className='font-bold flex'>
-              <span>Notes</span>
-              <textarea className='ml-79 w-80'></textarea>
+            <div className='flex'>
+              <span className='font-bold'>Notes</span>
+              <textarea className='ml-79 w-80 h-40 resize-none p-2 border-2 border-black '></textarea>
             </div>
 
-            <textarea className='w-120'></textarea>
+            <div className='absolute ml-180'>
+            <textarea className='w-120 h-100 resize-none p-2 border-2 border-black'></textarea>
+
+            </div>
+
             </CardContent>
           </Card>
 
@@ -728,7 +740,7 @@ export const ServiceCase = () => {
 
           <Card className="mt-5 flex-col">
           <span className='ml-5 font-bold text-xl'>Case Resolution</span>
-          <CardContent className="grid gap-4.5 grid-flow-col grid-rows-3">
+          <CardContent className="grid gap-5 grid-flow-col grid-rows-3">
 
             <div className='font-bold flex'>
               <span className='ml-7'>Case Resolution Code</span>
