@@ -37,13 +37,13 @@ export async function GET(request) {
                     OR: [
                         { SerialNumber: { contains: search } },
                         { ProductNumber: { contains: search } },
-                        { ProductName: { contains: search } }
+                        { product_information: { ProductName: { contains: search } } }
                     ]
                 }
                 : undefined,
             skip: skip,
             take: limit,
-            orderBy: { ProductName: "asc" },
+            orderBy: { product_information: { ProductName: "asc" } },
             include:
             {
                 site_account: true,

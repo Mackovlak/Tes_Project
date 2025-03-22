@@ -19,7 +19,7 @@ createRoot(document.getElementById('root')).render(
         <Route path='/' element={<App />}>
           <Route index element={<Landing />} /> 
           <Route path='/search_case' element={<Search_case />} /> 
-          <Route path='/case' element={<Case />} /> 
+          <Route path='/case/:caseId' element={<Case />} /> 
           <Route path='/master/Company_table' element={<Company_table />} /> 
           <Route path='/master/Assets_table' element={<Assets_table />} />
           <Route path='/master/Contact_table' element={<Contact_table />} />

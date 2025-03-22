@@ -50,13 +50,26 @@ import axios from "axios";
 //   },
 // ];
 
-export function BtnModal() {
+export function BtnModal({
+  handleCreateCase,
+  selectedAssetForCase,
+  selectedContactForCase,
+  caseType,
+  setCaseType
+}) {
   
+  
+
 
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant="outline" className="bg-white mr-4">
+        <Button 
+          variant="outline" 
+          onClick={handleCreateCase}
+          disabled={!selectedAssetForCase || !selectedContactForCase } // 🔥 Button disabled if no asset selected
+          className={`mr-4${(!selectedAssetForCase || !selectedContactForCase) ? "bg-white cursor-not-allowed" : "bg-blue-500"}`}
+        >
           <Plus></Plus>Create Case
         </Button>
       </DialogTrigger>
@@ -66,21 +79,21 @@ export function BtnModal() {
         </DialogHeader>
         <div className="flex items-center space-x-3">
           <div className="w-55">
-            <Label htmlFor="name" className="text-right">
+            <Label htmlFor="CaseSubject" className="text-right">
               Case Subject
             </Label>
-            <Input id="name" className="col-span-3 border-b-black p-1" />
+            <Input id="CaseSubject" className="col-span-3 border-b-black p-1" />
           </div>
           <div className="">
-            <Label htmlFor="name" className="text-right">
+            <Label htmlFor="CaseType" className="text-right">
               Case Type
             </Label>
-            <SelectBar3></SelectBar3>
+            <SelectBar3 value={caseType} onChange={setCaseType}></SelectBar3>
           </div>
           <div className="flex items-center space-x-2 mt-5">
-            <Checkbox id="terms" />
+            <Checkbox id="KCI_Flag" />
             <label
-              htmlFor="terms"
+              htmlFor="KCI_Flag"
               className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
             >
               KCI For this case?
@@ -88,7 +101,7 @@ export function BtnModal() {
           </div>
         </div>
         <DialogFooter>
-          <Button type="submit">DONE</Button>
+          <Button type="submit" onClick={handleCreateCase}>DONE</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

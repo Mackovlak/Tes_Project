@@ -90,6 +90,17 @@ export async function POST(request) {
         CaseResolution
     } = await request.json();
 
+    //validation
+    if (!AssetID && !ContactID ) {
+        return NextResponse.json(
+            {
+                success: false,
+                message: "Asset/Contact selection is required to create a case.",
+            },
+            { status: 400 }
+        );
+    }
+    
     //create data 
     const case_information = await prisma.caseinformation.create({
         data:{
