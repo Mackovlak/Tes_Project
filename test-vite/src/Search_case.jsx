@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router'
 
 
 
+
 //importing API
 import ApiCustomer from './api'
 
@@ -272,8 +273,8 @@ const Search_case = () => {
   const handleSelectedAsset = (asset) => {
     if (Array.isArray(asset)) {
       setSelectedAsset(asset);
-      setSelectedSiteAccounts(asset[0]?.site_account || null); // ✅ Update affiliated company
-      setSelectedContact(asset[0]?.contact_information || null); // ✅ Update affiliated contact
+      setSelectedSiteAccounts(asset[0]?.site_account || null); // Update affiliated company
+      setSelectedContact(asset[0]?.contact_information || null); // Update affiliated contact
     } else if (asset) {
       setSelectedAsset([asset]);
       setSelectedSiteAccounts(asset.site_account || null);
