@@ -1,5 +1,8 @@
 import React, { useEffect, useState } from 'react'
-import { ServiceCase } from './components/service-case'
+import { 
+  ServiceCase,
+  TabsService
+ } from './components/service-case'
 import { useParams } from 'react-router'
 
 import ApiCustomer from './api'
@@ -24,8 +27,11 @@ export const Case = () => {
   if (!caseDetails) return <p>Loading case details...</p>;
 
   return (
-    <ServiceCase 
-      caseDetails={caseDetails}
-    ></ServiceCase>
+    <div className="">
+      <TabsService></TabsService>
+      <ServiceCase
+        caseDetails={caseDetails}
+      ></ServiceCase>
+    </div>
   )
 }

@@ -81,77 +81,77 @@ const partsorder = [
 export const TabsService = () => {
   return (
     <div className='border-1 flex items-center'>
-      <Button variant="link" className="rounded-none">
+      <Button variant="outline" className="rounded-none px-0 py-0 has-[>svg]:px-1.5 flex gap-0.5">
          <ArrowLeftFromLine></ArrowLeftFromLine>
       </Button>
 
-      <Button variant="link" className="rounded-none">
+      <Button variant="outline" className="rounded-none px-0 py-0 has-[>svg]:px-1.5 flex gap-0.5">
         <SquareArrowOutUpRight></SquareArrowOutUpRight>
       </Button>
 
-      <Button variant="link" className="rounded-none">
+      <Button variant="link" className="rounded-none px-0 py-0 has-[>svg]:px-1.5 flex gap-0.5">
          <Save></Save>
-         <span>Save</span>
+         <span className='text-md'>Save</span>
       </Button>
 
-      <Button variant="link" className="rounded-none">
+      <Button variant="link" className="rounded-none px-0 py-0 has-[>svg]:px-1.5 flex gap-0.5">
          <FileSymlink></FileSymlink>
-         <span>Save & Close</span>
+         <span className='text-md'>Save & Close</span>
       </Button>
 
-      <Button variant="link" className="rounded-none">
+      <Button variant="link" className="rounded-none px-0 py-0 has-[>svg]:px-1.5 flex gap-0.5">
         <RotateCw></RotateCw>
-         <span>Refresh</span>
+         <span className='text-md'>Refresh</span>
       </Button>    
 
-       <Button variant="link" className="rounded-none">
+       <Button variant="link" className="rounded-none px-0 py-0 has-[>svg]:px-1.5 flex gap-0.5">
         <StepBack></StepBack>
-         <span>Complaint</span>
+         <span className='text-md'>Complaint</span>
       </Button>    
 
-      <Button variant="link" className="rounded-none">
+      <Button variant="link" className="rounded-none px-0 py-0 has-[>svg]:px-1.5 flex gap-0.5">
         <StepBack></StepBack>
-         <span>CSR</span>
+         <span className='text-md'>CSR</span>
       </Button>    
 
-      <Button variant="link" className="rounded-none">
+      <Button variant="link" className="rounded-none px-0 py-0 has-[>svg]:px-1.5 flex gap-0.5">
         <StepBack></StepBack>
-         <span>Service Order</span>
+         <span className='text-md'>Service Order</span>
       </Button>    
 
-      <Button variant="link" className="rounded-none">
+      <Button variant="link" className="rounded-none px-0 py-0 has-[>svg]:px-1.5 flex gap-0.5">
         <StepBack></StepBack>
-         <span>Work Order</span>
+         <span className='text-md'>Work Order</span>
       </Button>    
 
-      <Button variant="link" className="rounded-none">
+      <Button variant="link" className="rounded-none px-0 py-0 has-[>svg]:px-1.5 flex gap-0.5">
         <StepBack></StepBack>
-         <span>Sales Offer</span>
+         <span className='text-md'>Sales Offer</span>
       </Button>    
 
-      <Button variant="link" className="rounded-none">
+      <Button variant="link" className="rounded-none px-0 py-0 has-[>svg]:px-1.5 flex gap-0.5">
         <StepBack></StepBack>
-         <span>Close Case</span>
+         <span className='text-md'>Close Case</span>
       </Button>    
 
-      <Button variant="link" className="rounded-none">
+      <Button variant="link" className="rounded-none px-0 py-0 has-[>svg]:px-1.5 flex gap-0.5">
         <StepBack></StepBack>
-         <span>Pick</span>
+         <span className='text-md'>Pick</span>
       </Button>    
 
-      <Button variant="link" className="rounded-none">
+      <Button variant="link" className="rounded-none px-0 py-0 has-[>svg]:px-1.5 flex gap-0.5">
         <StepBack></StepBack>
-         <span>Queue Details</span>
+         <span className='text-md'>Queue Details</span>
       </Button>    
 
-      <Button variant="link" className="rounded-none">
+      <Button variant="link" className="rounded-none px-0 py-0 has-[>svg]:px-1.5 flex gap-0.5">
         <UserPen></UserPen>
-         <span>Assign</span>
+         <span className='text-md'>Assign</span>
       </Button>    
 
-      <Button variant="link" className="rounded-none">
+      <Button variant="link" className="rounded-none px-0 py-0 has-[>svg]:px-1.5 flex gap-0.5">
         <StepBack></StepBack>
-         <span>Add to Queue</span>
+         <span className='text-md'>Add to Queue</span>
       </Button>    
     </div>
   )
@@ -160,30 +160,32 @@ export const TabsService = () => {
 
 export const ServiceCase = ({ caseDetails }) => {
   return (
-    <Card className="mt-2 rounded-b-md h-[160px]">
-      <CardHeader>
-        <CardTitle className="text-xl ">{caseDetails.CaseID}</CardTitle>
-        <CardTitle className="text-sm">Case . Case</CardTitle>
-      </CardHeader>
-
-      <CardContent>
+    <Card className="mt-2 rounded-none p-0 border-0">
+      <CardHeader className="p-0">
         <Tabs defaultValue="case_info"> 
-          <TabsList className="bg-white">
-            <TabsTrigger value="case_info" className="cursor-pointer">Case Information</TabsTrigger>
-            <TabsTrigger value="customer,add,entitement" className="cursor-pointer white">Customer, Asset & Entitement</TabsTrigger>
-            <TabsTrigger value="ci_notes" className="cursor-pointer">Notes & Information</TabsTrigger>
-            <TabsTrigger value="ci_activitas" className="cursor-pointer">Activities</TabsTrigger>
-            <TabsTrigger value="ci_actions" className="cursor-pointer">Costumer Interactions</TabsTrigger>
-            <TabsTrigger value="ci_wo" className="cursor-pointer">Work Order Validation</TabsTrigger>
-            <TabsTrigger value="ci_orders" className="cursor-pointer">Orders</TabsTrigger>
-            <TabsTrigger value="ci_salles" className="cursor-pointer">Sales Offer</TabsTrigger>
-            <TabsTrigger value="ci_knowledge" className="cursor-pointer">Knowledge & Attachments</TabsTrigger>
-            <SelectBarRelated></SelectBarRelated>
-          </TabsList>
+          <CardContent className="flex flex-col gap-3 border-2 w-full p-4">
+            <CardTitle className="text-xl block">
+              {caseDetails.CaseID}
+              <p className="text-sm ">Case . Case</p>
+            </CardTitle>
+           
+            <TabsList className="bg-white">
+              <TabsTrigger variant="underline" value="case_info" className=" ">Case Information</TabsTrigger>
+              <TabsTrigger variant="underline" value="customer,add,entitement" className="">Customer, Asset & Entitement</TabsTrigger>
+              <TabsTrigger variant="underline" value="ci_notes" className="">Notes & Information</TabsTrigger>
+              <TabsTrigger variant="underline" value="ci_activitas" className="">Activities</TabsTrigger>
+              <TabsTrigger variant="underline" value="ci_actions" className="">Costumer Interactions</TabsTrigger>
+              <TabsTrigger variant="underline" value="ci_wo" className="">Work Order Validation</TabsTrigger>
+              <TabsTrigger variant="underline" value="ci_orders" className="">Orders</TabsTrigger>
+              <TabsTrigger variant="underline" value="ci_salles" className="">Sales Offer</TabsTrigger>
+              <TabsTrigger variant="underline" value="ci_knowledge" className="">Knowledge & Attachments</TabsTrigger>
+              <SelectBarRelated></SelectBarRelated>
+            </TabsList>
+          </CardContent>
+      
 
         <TabsContent value="case_info" >
           <Card className="flex-row">
-
             <CardContent className="grid gap-4.5 grid-flow-col grid-rows-8 ">
             <CardHeader className="flex-row">
               <Lock className='size-4'></Lock>
@@ -1032,7 +1034,7 @@ export const ServiceCase = ({ caseDetails }) => {
           </Card>
         </TabsContent>
         </Tabs>
-      </CardContent>
+      </CardHeader>
     </Card>
   )
 }
