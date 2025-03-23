@@ -183,124 +183,105 @@ export const ServiceCase = ({ caseDetails }) => {
             </TabsList>
           </CardContent>
       
-
         <TabsContent value="case_info" >
           <Card className="flex-row">
-            <CardContent className="grid gap-4.5 grid-flow-col grid-rows-8 ">
-            <CardHeader className="flex-row">
-              <Lock className='size-4'></Lock>
-              <CardTitle   className='h-5 mr-38'>Case ID</CardTitle>
-              <CardTitle>{caseDetails.CaseID}</CardTitle>
-            </CardHeader>
+            <CardContent className="grid gap-10  grid-cols-6 p-3 ">
+              
+                <CardTitle className='flex font-medium'><Lock className='size-4'/>Case ID</CardTitle>
+                <CardTitle className="">{caseDetails.CaseID}</CardTitle>
+              
 
-            <CardHeader className="flex-row">
-              <Lock className='size-4'></Lock>
-              <CardTitle   className='h-5 mr-18.5'>Incoming Channel</CardTitle>
-              <CardTitle>{caseDetails.IncomingChannel}</CardTitle>
-            </CardHeader>
+              
+                <CardTitle  className="font-medium" >Case Subject</CardTitle>
+                <CardTitle className="col-span-3">{caseDetails.CaseSubject}</CardTitle>
+              
 
-            <CardHeader className="flex-row">
-              <CardTitle   className='h-5 ml-5 mr-31.5'>Case Status</CardTitle>
-              <CardTitle>{caseDetails.CaseStatus}</CardTitle>
-            </CardHeader>
+              
+                <CardTitle   className='flex font-medium'><Lock className='size-4'/>Incoming Channel</CardTitle>
+                <CardTitle>{caseDetails.IncomingChannel}</CardTitle>
+              
 
-            <CardHeader className="flex-row">
-              <CardTitle   className='h-5 ml-5 mr-29.5'>Case Priority</CardTitle>
-              <CardTitle>{caseDetails.CasePriority}</CardTitle>
-            </CardHeader>
+             
+                <CardTitle className='font-medium'>Business Segment</CardTitle>
+                <CardTitle >...</CardTitle>
+              
+              
+              
+                <CardTitle className='ml-4 font-medium'>Email Status</CardTitle>
+                <CardTitle>...</CardTitle>
+              
 
-            <CardHeader className="flex-row">
-              <CardTitle   className='h-5 ml-5 mr-19'>Customer Severity</CardTitle>
-              <CardTitle>{caseDetails.CustomerSeverity}</CardTitle>
-            </CardHeader>
+              
+                <CardTitle className='ml-4 font-medium'>Case Status</CardTitle>
+                <CardTitle>{caseDetails.CaseStatus}</CardTitle>
+              
 
-            <CardHeader className="flex-row">
-              <Lock className='size-4'></Lock>
-              <CardTitle   className='h-5 mr-30'>Created ON</CardTitle>
-              <CardTitle>{caseDetails.CreatedOn}</CardTitle>
-              <CalendarDays className='size-4 ml-5 mr-5'></CalendarDays>
-              <CardTitle>...</CardTitle>
-            </CardHeader>
+              
+                <CardTitle   className='font-medium'>Case Type</CardTitle>
+                <CardTitle>{caseDetails.CaseType}</CardTitle>
+              
 
-            <CardHeader className="flex-row">
-              <Lock className='size-4'></Lock>
-              <CardTitle   className='h-5 mr-20'>Case Closed Date</CardTitle>
-              <CardTitle>...</CardTitle>
-              <CalendarDays className='size-4 ml-5 mr-5'></CalendarDays>
-              <CardTitle>...</CardTitle>
-            </CardHeader>
+              
+                <CardTitle   className='ml-4 font-medium '>KCI For Case?</CardTitle>
+                <CardTitle>{caseDetails.KCI_Flag ? 'Yes' : 'No'}</CardTitle>
+              
 
-            <CardHeader className="flex-row">
-              <Lock className='size-4'></Lock>
-              <CardTitle   className='h-5 mr-17.5'>Submitted To Base</CardTitle>
-              <CardTitle>...</CardTitle>
-              <CalendarDays className='size-4 ml-5 mr-5'></CalendarDays>
-              <CardTitle>...</CardTitle>
-            </CardHeader>
+              
+                <CardTitle   className='ml-4 font-medium'>Case Priority</CardTitle>
+                <CardTitle>{caseDetails.CasePriority}</CardTitle>
+              
 
-            </CardContent>
+              
+                <CardTitle className='font-medium '>HPI Segment</CardTitle>
+                <CardTitle>...</CardTitle>
+              
 
-            <CardContent className="grid gap-4.5 grid-flow-col grid-rows-5">
+              
+                <CardTitle className='flex font-medium '><Lock className='size-4'/>Customer Tracking Number</CardTitle>
+                <CardTitle className="">...</CardTitle>
+              
 
-            <CardHeader className="flex-row">
-              <CardTitle   className='h-5 mr-38'>Case Subject</CardTitle>
-              <CardTitle>{caseDetails.CaseSubject}</CardTitle>
-            </CardHeader>
+              
+                <CardTitle   className='ml-4 font-medium'>Customer Severity</CardTitle>
+                <CardTitle className="">{caseDetails.CustomerSeverity}</CardTitle>
+              
 
-            
-            <CardHeader className="flex-row">
-              <CardTitle   className='h-5 mr-28.5'>Business Segment</CardTitle>
-              <CardTitle>...</CardTitle>
-            </CardHeader>
+              
+                <CardTitle className="font-medium">Update Customer Tracking Number</CardTitle>
+                <CardTitle className='col-span-3'>...</CardTitle>
+              
 
-            
-            <CardHeader className="flex-row">
-              <CardTitle   className='h-5 mr-43'>Case Type</CardTitle>
-              <CardTitle>{caseDetails.CaseType}</CardTitle>
-            </CardHeader>
+              
+                
+                <CardTitle   className='flex font-medium'><Lock className='size-4'/>Created ON</CardTitle>
+                <CardTitle className="col-span-3 flex gap-[5em]">{caseDetails.CreatedOn}<CalendarDays className='size-4 '/>...</CardTitle>
+                
+                
+              
 
-            
-            <CardHeader className="flex-row">
-              <CardTitle   className='h-5 mr-37.5'>HPI Segment</CardTitle>
-              <CardTitle>...</CardTitle>
-            </CardHeader>
+             
+                <CardTitle   className='ml-4 font-medium '>Alternate Customer Tracking Number</CardTitle>
+                <CardTitle>...</CardTitle>
+              
 
-            
-            <CardHeader className="flex-row">
-              <CardTitle  className='whitespace-break-spaces break-words h-5'>Update Customer Tracking Number</CardTitle>
-              <CardTitle>...</CardTitle>
-            </CardHeader>
+              
+                
+                <CardTitle   className='flex font-medium'><Lock className='size-4'/>Case Closed Date</CardTitle>
+                <CardTitle className="flex col-span-3 gap-[5em]">...<CalendarDays className='size-4 '/>...</CardTitle>
+              
 
-            <CardHeader className="flex-row">
-              <CardTitle   className='h-5 ml-5 mr-38'>Email Status</CardTitle>
-              <CardTitle>...</CardTitle>
-            </CardHeader>
+              
+                <CardTitle   className='flex font-medium'><Lock className='size-4'/>Irrelevant</CardTitle>
+                <CardTitle>...</CardTitle>
+              
 
-            
-            <CardHeader className="flex-row">
-              <CardTitle   className='h-5 ml-5 mr-36'>KCI For Case?</CardTitle>
-              <CardTitle>{caseDetails.KCI_Flag ? 'Yes' : 'No'}</CardTitle>
-            </CardHeader>
+                        
 
-            
-            <CardHeader className="flex-row">
-            <Lock className='size-4'></Lock>
-              <CardTitle   className='h-5'>Customer Tracking Number</CardTitle>
-              <CardTitle>...</CardTitle>
-            </CardHeader>
-
-            
-            <CardHeader className="flex-row">
-              <CardTitle   className='h-5 ml-5'>Alternate Customer Tracking Number</CardTitle>
-              <CardTitle>...</CardTitle>
-            </CardHeader>
-
-            
-            <CardHeader className="flex-row">
-            <Lock className='size-4'></Lock>
-              <CardTitle   className='h-5 mr-41'>Irrelevant</CardTitle>
-              <CardTitle>...</CardTitle>
-            </CardHeader>
+              
+                
+                <CardTitle   className='flex font-medium'><Lock className='size-4'/>Submitted To Base</CardTitle>
+                <CardTitle className="flex col-span-3 gap-[5em]">...<CalendarDays className='size-4 '/>...</CardTitle>
+              
 
             </CardContent>
           </Card>
@@ -801,7 +782,6 @@ export const ServiceCase = ({ caseDetails }) => {
             </CardContent>
           </Card>
         </TabsContent>
-
 
         <TabsContent value="ci_activitas" >
           <Card className="mt-7">
