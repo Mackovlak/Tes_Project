@@ -25,7 +25,7 @@ import {
   TabsTrigger,
 } from "@/components/ui/tabs"
 import { SelectBarRelated } from './sc-select'
-import { FileSymlinkIcon,  Lock,} from 'lucide-react'
+import { FileSymlinkIcon, Link, Lock, UserPen } from 'lucide-react'
 import { CalendarDays } from 'lucide-react'
 import {
   Table,
@@ -37,6 +37,13 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
+import { ArrowLeftFromLine } from 'lucide-react'
+import { SquareArrowOutUpRight } from 'lucide-react'
+import { Save } from 'lucide-react'
+import { FileSymlink } from 'lucide-react'
+import { RotateCw } from 'lucide-react'
+import { StepBack } from 'lucide-react'
+
 
 const workorder = [
   {
