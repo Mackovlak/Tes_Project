@@ -7,28 +7,34 @@ export async function GET(request) {
         // Ambil parameter pencarian & pagination
         const { searchParams } = new URL(request.url);
         const search = searchParams.get("search") || "";
+        const siteAccountID = searchParams.get("SiteAccountID") || "";
         const page = parseInt(searchParams.get("page")) || 1;
         const limit = parseInt(searchParams.get("limit")) || 10;
 
-        console.log("Query Params:", { search, page, limit });
+        console.log("Query Params:", { search, page, limit, siteAccountID });
+
+        // ✅ Ensure optional filtering
+        const filters = {
+            ...(siteAccountID ? { SiteAccountID: parseInt(siteAccountID, 10) } : {}),
+            ...(search
+                ? { OR: [
+                    { FirstName: { contains: search } },
+                    { LastName: { contains: search } },
+                    { Email: { contains: search } },
+                    { Phone: { contains: search } },
+                    { Country: { contains: search } },
+                    { City: { contains: search } },
+                    { StateProvince: { contains: search } },
+                    { ZipPostalCode: { contains: search } },
+                    { site_account: { Company: { contains: search } } }
+                ]}
+                : {})
+        };
+
 
         // Hitung jumlah data total
         const totalCount = await prisma.contact_information.count({
-            where: search
-                ? {
-                    OR: [
-                        { FirstName: { contains: search } },
-                        { LastName: { contains: search } },
-                        { Email: { contains: search } },
-                        { Phone: { contains: search } },
-                        { Country: { contains: search } },
-                        { City: { contains: search } },
-                        { StateProvince: { contains: search } },
-                        { ZipPostalCode: { contains: search } },
-                        { Company: { contains: search } }
-                    ]
-                }
-                : undefined // Jika search kosong, tidak pakai filter
+            where: filters
         });
 
         console.log("Total Data:", totalCount);
@@ -36,31 +42,15 @@ export async function GET(request) {
         // Hitung offset berdasarkan halaman
         const skip = (page - 1) * limit;
 
+        
+
         // Ambil data dengan filter & pagination
         const contact_information = await prisma.contact_information.findMany({
-            where: search
-                ? {
-                    OR: [
-                        { FirstName: { contains: search } },
-                        { LastName: { contains: search } },
-                        { Email: { contains: search } },
-                        { Phone: { contains: search } },
-                        { Country: { contains: search } },
-                        { City: { contains: search } },
-                        { StateProvince: { contains: search } },
-                        { ZipPostalCode: { contains: search } },
-                        { site_account: { Company: { contains: search } } } // 🔥 Tambahkan pencarian berdasarkan Company
-                    ]
-                }
-                : undefined,
-            skip: skip,
+            where: filters,
+            skip: (page - 1) * limit,
             take: limit,
             orderBy: { FirstName: "asc" },
-            include: {
-                site_account: {
-                    select: { Company: true } // 🔥 Ambil hanya field Company dari site_account
-                }
-            }
+            include: { site_account: { select: { Company: true } } }
         });
         
 

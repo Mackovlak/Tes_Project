@@ -76,9 +76,9 @@ export const Assets_table = () => {
                   </td>
                   <td className="border p-2">{asset.AssetID}</td>
                   <td className="border p-2">{asset.SerialNumber}</td>
-                  <td className="border p-2">{asset.ProductName}</td>
+                  <td className="border p-2">{asset.product_information?.ProductName}</td>
                   <td className="border p-2">{asset.ProductNumber}</td>
-                  <td className="border p-2">{asset.ProductLine}</td>
+                  <td className="border p-2">{asset.product_information?.ProductLine}</td>
                   <td className="border p-2">{asset.SiteAccountID}</td>
                   <td className="border p-2 flex space-x-2">
                     <AssetEdit 

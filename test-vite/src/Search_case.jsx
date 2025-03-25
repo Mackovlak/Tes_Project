@@ -1,6 +1,7 @@
 import { React, useState, useEffect } from 'react'
 import  { Card, CardHeader, CardFooter, CardTitle, CardDescription, CardContent } from './components/ui/card'
 import { Input } from './components/ui/input'
+import { useNavigate } from 'react-router'
 
 
 
@@ -295,7 +296,78 @@ const Search_case = () => {
 
     //todo : handler selected contact
     const [selectedContact, setSelectedContact] = useState([]);
-  
+
+
+
+    //handler for selected asset for creating case
+    const [selectedAssetForCase, setSelectedAssetForCase] = useState(null);
+    const [selectedContactForCase, setSelectedContactForCase] = useState(null);
+    //state
+    const [caseType, setCaseType] = useState(""); // ✅ Manage selected Case Type
+    
+    const navigate = useNavigate(); // ✅ Get the navigate function
+
+      const handleCreateCase = async () => {
+        if (!selectedAssetForCase && selectedContactForCase) {
+          alert("Please select an asset/contact before creating a case!"); // 🔥 Prevent case creation
+          return;
+        }
+
+
+          // ✅ Extract SiteAccountID only if it exists
+        const siteAccountID = selectedSiteAccounts ? selectedSiteAccounts.SiteAccountID : null;
+        
+        try {
+          const newCase = {
+            CaseID: Math.floor(Math.random() * 100000), // Example random ID
+            AssetID: selectedAssetForCase.AssetID,
+            ContactID: selectedContactForCase.ContactID,
+            SiteAccountID: siteAccountID, // If company exists
+            CaseSubject: document.getElementById("CaseSubject").value,
+            CaseType: caseType,
+            KCI_Flag: document.getElementById("KCI_Flag").checked,
+            
+            IncomingChannel: "Email",
+            CaseStatus: "Open",
+            CasePriority: "Medium",
+            CustomerSeverity: "Normal",
+            CaseClosedDate: null,
+            CaseNote: "This is a sample case note.",
+            SymptomCode: "General Issue",
+            CaseResolution: "",
+          };
+      
+          await ApiCustomer.post("/api/case-information", newCase);
+          alert("Case Created Successfully!");
+          navigate(`/case/${newCase.CaseID}`); // ✅ Redirect to case details page
+        } catch (error) {
+          console.error("Error creating case:", error);
+        }
+      };
+
+    //selected company for case
+    // const selectedCompanyForCase = companies ? companies[0] : null;
+
+    const [selectedCompanyForCase, setSelectedCompanyForCase] = useState(null);
+
+    /**
+     * TODO :
+     * Make the select is automatic when it's related
+     * right now is not automated, so i skiped this part
+     * but this is still used rn
+     */
+    const handleSelectedAssetForCaseRelated = (asset) => {
+      setSelectedAssetForCase(asset);
+    
+      if (asset.contact_information) {
+        setSelectedContactForCase(asset.contact_information); // 🔥 Auto-select related contact
+      }
+    
+      if (asset.site_account) {
+        setSelectedSiteAccounts(asset.site_account); // 🔥 Auto-select related company
+      }
+    };
+    
 
   return (
     <div className="flex flex-1 mt-2  gap-4 p-4 pt-0">
@@ -309,7 +381,13 @@ const Search_case = () => {
             {/* <Button className="ml-50 cursor-pointer "><span></span>Customer Complaint</Button>
             <Button className="cursor-pointer"><span></span>Customer Complaint Legal</Button> */}
             {/* <Button className="mr-1.5 cursor-pointer"><span><Plus></Plus></span>Create Case</Button> */}
-            <BtnModal></BtnModal>
+            <BtnModal
+              handleCreateCase={handleCreateCase}
+              selectedAssetForCase={selectedAssetForCase}
+              selectedContactForCase={selectedContactForCase}
+              caseType={caseType}
+              setCaseType={setCaseType}
+            ></BtnModal>
           </TabsList>
 
           {/* search tab */}
@@ -380,23 +458,23 @@ const Search_case = () => {
           </TabsContent>  
           
           <TabsContent value="ci" className="flex flex-col gap-1">
-          <TabsList className="bg-white float-right mr-5 self-end">   
-              <TabsTrigger value="Account" className="cursor-pointer"><span><Plus></Plus></span>Create New</TabsTrigger>
-              <DialogCloseButton 
-                isModalAssetOpen={isModalAssetOpen} 
-                setIsModalAssetOpen={setIsModalAssetOpen} 
-                search={search} 
-                setSearch={setSearch} 
-                onSelectAsset={handleSelectedAsset} 
-              />
-              <DialogCompanyBtn 
-                isModalCompanyOpen={isModalCompanyOpen}
-                setIsModalCompanyOpen={setIsModalCompanyOpen}
-                search={search}
-                setSearch={setSearch}
-                onSelectCompany={handleSelectedSiteAccount}
-              />
-          </TabsList>
+            <TabsList className="bg-white float-right mr-5 self-end">   
+                <TabsTrigger value="Account" className="cursor-pointer"><span><Plus></Plus></span>Create New</TabsTrigger>
+                <DialogCloseButton 
+                  isModalAssetOpen={isModalAssetOpen} 
+                  setIsModalAssetOpen={setIsModalAssetOpen} 
+                  search={search} 
+                  setSearch={setSearch} 
+                  onSelectAsset={handleSelectedAsset} 
+                />
+                <DialogCompanyBtn 
+                  isModalCompanyOpen={isModalCompanyOpen}
+                  setIsModalCompanyOpen={setIsModalCompanyOpen}
+                  search={search}
+                  setSearch={setSearch}
+                  onSelectCompany={handleSelectedSiteAccount}
+                />
+            </TabsList>
           <div className='mb-5'>
             {/* TODO : Change this Variable Name */}
             <TableCompany 
@@ -406,6 +484,15 @@ const Search_case = () => {
               setSelectedAsset={setSelectedAsset}
               setSelectedSiteAccounts={setSelectedSiteAccounts}
               setSelectedContact={setSelectedContact}
+
+              selectedAssetForCase={selectedAssetForCase}
+              setSelectedAssetForCase={setSelectedAssetForCase}
+              selectedContactForCase={selectedContactForCase}
+              setSelectedContactForCase={setSelectedContactForCase}
+              selectedCompanyForCase={selectedCompanyForCase}
+              setSelectedCompanyForCase={setSelectedCompanyForCase}
+              handleCreateCase={handleCreateCase}
+              handleSelectedAssetForCaseRelated={handleSelectedAssetForCaseRelated}
             />
           </div>
           </TabsContent>
@@ -472,7 +559,7 @@ const Search_case = () => {
                   <Label htmlFor="StateProvince">State/Province</Label>
                   <Input id="StateProvince" type="text" className="border-b-black p-1" onChange={handlerInputSiteAccountChange} value={formDataSiteAccount.StateProvince}/>
                 </div>
-                <div className="space-y-0.5">
+                <div className="space-y-0.5 flex flex-col">
                   <Label htmlFor="current">Country</Label>
                   <SelectBar id="Country" onChange={handlerInputContactChange}/>
                 </div>
@@ -576,7 +663,7 @@ const Search_case = () => {
                   <Label htmlFor="StateProvince">State/Province</Label>
                   <Input id="StateProvince" type="text" className="border-b-black p-1" onChange={handlerInputContactChange} />
                 </div>
-                <div className="space-y-0.5">
+                <div className="space-y-0.5 flex flex-col">
                   <Label htmlFor="current">Country</Label>
                   <SelectBar id="Country" onChange={handlerInputContactChange}/>
                 </div>

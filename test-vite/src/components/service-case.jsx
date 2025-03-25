@@ -27,16 +27,16 @@ import { SelectBarRelated } from './sc-select'
 import { Lock } from 'lucide-react'
 import { CalendarDays } from 'lucide-react'
 
-export const ServiceCase = () => {
+export const ServiceCase = ({ caseDetails }) => {
   return (
     <Card className="mt-2 rounded-b-md">
       <CardHeader>
-        <CardTitle className="text-xl">5ABC98S1L</CardTitle>
+        <CardTitle className="text-xl">{caseDetails.CaseID}</CardTitle>
         <CardTitle className="text-sm">Case . Case</CardTitle>
       </CardHeader>
 
       <CardContent>
-        <Tabs>
+        <Tabs defaultValue="case_info"> 
           <TabsList className="bg-white">
             <TabsTrigger value="case_info" className="cursor-pointer">Case Information</TabsTrigger>
             <TabsTrigger value="customer,add,entitement" className="cursor-pointer white">Customer, Asset & Entitement</TabsTrigger>
@@ -57,34 +57,34 @@ export const ServiceCase = () => {
             <CardHeader className="flex-row">
               <Lock className='size-4'></Lock>
               <CardTitle   className='h-5 mr-38'>Case ID</CardTitle>
-              <CardTitle>...</CardTitle>
+              <CardTitle>{caseDetails.CaseID}</CardTitle>
             </CardHeader>
 
             <CardHeader className="flex-row">
               <Lock className='size-4'></Lock>
               <CardTitle   className='h-5 mr-18.5'>Incoming Channel</CardTitle>
-              <CardTitle>...</CardTitle>
+              <CardTitle>{caseDetails.IncomingChannel}</CardTitle>
             </CardHeader>
 
             <CardHeader className="flex-row">
               <CardTitle   className='h-5 ml-5 mr-31.5'>Case Status</CardTitle>
-              <CardTitle>...</CardTitle>
+              <CardTitle>{caseDetails.CaseStatus}</CardTitle>
             </CardHeader>
 
             <CardHeader className="flex-row">
               <CardTitle   className='h-5 ml-5 mr-29.5'>Case Priority</CardTitle>
-              <CardTitle>...</CardTitle>
+              <CardTitle>{caseDetails.CasePriority}</CardTitle>
             </CardHeader>
 
             <CardHeader className="flex-row">
               <CardTitle   className='h-5 ml-5 mr-19'>Customer Severity</CardTitle>
-              <CardTitle>...</CardTitle>
+              <CardTitle>{caseDetails.CustomerSeverity}</CardTitle>
             </CardHeader>
 
             <CardHeader className="flex-row">
               <Lock className='size-4'></Lock>
               <CardTitle   className='h-5 mr-30'>Created ON</CardTitle>
-              <CardTitle>...</CardTitle>
+              <CardTitle>{caseDetails.CreatedOn}</CardTitle>
               <CalendarDays className='size-4 ml-5 mr-5'></CalendarDays>
               <CardTitle>...</CardTitle>
             </CardHeader>
@@ -111,7 +111,7 @@ export const ServiceCase = () => {
 
             <CardHeader className="flex-row">
               <CardTitle   className='h-5 mr-38'>Case Subject</CardTitle>
-              <CardTitle>...</CardTitle>
+              <CardTitle>{caseDetails.CaseSubject}</CardTitle>
             </CardHeader>
 
             
@@ -123,7 +123,7 @@ export const ServiceCase = () => {
             
             <CardHeader className="flex-row">
               <CardTitle   className='h-5 mr-43'>Case Type</CardTitle>
-              <CardTitle>...</CardTitle>
+              <CardTitle>{caseDetails.CaseType}</CardTitle>
             </CardHeader>
 
             
@@ -146,7 +146,7 @@ export const ServiceCase = () => {
             
             <CardHeader className="flex-row">
               <CardTitle   className='h-5 ml-5 mr-36'>KCI For Case?</CardTitle>
-              <CardTitle>...</CardTitle>
+              <CardTitle>{caseDetails.KCI_Flag ? 'Yes' : 'No'}</CardTitle>
             </CardHeader>
 
             

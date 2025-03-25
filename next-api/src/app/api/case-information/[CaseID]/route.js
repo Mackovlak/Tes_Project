@@ -4,12 +4,26 @@ import prisma from "../../../../../prisma/client";
 
 export async function GET(request, { params }) {
     //get params id
-    const caseID = parseInt(params.CaseID);
+    const url = new URL(request.url);
+    const caseID = parseInt(url.pathname.split("/").pop()); 
+
+    if (isNaN(caseID)) {
+        return NextResponse.json(
+            { success: false, message: "Invalid Case ID" },
+            { status: 400 }
+        );
+    }
+
     //get detail post
     const case_information = await prisma.caseinformation.findUnique({
         where: {
             CaseID: caseID,
         },
+        include: { 
+            asset_information: true, 
+            contact_information: true, 
+            site_account: true 
+        }
     });
 
     if(!case_information){

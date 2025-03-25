@@ -53,8 +53,8 @@ export const Contact_table = () => {
       {/* Tampilkan error jika terjadi kesalahan */}
       {error && <p className="text-red-500">{error}</p>}
 
-      <div className="overflow-x-auto">
-        <table className="min-w-full border border-gray-300 shadow-lg">
+      <div className="overflow-x-scroll ">
+        <table className="border border-gray-300 shadow-lg">
           <thead>
             <tr className="bg-gray-200 text-gray-700 uppercase text-sm">
               <th className="border p-2">No</th>

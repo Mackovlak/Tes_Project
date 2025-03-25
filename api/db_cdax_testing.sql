@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Mar 20, 2025 at 06:04 PM
+-- Generation Time: Mar 21, 2025 at 08:39 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -29,10 +29,8 @@ SET time_zone = "+00:00";
 
 CREATE TABLE `asset_information` (
   `AssetID` int(11) NOT NULL,
-  `SerialNumber` varchar(100) NOT NULL,
-  `ProductName` varchar(255) DEFAULT NULL,
-  `ProductNumber` varchar(100) DEFAULT NULL,
-  `ProductLine` varchar(100) DEFAULT NULL,
+  `SerialNumber` varchar(20) NOT NULL,
+  `ProductNumber` varchar(11) NOT NULL,
   `SiteAccountID` int(11) DEFAULT NULL,
   `ContactID` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -41,9 +39,10 @@ CREATE TABLE `asset_information` (
 -- Dumping data for table `asset_information`
 --
 
-INSERT INTO `asset_information` (`AssetID`, `SerialNumber`, `ProductName`, `ProductNumber`, `ProductLine`, `SiteAccountID`, `ContactID`) VALUES
-(1, '5CG1329SV6', 'HP 14s-cf2500TX', '483R7PA', 'KV', 1, 1),
-(2, '5CG2037V5T', 'HP EliteBook x360 830 G8 Notebook PC (17N15AV)', '43F12UC', 'AN', NULL, 2);
+INSERT INTO `asset_information` (`AssetID`, `SerialNumber`, `ProductNumber`, `SiteAccountID`, `ContactID`) VALUES
+(1, '5CD2355XDD', '6G1L7PA', 1, 3),
+(2, '5CG1329SV6', '483R7PA', 1, 2),
+(3, '5CG1329SV7', '483R7PA', NULL, 1);
 
 -- --------------------------------------------------------
 
@@ -67,16 +66,11 @@ CREATE TABLE `caseinformation` (
   `CaseClosedDate` datetime DEFAULT NULL,
   `CaseNote` text DEFAULT NULL,
   `SymptomCode` varchar(50) DEFAULT NULL,
-  `CaseResolution` text DEFAULT NULL
+  `CaseResolution` text DEFAULT NULL,
+  `CreatedBy` int(11) DEFAULT NULL,
+  `Owner` int(11) DEFAULT NULL,
+  `WorkGround` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data for table `caseinformation`
---
-
-INSERT INTO `caseinformation` (`CaseID`, `SiteAccountID`, `ContactID`, `AssetID`, `CaseSubject`, `CaseType`, `KCI_Flag`, `IncomingChannel`, `CaseStatus`, `CasePriority`, `CustomerSeverity`, `CreatedOn`, `CaseClosedDate`, `CaseNote`, `SymptomCode`, `CaseResolution`) VALUES
-(5000081, 1, 1, 1, 'Laptop Rusak', 'A', 0, NULL, 'Booked', '4', '4', '2025-03-11 00:56:44', NULL, NULL, NULL, NULL),
-(5000082, 1, 1, 1, 'Laptop Rusak', 'A', 0, NULL, 'Booked', '4', '4', '2025-03-10 18:02:06', NULL, 'ASADSASSDASAD', NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -130,26 +124,9 @@ CREATE TABLE `contact_information` (
 --
 
 INSERT INTO `contact_information` (`ContactID`, `SiteAccountID`, `Salutation`, `FirstName`, `LastName`, `Email`, `PreferredLanguage`, `Phone`, `Mobile`, `WorkPhone`, `WorkExtension`, `OtherPhone`, `OtherExtension`, `Fax`, `AddressLine1`, `AddressLine2`, `City`, `StateProvince`, `Country`, `ZipPostalCode`) VALUES
-(1, 1, 'Mrs', 'Miku21', 'Margareth', 'mikucomunity21@gmail.com', 'Indonesia', '6287731137512', '6287731137512', NULL, NULL, NULL, NULL, NULL, 'Virtual 1', NULL, 'Virtual World', 'Virtual World', 'Virtual', '13413'),
-(2, NULL, 'Mr', 'Rafa', 'Elfarizi', 'rafaelfarizi1@gmail.com', 'Indonesia', '6287731137512', '6287731137512', NULL, NULL, NULL, NULL, NULL, 'Dukuh Cenang Desa Cenggini Rt 03 Rw 04', NULL, 'Kab. Tegal', 'Jawa Tengah', 'Indonesia', '40511'),
-(3, 1, 'Mrs', 'Aprilia Fidelis', 'Margareth', 'mikucomunity21@gmail.com', 'Indonesia', '6287731137512', '6287731137512', NULL, NULL, NULL, NULL, NULL, 'Virtual 1', NULL, 'Virtual World', 'Virtual World', 'Virtual', '13413'),
-(6, NULL, '', 'RAFA', 'ELFARIZI', '', '', '083834685279', '', '', '', '', '', '', 'Dukuh Cenang Desa Cenggini RT 03 RW 04', '', 'Kabupaten tegal', 'Jawa Tengah', '', '40511'),
-(8, 1, 'Mr. ', 'RAFA', 'ELFARIZI', '', 'English', '083834685279', '', '', '', '', '', '', 'Dukuh Cenang Desa Cenggini RT 03 RW 04', '', 'Kabupaten tegal', 'Jawa Tengah', 'Indonesia', '40511'),
-(9, 3, 'Mrs. ', 'Hatsune', 'Miku', '', 'Spanish', '087731137512', '', '', '', '', '', '', 'Puri Cipageran Indah 1 Blok H4 No 48', '', 'Cimahi', 'Jawa Barat', 'Cina', '40511'),
-(12, 3, 'Mr. ', 'RAFA', 'ELFARIZI', '', 'English', '083834685279', '', '', '', '', '', '', 'Dukuh Cenang Desa Cenggini RT 03 RW 04', '', 'Kabupaten tegal', 'Jawa Tengah', 'Malaysia', '40511'),
-(13, 3, 'Mrs. ', 'Hatsune', 'Miku', '', 'English', '083834685279', '', '', '', '', '', '', 'Puri Cipageran Indah 1 Blok H4 No 48', '', 'Cimahi', 'Jawa Barat', 'Indonesia', '40511'),
-(14, 1, 'Mr. ', 'RAFA', 'ELFARIZI', '', 'English', '083834685279', '', '', '', '', '', '', 'Dukuh Cenang Desa Cenggini RT 03 RW 04', '', 'Kabupaten tegal', 'Jawa Tengah', 'Indonesia', '40511'),
-(15, 3, 'Mr. ', 'Slamet', 'Meisa', '', 'Spanish', '083834685279', '', '', '', '', '', '', 'Tegal', '', 'Tegal', 'Jawa Tengah', 'Indonesia', '40511'),
-(17, 11, 'Mr. ', 'Slamet', 'Meisa', 'slametmeisa@gmail.com', 'English', '083834685279', '', '', '', '', '', '', 'Dukuh Cenang Desa Cenggini RT 03 RW 04', '', 'Kabupaten tegal', 'Jawa Tengah', 'Singapura', '40511'),
-(18, NULL, 'Mr. ', 'Slamet', 'Putra', '', 'English', '083834685279', '', '', '', '', '', '', 'Dukuh Cenang Desa Cenggini RT 03 RW 04', '', 'Kabupaten tegal', 'Jawa Tengah', 'Indonesia', '40511'),
-(19, NULL, 'Mr. ', 'Doni', 'Irawan', '', 'English', '083834685279', '083834685279', '083834685279', '', '', '', '451-678', 'Jakarta Utara', 'Jakarta Barat', 'Jakarta', 'DKI Jakarta', 'Indonesia', '40511'),
-(20, 11, 'Mr. ', 'Meisa', 'Putra', 'putra@gmail.com', 'Bahasa Indonesia', '083834685279', '083834685279', '', '', '', '', '', 'Dukuh Cenang Desa Cenggini RT 03 RW 04', '', 'Kabupaten tegal', 'Jawa Tengah', 'Singapura', '40511'),
-(21, 13, 'Mrs. ', 'jko', 'wi', 'jokowi@gmail.com', 'Bahasa Indonesia', '0829810', '083834685279', '', '', '', '', '', 'Dukuh Cenang Desa Cenggini RT 03 RW 04', '', 'Kabupaten tegal', 'Jawa Tengah', 'Indonesia', '40511'),
-(22, NULL, 'Mr. ', 'ibu', 'mega', '', 'Spanish', '081277642718', '0821784784', '', '', '', '', '', 'Dukuh Cenang Desa Cenggini RT 03 RW 04', '', 'jakarta', 'dki jakarta', 'Indonesia', '650192'),
-(23, 14, 'Mrs. ', 'Meisa', 'Putra', 'meisaputra@gmail.co.id', 'Bahasa Indonesia', '089677544227', '089677544227', '089677544227', '', '', '', '', 'jakarta', '', 'jakarta', 'dki jakarta', 'Indonesia', '544618'),
-(25, 1, 'Mr. ', 'Hatsune', 'Miku', 'rafaelfarizi1@gmail.com', 'Spanish', '083834685279', '', '', '', '', '', '', 'Puri Cipageran Indah 1 Blok H4 No 48', '', 'Cimahi', 'Jawa Barat', '', '40511'),
-(26, NULL, 'Mr. ', 'RAFA', 'ELFARIZI', 'rafaelfarizi1@gmail.com', 'Spanish', '083834685279', '', '', '', '', '', '', 'Dukuh Cenang Desa Cenggini RT 03 RW 04', '', 'Kabupaten tegal', 'Jawa Tengah', '', '40511'),
-(27, 1, 'Mr. ', 'Hatsune', 'Miku', '', 'Bahasa Indonesia', '', '', '', '', '', '', '', 'Puri Cipageran Indah 1 Blok H4 No 48', '', 'Cimahi', 'Jawa Barat', '', '40511');
+(1, 2, 'Mr. ', 'RAFA', 'ELFARIZI', 'rafaelfarizi1@gmail.com', 'Bahasa Indonesia', '083834685279', '', '', '', '', '', '', 'Dukuh Cenang Desa Cenggini RT 03 RW 04', '', 'Kabupaten tegal', 'Jawa Tengah', 'Indonesia', '40511'),
+(2, 1, 'Mrs. ', 'Mey', 'Almasya', 'mey-miku21@gmail.com', 'English', '085755162771', '085755162771', '', '', '', '', '', 'Surakarta', '', 'Solo', 'Jawa Tengah', 'Indonesia', '40511'),
+(3, 1, 'Mr. ', 'Miku21', 'Margareth', 'mikucomunity21@gmail.com', 'English', '087731137512', '085755162771', '', '', '', '', '', 'Tegal', '', 'Kabupaten tegal', 'Jawa Tengah', 'Indonesia', '40511');
 
 -- --------------------------------------------------------
 
@@ -186,6 +163,26 @@ CREATE TABLE `materialorderlineitems` (
   `Price` decimal(10,2) DEFAULT NULL,
   `Quantity` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `product_information`
+--
+
+CREATE TABLE `product_information` (
+  `ProductNumber` varchar(11) NOT NULL,
+  `ProductLine` varchar(3) NOT NULL,
+  `ProductName` varchar(255) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `product_information`
+--
+
+INSERT INTO `product_information` (`ProductNumber`, `ProductLine`, `ProductName`) VALUES
+('483R7PA', 'KV', 'HP 14s-cf2500TX'),
+('6G1L7PA', 'M7', 'Victus by HP 15.6 inch Gaming Laptop 15-fb0000 (598V1AV)');
 
 -- --------------------------------------------------------
 
@@ -257,11 +254,8 @@ CREATE TABLE `site_account` (
 --
 
 INSERT INTO `site_account` (`SiteAccountID`, `Company`, `Email`, `PrimaryPhone`, `AddressLine1`, `AddressLine2`, `City`, `StateProvince`, `Country`, `ZipPostalCode`) VALUES
-(1, 'Miku21Store', 'mikucomunity21@gmail.com', '6287731137512', 'Virtual 1', '', 'Virtual World', 'Virtual World', 'Virtual', '13413'),
-(3, 'Localhost', 'localhost@gmail.com', '6287731137512', 'Jakarta Pusat', '', 'Jakarta', 'DKI Jakarta', 'Indonesia', '13413'),
-(11, 'PT Kapal Api', 'kapalapi@site.com', '087731137512', 'Jakarta Utara', '', 'Jakarta', 'DKI Jakarta', '', '40511'),
-(13, 'kapal api abc', 'abc@gmail.com', '089281972', 'Dukuh Cenang Desa Cenggini RT 03 RW 04', '', 'Cimahi', 'Jawa Barat', '', '40511'),
-(14, 'PT GUDANG GARAM SEJAHTERA', 'gudanggaram55@gmail.com', '0878299192', 'Surabaya', '', 'surabaya', 'jawa timur', '', '78229');
+(1, 'Miku21 Store', 'mikucomunity21@gmail.com', '087731137512', 'Virtual', '', 'Virtual World', 'Virtual World', '', '40511'),
+(2, 'PT Kapal Api', 'kapalapi@gmail.com', '087731137512', 'Jakarta Utara', '', 'Jakarta', 'DKI Jakarta', '', '40511');
 
 -- --------------------------------------------------------
 
@@ -296,7 +290,8 @@ CREATE TABLE `workorder` (
 ALTER TABLE `asset_information`
   ADD PRIMARY KEY (`AssetID`),
   ADD KEY `SiteAccountID` (`SiteAccountID`),
-  ADD KEY `ContactID` (`ContactID`);
+  ADD KEY `ContactID` (`ContactID`),
+  ADD KEY `ProductNumber` (`ProductNumber`);
 
 --
 -- Indexes for table `caseinformation`
@@ -336,6 +331,12 @@ ALTER TABLE `materialorderlineitems`
   ADD KEY `MOID` (`MOID`);
 
 --
+-- Indexes for table `product_information`
+--
+ALTER TABLE `product_information`
+  ADD PRIMARY KEY (`ProductNumber`);
+
+--
 -- Indexes for table `servicecatalog`
 --
 ALTER TABLE `servicecatalog`
@@ -369,7 +370,7 @@ ALTER TABLE `workorder`
 -- AUTO_INCREMENT for table `asset_information`
 --
 ALTER TABLE `asset_information`
-  MODIFY `AssetID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `AssetID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `casenotes`
@@ -381,7 +382,7 @@ ALTER TABLE `casenotes`
 -- AUTO_INCREMENT for table `contact_information`
 --
 ALTER TABLE `contact_information`
-  MODIFY `ContactID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=28;
+  MODIFY `ContactID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `materialorder`
@@ -411,7 +412,7 @@ ALTER TABLE `servicecatalog_parts`
 -- AUTO_INCREMENT for table `site_account`
 --
 ALTER TABLE `site_account`
-  MODIFY `SiteAccountID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
+  MODIFY `SiteAccountID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `workorder`
@@ -428,7 +429,8 @@ ALTER TABLE `workorder`
 --
 ALTER TABLE `asset_information`
   ADD CONSTRAINT `asset_information_ibfk_1` FOREIGN KEY (`SiteAccountID`) REFERENCES `site_account` (`SiteAccountID`),
-  ADD CONSTRAINT `asset_information_ibfk_2` FOREIGN KEY (`ContactID`) REFERENCES `contact_information` (`ContactID`);
+  ADD CONSTRAINT `asset_information_ibfk_2` FOREIGN KEY (`ContactID`) REFERENCES `contact_information` (`ContactID`),
+  ADD CONSTRAINT `asset_information_ibfk_3` FOREIGN KEY (`ProductNumber`) REFERENCES `product_information` (`ProductNumber`);
 
 --
 -- Constraints for table `caseinformation`

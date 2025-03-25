@@ -4,16 +4,19 @@ import prisma from "../../../../../prisma/client";
 export async function GET(request, { params }) {
     try {
         const siteAccountID = parseInt(params.SiteAccountID);
+
+        console.log("Site Account ID Defined : ", siteAccountID)
         if (isNaN(siteAccountID)) {
             return NextResponse.json(
                 { success: false, message: "Invalid SiteAccountID" },
                 { status: 400 }
             );
         }
-
+        
         const site_account = await prisma.site_account.findUnique({
             where: { SiteAccountID: siteAccountID },
         });
+        console.log("Site Account GET : ", site_account)
 
         if (!site_account) {
             return NextResponse.json(

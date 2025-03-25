@@ -82,12 +82,12 @@ export function DialogCloseButton({
   const filteredAssets = search.SerialNumber ? assets.filter(
     (asset) =>
       asset.SerialNumber?.toLowerCase().includes(search?.SerialNumber?.toLowerCase()) ||
-    asset.ProductName?.toLowerCase().includes(search?.SerialNumber?.toLowerCase())
+    asset.product_information?.ProductName?.toLowerCase().includes(search?.SerialNumber?.toLowerCase())
   ) : [];
   const filteredSearchAssets = searchAsset !== "" ? assets.filter(
     (asset) =>
       asset.SerialNumber?.toLowerCase().includes(searchAsset.toLowerCase()) ||
-    asset.ProductName?.toLowerCase().includes(searchAsset.toLowerCase())
+    asset.product_information?.ProductName?.toLowerCase().includes(searchAsset.toLowerCase())
   ) : [];
  
   
@@ -141,11 +141,11 @@ export function DialogCloseButton({
                   {/* <TableCell></TableCell> */}
                   <TableCell className="font-medium whitespace-break-spaces">
                     
-                    {asset.ProductName}
+                    {asset.product_information?.ProductName}
                   </TableCell>
                   <TableCell>{asset.SerialNumber}</TableCell>
                   <TableCell>{asset.ProductNumber}</TableCell>
-                  <TableCell>{asset.ProductLine}</TableCell>
+                  <TableCell>{asset.product_information?.ProductLine}</TableCell>
                   <TableCell className="text-right">
                     {asset.site_account?.Company}
                   </TableCell>
@@ -161,11 +161,11 @@ export function DialogCloseButton({
                     
                   <TableCell className="font-medium whitespace-break-spaces">
                     
-                    {asset.ProductName}
+                    {asset.product_information?.ProductName}
                   </TableCell>
                   <TableCell>{asset.SerialNumber}</TableCell>
                   <TableCell>{asset.ProductNumber}</TableCell>
-                  <TableCell>{asset.ProductLine}</TableCell>
+                  <TableCell>{asset.product_information?.ProductLine}</TableCell>
                   <TableCell className="text-right">
                     {asset.site_account?.Company}
                   </TableCell>
@@ -178,15 +178,15 @@ export function DialogCloseButton({
                   className={`cursor-pointer hover:bg-gray-200 ${selectedAsset?.AssetID === asset.AssetID ? "bg-blue-300" : ""}`}
                   onClick={()=>handleSelectAsset(asset)}
                 >
-                  <TableCell>
+                  {/* <TableCell>
                   <input type="checkbox"/>
-                  </TableCell>
+                  </TableCell> */}
                   <TableCell className="font-medium whitespace-break-spaces">
-                    {asset.ProductName}
+                    {asset.product_information?.ProductName}
                   </TableCell>
                   <TableCell>{asset.SerialNumber}</TableCell>
                   <TableCell>{asset.ProductNumber}</TableCell>
-                  <TableCell>{asset.ProductLine}</TableCell>
+                  <TableCell>{asset.product_information?.ProductLine}</TableCell>
                   <TableCell className="text-right">
                     {asset.site_account?.Company}
                   </TableCell>
@@ -248,24 +248,38 @@ export function DialogCompanyBtn({
     }, [search]); // Logs every time `search` changes
     
     //filter based on search in search_case
-    //TODO : WHY TF THE FILTEREDSITEACCOUNT GIVE ALL MF DATA, FUCK
+    //TODO : IF THE SEARCH IS EMPTY, set to not found.
+    //TODO 2 : filtered the Site Account based on three main component : Company, City, and ZipPostalCode  
     const [filteredSiteAccount, setFilteredSiteAccount] = useState([]);
+        // ✅ Wait for `siteAccounts` to be updated before filtering
     useEffect(() => {
-      if (search.Company?.trim()) {
+      if (siteAccounts.length > 0 && search.Company?.trim()) {  
         const lowerSearch = search.Company.toLowerCase().trim();
-        setFilteredSiteAccount(
-          siteAccounts.filter(company =>
-            company.Company?.toLowerCase().includes(lowerSearch)
-          )
+        const filteredResults = siteAccounts.filter(company =>
+          company.Company?.toLowerCase().includes(lowerSearch)
         );
+
+        
+        if (filteredResults.length > 0) {
+          setFilteredSiteAccount(filteredResults); // ✅ Set results if matches found
+        } else {
+          setFilteredSiteAccount([]); // ✅ Explicitly reset when no matches
+        }
+
+        console.log("Lower Search: ", lowerSearch);
+        console.log("Site Account Before State Update:", siteAccounts.Company?.toLowerCase().includes(lowerSearch)  ); // ✅ Shows correct data
       } else {
-        setFilteredSiteAccount([]); // Reset when search is empty
+        setFilteredSiteAccount([]); // Reset when search is empty or no data
       }
-    }, [search.Company, siteAccounts]);
+    }, [search.Company, siteAccounts]); // ✅ Depend on `siteAccounts`
     useEffect(() => {
       console.log("Updated search state:", search);
       console.log("search.Company:", search.Company);
     }, [search]); // Logs every time `search` changes
+    // ✅ New useEffect to check updated `filteredSiteAccount`
+    useEffect(() => {
+      console.log("Filtered Site Account Updated:", filteredSiteAccount);
+    }, [filteredSiteAccount]); // Runs when `filteredSiteAccount` updates
 
     //filter based on search in modal
     const filteredSiteAccountSearched = searchQuery !== "" ? siteAccounts.filter((company) =>
@@ -343,75 +357,43 @@ export function DialogCompanyBtn({
                 </TableRow>
             </TableHeader>
             <TableBody>
-                {filteredSiteAccountSearched.length > 0 ? (
-                  filteredSiteAccountSearched.map((company) =>(
-                    <TableRow
-                      key={company.SiteAccountID}
-                      onClick={() => handleSelectSiteAccount(company)}
-                      className={`cursor-pointer hover:bg-gray-200 ${
-                        selectedSiteAccounts?.SiteAccountID === company.SiteAccountID
-                          ? "bg-blue-300"
-                          : ""
-                      }`}
-                    >
-                      <TableCell className={'font-medium whitespace-break-spaces'}>{company.Company}</TableCell>
-                      <TableCell>{company.AddressLine1}</TableCell>
-                      <TableCell>{company.City}</TableCell>
-                      <TableCell>{company.StateProvince}</TableCell>
-                      <TableCell>{company.Country}</TableCell>
-                      <TableCell>{company.ZipPostalCode}</TableCell>
-                      <TableCell>{company.Source || "-"}</TableCell>
-                      <TableCell>{company.Opsi || "-"}</TableCell>
-                    </TableRow>
-                  ))
-                ) : filteredSiteAccount.length > 0 ? (
-                  filteredSiteAccount.map((company) => (
-                    <TableRow
-                      key={company.SiteAccountID}
-                      onClick={() => handleSelectSiteAccount(company)}
-                      className={`cursor-pointer hover:bg-gray-200 ${
-                        selectedSiteAccounts?.SiteAccountID === company.SiteAccountID
-                          ? "bg-blue-300"
-                          : ""
-                      }`}
-                    >
-                      <TableCell className={'font-medium whitespace-break-spaces'}>{company.Company}</TableCell>
-                      <TableCell>{company.AddressLine1}</TableCell>
-                      <TableCell>{company.City}</TableCell>
-                      <TableCell>{company.StateProvince}</TableCell>
-                      <TableCell>{company.Country}</TableCell>
-                      <TableCell>{company.ZipPostalCode}</TableCell>
-                      <TableCell>{company.Source || "-"}</TableCell>
-                    </TableRow>
-                  ))
-                ) : siteAccounts.length > 0 ? (
-                  siteAccounts.map((company) => (
-                    <TableRow
-                      key={company.SiteAccountID}
-                      onClick={() => handleSelectSiteAccount(company)}
-                      className={`cursor-pointer hover:bg-gray-200 ${
-                        selectedSiteAccounts?.SiteAccountID === company.SiteAccountID
-                          ? "bg-blue-300"
-                          : ""
-                      }`}
-                    >
-                      <TableCell className={'font-medium whitespace-break-spaces'}>{company.Company}</TableCell>
-                      <TableCell>{company.AddressLine1}</TableCell>
-                      <TableCell>{company.City}</TableCell>
-                      <TableCell>{company.StateProvince}</TableCell>
-                      <TableCell>{company.Country}</TableCell>
-                      <TableCell>{company.ZipPostalCode}</TableCell>
-                      <TableCell>{company.Source || "-"}</TableCell>
-                    </TableRow>
-                  ))
-                ) : (
-                  <TableRow>
-                    <TableCell colSpan={7} className="text-center">
-                      No Companies Found
-                    </TableCell>
-                  </TableRow>
-                )}
-                </TableBody>
+  {(filteredSiteAccountSearched.length > 0
+    ? filteredSiteAccountSearched
+    : filteredSiteAccount.length > 0
+    ? filteredSiteAccount
+    : siteAccounts
+  ).map((company) => (
+    <TableRow
+      key={company.SiteAccountID}
+      onClick={() => handleSelectSiteAccount(company)}
+      className={`cursor-pointer hover:bg-gray-200 ${
+        selectedSiteAccounts?.SiteAccountID === company.SiteAccountID
+          ? "bg-blue-300"
+          : ""
+      }`}
+    >
+      <TableCell className={'font-medium whitespace-break-spaces'}>{company.Company}</TableCell>
+      <TableCell>{company.AddressLine1}</TableCell>
+      <TableCell>{company.City}</TableCell>
+      <TableCell>{company.StateProvince}</TableCell>
+      <TableCell>{company.Country}</TableCell>
+      <TableCell>{company.ZipPostalCode}</TableCell>
+      <TableCell>{company.Source || "-"}</TableCell>
+      <TableCell>{company.Opsi || "-"}</TableCell>
+    </TableRow>
+  ))}
+
+  {(filteredSiteAccountSearched.length === 0 &&
+    filteredSiteAccount.length === 0 &&
+    siteAccounts.length === 0) && (
+    <TableRow>
+      <TableCell colSpan={7} className="text-center">
+        No Companies Found
+      </TableCell>
+    </TableRow>
+  )}
+</TableBody>
+
         </Table>
         <DialogFooter className="sm:justify-end">
         <Button onClick={handleConfirmSelection}>Select</Button>

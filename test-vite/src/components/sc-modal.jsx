@@ -1,3 +1,5 @@
+
+
 import React, { useState, useEffect } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -48,13 +50,26 @@ import axios from "axios";
 //   },
 // ];
 
-export function BtnModal() {
+export function BtnModal({
+  handleCreateCase,
+  selectedAssetForCase,
+  selectedContactForCase,
+  caseType,
+  setCaseType
+}) {
   
+  
+
 
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant="outline" className="bg-white mr-4">
+        <Button 
+          variant="outline" 
+          onClick={handleCreateCase}
+          disabled={!selectedAssetForCase || !selectedContactForCase } // 🔥 Button disabled if no asset selected
+          className={`mr-4${(!selectedAssetForCase || !selectedContactForCase) ? "bg-white cursor-not-allowed" : "bg-blue-500"}`}
+        >
           <Plus></Plus>Create Case
         </Button>
       </DialogTrigger>
@@ -64,21 +79,21 @@ export function BtnModal() {
         </DialogHeader>
         <div className="flex items-center space-x-3">
           <div className="w-55">
-            <Label htmlFor="name" className="text-right">
+            <Label htmlFor="CaseSubject" className="text-right">
               Case Subject
             </Label>
-            <Input id="name" className="col-span-3 border-b-black p-1" />
+            <Input id="CaseSubject" className="col-span-3 border-b-black p-1" />
           </div>
           <div className="">
-            <Label htmlFor="name" className="text-right">
+            <Label htmlFor="CaseType" className="text-right">
               Case Type
             </Label>
-            <SelectBar3></SelectBar3>
+            <SelectBar3 value={caseType} onChange={setCaseType}></SelectBar3>
           </div>
           <div className="flex items-center space-x-2 mt-5">
-            <Checkbox id="terms" />
+            <Checkbox id="KCI_Flag" />
             <label
-              htmlFor="terms"
+              htmlFor="KCI_Flag"
               className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
             >
               KCI For this case?
@@ -86,14 +101,23 @@ export function BtnModal() {
           </div>
         </div>
         <DialogFooter>
-          <Button type="submit">DONE</Button>
+          <Button type="submit" onClick={handleCreateCase}>DONE</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
   );
 }
 
+/**
+ * TODO 
+ * VALIDATION WHERE INPUTED CONTACT ALREADY AVAILABLE
+ * CHECK EMAIL OR PHONE
+ */
+
 export function BtnModalContact({ selectedCompany, selectedContact, setSelectedContact }) {
+  //set modal state 
+  const [isModalContactSearchInput, setIsModalContactSearchInput] = useState(false);
+  
    const [formDataContact, setFormDataContact] = useState({
       Salutation: '',
       FirstName: '',
@@ -123,25 +147,43 @@ export function BtnModalContact({ selectedCompany, selectedContact, setSelectedC
       setFormDataContact((prev) => ({ ...prev, [id]: value }));
     };
     
-    // Handle form submission
+  // Function to fetch updated contacts
+  const fetchContacts = async (companyId) => {
+    try {
+      console.log("Fetching contacts for Company ID:", companyId); // ✅ Debugging
+      const response = await ApiCustomer.get(`/api/contact-information?SiteAccountID=${companyId}`);
+      console.log("response Fetch Contacts: ", response.data)
+      return response.data.data; // ✅ Return updated contacts
+    } catch (error) {
+      console.error("Error fetching contacts:", error);
+      return [];
+    }
+  };
+  // Handle form submission
   const handlerContactSubmit = async () => {
     console.log("formDataContact", formDataContact);
     try {
       if (formDataContact.ContactID) {
         // ✅ Update existing contact
         await ApiCustomer.patch(`/api/contact-information/${formDataContact.ContactID}`, formDataContact);
+        setIsModalContactSearchInput(false)
         alert("Contact updated successfully!");
       } else {
         // ✅ Add new contact
         await ApiCustomer.post("/api/contact-information", formDataContact);
+        setIsModalContactSearchInput(false)
         alert("Contact added successfully!");
       }
 
-      fetchContacts(); // ✅ Refresh contacts table
+      // fetchContacts(); // ✅ Refresh contacts table
 
-       // ✅ Reload contacts by fetching the latest data
-       const updatedContacts = await fetchContacts(selectedCompany.SiteAccountID);
-       setSelectedContact(updatedContacts); // ✅ Update state so table refreshes
+       // ✅ Ensure selectedCompany is not null before fetching contacts
+    if (selectedCompany?.SiteAccountID) {
+      console.log("Selected Company :",selectedCompany);
+      const updatedContacts = await fetchContacts(selectedCompany.SiteAccountID);
+      setSelectedContact(updatedContacts); // ✅ Update state so table refreshes
+      console.log("Updated Selected Contacts:", updatedContacts);
+    }
 
     } catch (error) {
       console.error("Error adding contact:", error);
@@ -149,16 +191,6 @@ export function BtnModalContact({ selectedCompany, selectedContact, setSelectedC
   };
 
   
-  // Function to fetch updated contacts
-  const fetchContacts = async (companyId) => {
-    try {
-      const response = await ApiCustomer.get(`/api/contact-information?SiteAccountID=${companyId}`);
-      return response.data.data; // ✅ Return updated contacts
-    } catch (error) {
-      console.error("Error fetching contacts:", error);
-      return [];
-    }
-  };
 
   // Edit function 
 
@@ -169,7 +201,7 @@ export function BtnModalContact({ selectedCompany, selectedContact, setSelectedC
 
 
   return (
-    <Dialog>
+    <Dialog open={isModalContactSearchInput} onOpenChange={setIsModalContactSearchInput}>
       <DialogTrigger asChild>
         <Button variant="outline" className="bg-white mt-0.5">
           New Contacts
@@ -253,7 +285,7 @@ export function BtnModalContact({ selectedCompany, selectedContact, setSelectedC
 
         <DialogHeader className="flex-row justify-between items-center">
           <DialogTitle className="text-md">Address</DialogTitle>
-          <Button className="bg-white text-gray-400  "><Copy></Copy>Same in Account Adress </Button>
+          <Button className="bg-white text-gray-400   "><Copy></Copy>Same in Account Adress </Button>
         </DialogHeader>
 
         <div className="grid grid-cols-3 gap-3">
@@ -306,13 +338,35 @@ export function BtnModalContact({ selectedCompany, selectedContact, setSelectedC
   );
 }
 
-export function BtnModalAsset({ contactID }) {
-  const [assets, setAssets] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+
+/**
+ * TODO 
+ * MAKE ROUTE FOR PRODUCT
+ */
+export function BtnModalAsset() {
+  //set asset
+  const [assets, setAssets] = useState([])
+  //prevent infinite loop of calling fetchDataAssets
+  useEffect(() => {
+    fetchDataAssets();
+  }, []); 
+
+  //set search state
   const [searchAsset, setSearchAsset] = useState("");
-  const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
+  //handle Change Input
+  const handleSearchInputAssetsChange = (e) =>{
+    const searchQuery = e.target.value;
+    setSearchAsset(searchQuery);
+  }
+  const filteredAssets = searchAsset !== "" ? assets.filter(
+    (asset) => 
+      asset.SerialNumber?.toLowerCase().includes(searchAsset.toLowerCase()) || 
+      asset.product_information?.ProductName?.toLowerCase().includes(searchAsset.toLowerCase()) || 
+      asset.ProductNumber?.toLowerCase().includes(searchAsset.toLowerCase())
+  ) : [];
+
+
+  //handling dialog state
   const [isOpen, setIsOpen] = useState(false);
   const [selectedAsset, setSelectedAsset] = useState(null);
   const [isUpdating, setIsUpdating] = useState(false);
@@ -421,18 +475,25 @@ export function BtnModalAsset({ contactID }) {
               <TableHead>Contact</TableHead>
             </TableRow>
           </TableHeader>
-          <TableBody>
-            {loading ? <TableRow><TableCell colSpan={4}>Loading...</TableCell></TableRow> : 
-             error ? <TableRow><TableCell colSpan={4}>{error}</TableCell></TableRow> :
-             assets.length > 0 ? assets.map((asset) => (
-                <TableRow key={asset.AssetID}>
-                  <TableCell>{asset.ProductName}</TableCell>
-                  <TableCell>{asset.ProductNumber}</TableCell>
-                  <TableCell>{asset.HWProfitCenter || '-'}</TableCell>
-                  <TableCell>{'-'}</TableCell>
+
+          <TableBody >
+            {assets.length > 0 ? ( assets.map((asset) => (
+              <TableRow key={asset?.AssetID}>
+                <TableCell className="whitespace-break-spaces ">{asset?.product_information?.ProductName}</TableCell>
+                <TableCell>{asset?.product_information?.ProductNumber}</TableCell>
+                <TableCell>{asset?.HWPorfitCenter ? asset?.HWPorfitCenter : '-' }</TableCell>
+                <TableCell>{asset?.contact_information !== null ? asset?.contact_information?.FirstName + ' ' + asset?.contact_information?.LastName : '-'   }</TableCell>
+              </TableRow>
+             )) ) : (
+                <TableRow>
+                  <TableCell
+                    colSpan={5}
+                    className="text-center font-medium whitespace-break-spaces"
+                  >
+                    Data Belum Tersedia
+                  </TableCell>
                 </TableRow>
-              )) : <TableRow><TableCell colSpan={4}>No Data Available</TableCell></TableRow>
-            }
+              )}
           </TableBody>
         </Table>
 
