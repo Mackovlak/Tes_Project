@@ -211,9 +211,7 @@ export function BtnModalContact({ selectedCompany, selectedContact, setSelectedC
         <DialogHeader>
           <div className="flex justify-between">
             <DialogTitle className="text-xl flex gap-2"><PhoneCall></PhoneCall>Contact Information</DialogTitle>
-            <DialogTitle className="flex justify-end text-sm mt-2.5">
-              Clear All
-            </DialogTitle>
+            <Button className="self-end mr-2" variant="ghost">Clear All</Button>
           </div>
         </DialogHeader>
 
@@ -409,9 +407,7 @@ export function BtnModalAsset() {
         <DialogHeader>
           <div className="flex justify-between">
             <DialogTitle className="text-xl">Asset Information</DialogTitle>
-            <DialogTitle className="flex justify-end text-sm mt-2.5">
-              Clear All
-            </DialogTitle>
+            <Button className="self-end mr-2" variant="ghost">Clear All</Button>
           </div>
         </DialogHeader>
 

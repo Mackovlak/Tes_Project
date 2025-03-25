@@ -561,7 +561,7 @@ const Search_case = () => {
             {/* <Button className="ml-50 cursor-pointer "><span></span>Customer Complaint</Button>
             <Button className="cursor-pointer"><span></span>Customer Complaint Legal</Button> */}
             {/* <Button className="mr-1.5 cursor-pointer"><span><Plus></Plus></span>Create Case</Button> */}
-            <div className="flex gap-2 items-center">
+            <div className="flex gap-4 items-center">
               <Button className="text-md rounded-2xl p-4 text-black bg-white font-bold">Create Legal Complaint</Button>
               <Button className="text-md rounded-2xl p-4 bg-transparent border-black border-2">Create Complaint</Button>
               <BtnModal
@@ -571,7 +571,7 @@ const Search_case = () => {
                 caseType={caseType}
                 setCaseType={setCaseType}
               ></BtnModal>
-              <SidebarTrigger className="-ml-1 bg-amber-50 scale-125 mr-1" icon={PanelRight}/>
+              <SidebarTrigger className="-ml-1  scale-125 mr-1" icon={PanelRight}/>
             </div>
           </TabsList>
 
@@ -767,11 +767,12 @@ const Search_case = () => {
               <Card className="drop-shadow-md">
                 <CardHeader className="flex-row justify-between">
                 <CardTitle>
-                 Basic Informationdsada
+                 Basic Information
                   </CardTitle>
-                  <CardTitle>
-                    Basic Informationdad
-                  </CardTitle>
+                  <div>
+                    <Button className="bg-white text-gray-400  self-end "><Copy></Copy>Same in Account Adress </Button>
+                    <Button className="self-end mr-2" variant="ghost">Clear All</Button>
+                  </div>
                 </CardHeader>
                 <CardContent className="grid gap-5 grid-cols-5">
                   <div className="space-y-0.5 grid grid-cols-2 gap-x-2.5 col-span-2">
