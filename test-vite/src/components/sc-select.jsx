@@ -13,7 +13,7 @@ import {
   export function SelectBar({ id, onChange }) {
     return (
       <Select onValueChange={(value) => onChange({ target: { id, value}})}>
-        <SelectTrigger className="w-[full] border-black">
+        <SelectTrigger className="w-full border-black">
           <SelectValue placeholder="Select a Country"/>
         </SelectTrigger>
         <SelectContent>
@@ -62,9 +62,9 @@ import {
     )
   }
 
-  export function SelectBar3() {
+  export function SelectBar3({ value, onChange }) {
     return (
-      <Select>
+      <Select value={value} onValueChange={onChange}>
         <SelectTrigger className="w-[200px] border-b-black">
           <SelectValue/>
         </SelectTrigger>
@@ -132,10 +132,26 @@ import {
     )
   }
 
+  export function SelectBarContact4({ id, onChange }) {
+    return (
+      <Select onValueChange={(value) => onChange({ target: { id, value}})}>
+        <SelectTrigger className="w-[150px] border-black">
+          <SelectValue placeholder="Select Salutation"/>
+        </SelectTrigger>
+        <SelectContent>
+          <SelectGroup>
+            <SelectItem value="Mr. ">Mr. </SelectItem>
+            <SelectItem value="Mrs. ">Mrs. </SelectItem>
+          </SelectGroup>
+        </SelectContent>
+      </Select>
+    )
+  }
+
   export function SelectBarRelated() {
     return (
       <Select>
-        <SelectTrigger className="w-[90px]  h-7 font-semibold rounded-r-2xl border-none">Related
+        <SelectTrigger className="w-[90px] mt-0.5 h-7 font-semibold rounded-r-2xl border-none">Related
         </SelectTrigger>
         <SelectContent>
           <SelectGroup>

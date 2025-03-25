@@ -66,7 +66,7 @@ const data = {
       title: "Master",
       url: "#",
       icon: Bot,
-      isActive: true,
+      // isActive: true,
       items: [
         {
           title: "Company",
@@ -79,6 +79,10 @@ const data = {
         {
           title: "Contact",
           url: "/master/Contact_table",
+        },
+        {
+          title: "Case",
+          url: "/master/Case_table",
         },
       ],
     },
@@ -192,7 +196,7 @@ export function AppSidebar({
       <SidebarContent>
         <NavProjects projects={data.projects} />
         <NavRecent recent={data.recent}/>
-        <NavPinned pinned={data.pinned}></NavPinned>
+        <NavPinned pinned={data.pinned}/>
         <NavMywork mywork={data.mywork}/>
         <NavMain items={data.navMain} />
       </SidebarContent>

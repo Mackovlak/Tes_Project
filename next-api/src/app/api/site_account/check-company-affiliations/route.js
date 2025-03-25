@@ -18,6 +18,10 @@ export async function GET(request) {
   
       const assets = await prisma.asset_information.findMany({
         where: { SiteAccountID: siteAccountId },
+        include:
+            {
+                product_information:true
+            }
       });
   
       return NextResponse.json({
