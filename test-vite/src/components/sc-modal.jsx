@@ -26,7 +26,7 @@ import { Plus,PhoneCall, Copy } from "lucide-react";
 import { Checkbox } from "./ui/checkbox";
 import { SelectBar3, SelectBarContact4 } from "./sc-select";
 import { 
-  SelectBarContact, 
+  SelectBarContact,
   SelectBarContact2,
   SelectBarContact3,
   SelectBar,
@@ -306,143 +306,204 @@ export function BtnModalContact({ selectedCompany, selectedContact, setSelectedC
   );
 }
 
-export function BtnModalAsset() {
-  //set asset
-  const [assets, setAssets] = useState([])
-  //fetchDAta
-  const fetchDataAssets = async () => {
-    try {
-      const response = await ApiCustomer.get("/api/asset-information")
-      setAssets(response.data.data);
-    }catch (error)  {
-      console.error("Error fetching assets: ", error)
-    }
-  }
-  //prevent infinite loop of calling fetchDataAssets
-  useEffect(() => {
-    fetchDataAssets();
-  }, []); 
-
-  //set search state
+export function BtnModalAsset({ contactID }) {
+  const [assets, setAssets] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
   const [searchAsset, setSearchAsset] = useState("");
-  //handle Change Input
-  const handleSearchInputAssetsChange = (e) =>{
-    const searchQuery = e.target.value;
-    setSearchAsset(searchQuery);
-  }
-  const filteredAssets = searchAsset !== "" ? assets.filter(
-    (asset) => 
-      asset.SerialNumber?.toLowerCase().includes(searchAsset.toLowerCase()) || 
-      asset.ProductName?.toLowerCase().includes(searchAsset.toLowerCase()) || 
-      asset.ProductNumber?.toLowerCase().includes(searchAsset.toLowerCase())
-  ) : [];
-
-
-  //handling dialog state
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
   const [isOpen, setIsOpen] = useState(false);
+  const [selectedAsset, setSelectedAsset] = useState(null);
+  const [isUpdating, setIsUpdating] = useState(false);
+  const [isSearching, setIsSearching] = useState(false);
+  const itemsPerPage = 10;
+  const [unownedAssets, setUnownedAssets] = useState([]);
+  const [loadingUnowned, setLoadingUnowned] = useState(false);
+  const [searchUnowned, setSearchUnowned] = useState("");
 
-  //handling save button
-  const [newSearchedAsset, setNewSearchedAsset] = useState({
-    SerialNumber: "",
-    ProductName: "",
-    ProductNumber: "",
-    HWProfitCenter: "",
-    ContactFirstName: "",
-    ContactLastName: "",
-  })
+  
+  useEffect(() => {
+    if (!contactID) return;
+    fetchDataAssets();
+  }, [contactID, currentPage, searchAsset]);
 
-  const handleNewAssetChange = (e) => {
-    setNewSearchedAsset({
-      ...newSearchedAsset,
-      [e.target.name]: e.target.value,
-    })
-  }
+  const fetchDataAssets = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await ApiCustomer.get(`/api/asset-information/kepemilikan`, {
+        params: { page: currentPage, limit: itemsPerPage, search: searchAsset, contactID },
+      });
 
-  //TODO : Post new Save Asset after created the serial number file
+      setAssets(response.data.data);
+      setTotalPages(response.data.totalPages);
+    } catch (error) {
+      setError("Failed to load asset data.");
+    }
+    setLoading(false);
+  };
+
+  const handleSearch = async () => {
+    setIsSearching(true);
+    setCurrentPage(1);
+    await fetchDataAssets();
+    setIsSearching(false);
+  };
+
+  const fetchUnownedAssets = async () => {
+    setLoadingUnowned(true);
+    try {
+      console.log(searchUnowned)
+      const response = await ApiCustomer.get(`/api/asset-information/kepemilikan/unowned`, {
+        params: {page: 1, limit: 10, search: searchUnowned},
+      });
+      setUnownedAssets(response.data.data);
+    } catch (error) {
+      console.error("Error fetching unowned assets:", error);
+    }
+    setLoadingUnowned(false);
+  };
+
+  const handleUpdateAsset = async () => {
+    if (!selectedAsset) return;
+    setIsUpdating(true);
+
+    try {
+      const response = await ApiCustomer.patch(`/api/asset-information/kepemilikan/${selectedAsset.AssetID}`, {
+        contactID
+      });
+
+      if (response.status === 200) {
+        alert("Asset berhasil diperbarui!");
+        fetchDataAssets();
+      }
+    } catch (error) {
+      alert("Terjadi kesalahan saat memperbarui asset.");
+    }
+    setIsUpdating(false);
+  };
+
   return (
-    <Dialog
-      open={isOpen} onOpenChange={setIsOpen}
-    >
-    <DialogTrigger asChild>
-      <Button variant="outline" className="bg-white mt-0.5" onClick={() => setIsOpen(true)}>
-        New Asset
-      </Button>
-    </DialogTrigger>
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+      <DialogTrigger asChild>
+        <Button variant="outline" className="bg-white mt-0.5" onClick={() => setIsOpen(true)}>
+          New Asset
+        </Button>
+      </DialogTrigger>
       <DialogContent className="sm:max-w-[800px] bg-white">
         <DialogHeader>
-          <div className="flex justify-between">
-            <DialogTitle className="text-xl">Asset Information</DialogTitle>
-            <DialogTitle className="flex justify-end text-sm mt-2.5">
-              Clear All
-            </DialogTitle>
-          </div>
+          <DialogTitle className="text-xl">Asset Information</DialogTitle>
+          <DialogDescription>Add Asset</DialogDescription>
         </DialogHeader>
 
-        <DialogHeader>
-          <DialogTitle className="text-md">Serial Number</DialogTitle>
-        </DialogHeader>
-
-        <div className="flex gap-3">  
-          <Input className="border-2 border-black rounded-2xl w-55 text-md h-10" type="Search" onChange={handleSearchInputAssetsChange}></Input>
-          <Button variant="outline" className="w-30 rounded-2xl h-10 border-blue-600 border-2">Search</Button>
-          <div className="mt-2">
-          <Checkbox id="terms" className="w-5 h-5 border-2 border-black"/>
-            <label
-              htmlFor="terms"
-              className="text-md font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 ml-2"
-            >
-              Not Available
-            </label>
-          </div>
+        <div className="flex gap-3">
+          <Input
+            className="border-2 border-black rounded-2xl w-55 text-md h-10"
+            type="text"
+            value={searchAsset}
+            onChange={(e) => {
+              setSearchAsset(e.target.value)
+              setCurrentPage(1);
+            }}
+          />
+          <Button variant="outline" className="bg-blue-700 text-white" onClick={handleSearch} disabled={isSearching}>
+            {isSearching ? "Processing..." : "Search"}
+          </Button>
         </div>
 
-        <Table className="table-fixed border-spacing-0 mx-auto">
+        <Table>
           <TableHeader>
             <TableRow className="bg-blue-200">
-              <TableHead className="text-black">Product Name</TableHead>
-              <TableHead className="text-black">Product Number</TableHead>
-              <TableHead className="text-black">HW Profit Center</TableHead>
-              <TableHead className="text-black">Contact</TableHead>
+              <TableHead>Product Name</TableHead>
+              <TableHead>Product Number</TableHead>
+              <TableHead>HW Profit Center</TableHead>
+              <TableHead>Contact</TableHead>
             </TableRow>
           </TableHeader>
-
-          <TableBody >
-            {filteredAssets.length > 0 ? (
-              filteredAssets.map((asset) => (
-                <TableRow key={asset?.AssetID}>
-                <TableCell className="whitespace-break-spaces ">{asset?.ProductName}</TableCell>
-                <TableCell>{asset?.ProductNumber}</TableCell>
-                <TableCell>{asset?.HWPorfitCenter ? asset?.HWPorfitCenter : '-' }</TableCell>
-                <TableCell>{asset?.contact_information !== null ? asset?.contact_information?.FirstName + ' ' + asset?.contact_information?.LastName : '-'   }</TableCell>
-              </TableRow>
-              ))
-            ) : assets.length > 0 ? ( assets.map((asset) => (
-              <TableRow key={asset?.AssetID}>
-                <TableCell className="whitespace-break-spaces ">{asset?.ProductName}</TableCell>
-                <TableCell>{asset?.ProductNumber}</TableCell>
-                <TableCell>{asset?.HWPorfitCenter ? asset?.HWPorfitCenter : '-' }</TableCell>
-                <TableCell>{asset?.contact_information !== null ? asset?.contact_information?.FirstName + ' ' + asset?.contact_information?.LastName : '-'   }</TableCell>
-              </TableRow>
-             )) ) : (
-                <TableRow>
-                  <TableCell
-                    colSpan={5}
-                    className="text-center font-medium whitespace-break-spaces"
-                  >
-                    Data Belum Tersedia
-                  </TableCell>
+          <TableBody>
+            {loading ? <TableRow><TableCell colSpan={4}>Loading...</TableCell></TableRow> : 
+             error ? <TableRow><TableCell colSpan={4}>{error}</TableCell></TableRow> :
+             assets.length > 0 ? assets.map((asset) => (
+                <TableRow key={asset.AssetID}>
+                  <TableCell>{asset.ProductName}</TableCell>
+                  <TableCell>{asset.ProductNumber}</TableCell>
+                  <TableCell>{asset.HWProfitCenter || '-'}</TableCell>
+                  <TableCell>{'-'}</TableCell>
                 </TableRow>
-             )}
+              )) : <TableRow><TableCell colSpan={4}>No Data Available</TableCell></TableRow>
+            }
           </TableBody>
-          </Table>
+        </Table>
 
-          <div className="flex justify-end gap-2">
-            <Button variant="outline" className="w-20 border-2 border-blue-500" onClick={() => setIsOpen(false)}>Back</Button>
-            <Button variant="outline" className="w-20 bg-blue-700 text-white">Save</Button>
-          </div>
+        <h3 className="text-lg font-semibold mt-4">Unowned Assets</h3>
+        
+        <div className="flex gap-3">
+          <Input
+            className="border-2 border-black rounded-2xl w-55 text-md h-10 my-2"
+            type="Search"
+            value={searchUnowned}
+            onChange={(e) => setSearchUnowned(e.target.value)}
+          />
+          <Button
+            variant="outline"
+            className="bg-blue-700 text-white"
+            onClick={fetchUnownedAssets}
+          >
+            Search
+          </Button>
+        </div>
+
+        <Table className="table-fixed border-spacing-0 mx-auto mt-2">
+          <TableHeader>
+            <TableRow className="bg-gray-200">
+              <TableHead>Serial Number</TableHead>
+              <TableHead>Product Name</TableHead>
+              <TableHead>Product Number</TableHead>
+              <TableHead>Product Line</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {loadingUnowned ? (
+              <TableRow>
+                <TableCell colSpan={4}>Loading...</TableCell>
+              </TableRow>
+            ) : unownedAssets.length > 0 ? (
+              unownedAssets.map((asset) => (
+                <TableRow
+                  key={asset.AssetID}
+                  onClick={() => setSelectedAsset(asset)}
+                  className={`cursor-pointer hover:bg-gray-200 ${
+                    selectedAsset?.AssetID === asset.AssetID ? "bg-blue-300" : ""
+                  }`}
+                >
+                  <TableCell>{asset.SerialNumber}</TableCell>
+                  <TableCell>{asset.ProductName}</TableCell>
+                  <TableCell>{asset.ProductNumber}</TableCell>
+                  <TableCell>{asset.ProductLine}</TableCell>
+                </TableRow>
+              ))
+            ) : (
+              <TableRow>
+                <TableCell colSpan={4}>No Unowned Assets Available</TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+
+        <div className="flex justify-end gap-2 mt-2">
+          <Button
+            variant="outline"
+            className="bg-blue-700 text-white"
+            onClick={handleUpdateAsset}
+            disabled={isUpdating || !selectedAsset}
+          >
+            {isUpdating ? "Processing..." : "Select"}
+          </Button>
+        </div>
       </DialogContent>
     </Dialog>
-  )
+  );
 }
 
 export function AssetEdit ({ assetId, onUpdate }) {

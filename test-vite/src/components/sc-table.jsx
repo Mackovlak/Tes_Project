@@ -217,7 +217,9 @@ export function TableCompany({
             </TableHeader>
             <TableBody>
               {contacts.length > 0 ? contacts.map((contact) => (
-                <TableRow key={contact.ContactID}>
+                <TableRow key={contact.ContactID}
+                onClick={() => setSelectedContact(contact)}
+                className={`cursor-pointer hover:bg-gray-200 ${selectedContact?.ContactID === contact.ContactID ? "bg-blue-300" : ""}`}>
                   <TableCell>{contact.FirstName}</TableCell>
                   <TableCell>{contact.LastName}</TableCell>
                   <TableCell>{contact.Email}</TableCell>
@@ -243,7 +245,7 @@ export function TableCompany({
                   <Search className="absolute right-1"/><Input className="bg-white ring-2 border-0 rounded-2xl pr-10"/>
                 </span>
               </div>
-              <BtnModalAsset></BtnModalAsset>
+              <BtnModalAsset contactID={selectedContact.ContactID}/>
               </div>
           <Table> 
             <TableHeader className="bg-gray-400 text-black font-bold">
