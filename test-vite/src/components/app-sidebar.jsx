@@ -66,7 +66,7 @@ const data = {
       title: "Master",
       url: "#",
       icon: Bot,
-      isActive: true,
+      // isActive: true,
       items: [
         {
           title: "Company",

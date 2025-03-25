@@ -78,8 +78,8 @@ export function BtnModal({
           <DialogTitle>Case Information</DialogTitle>
         </DialogHeader>
         <div className="flex items-center space-x-3">
-          <div className="w-55">
-            <Label htmlFor="CaseSubject" className="text-right">
+          <div className="">
+            <Label htmlFor="name" className="text-right">
               Case Subject
             </Label>
             <Input id="CaseSubject" className="col-span-3 border-b-black p-1" />
