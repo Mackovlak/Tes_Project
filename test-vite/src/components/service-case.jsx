@@ -25,7 +25,7 @@ import {
   TabsTrigger,
 } from "@/components/ui/tabs"
 import { SelectBarRelated } from './sc-select'
-import { FileSymlinkIcon, Link, Lock, UserPen } from 'lucide-react'
+import { FileSymlinkIcon, Lock, UserPen } from 'lucide-react'
 import { CalendarDays } from 'lucide-react'
 import {
   Table,

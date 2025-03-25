@@ -60,7 +60,7 @@ import {
   TabsTrigger,
 } from "@/components/ui/tabs"
 
-import { DialogCloseButton, DialogCompanyBtn } from './components/assets-modal'
+import { DialogCloseButton, DialogCompanyBtn, DialogContactBtn } from './components/assets-modal'
 import { SelectBar } from './components/sc-select'
 import { SelectBar1 } from './components/sc-select'
 import { SelectBar2 } from './components/sc-select'
@@ -448,6 +448,9 @@ const Search_case = () => {
                 setSearch={setSearch}
                 onSelectCompany={handleSelectedSiteAccount}
               />
+              <DialogContactBtn>
+                
+              </DialogContactBtn>
           </TabsList>
           <div className='mb-5'>
             {/* TODO : Change this Variable Name */}
