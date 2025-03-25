@@ -11,26 +11,34 @@ export async function GET(request) {
         const limit = parseInt(searchParams.get("limit")) || 10;
 
         let whereCondition = {};
-
+        console.log("search :",search)
+        console.log("contactID :",contactID)
         if (search) {
             whereCondition.OR = [
                 { SerialNumber: { contains: search } },
-                { ProductName: { contains: search } },
-                { ProductNumber: { contains: search } }
+                { ProductNumber: { contains: search } },
+                { product_information: { ProductName: { contains: search } } },
             ];
         }
-
-        if (contactID) {
-            whereCondition.ContactID = contactID;
-        }
-
+        
+        whereCondition.ContactID = { not: null };
+        
+        console.log("where condition :",whereCondition)
+        
         const totalCount = await prisma.asset_information.count({ where: whereCondition });
         const asset_information = await prisma.asset_information.findMany({
             where: whereCondition,
             skip: (page - 1) * limit,
             take: limit,
-            orderBy: { ProductName: "asc" }
+            orderBy: { product_information: { ProductName: "asc" } },
+            include: {
+                site_account: true,
+                contact_information:true,
+                product_information:true
+            }
         });
+
+        // console.log(asset_information)
 
         return NextResponse.json({
             success: true,

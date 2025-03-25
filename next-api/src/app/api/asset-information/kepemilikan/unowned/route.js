@@ -12,13 +12,13 @@ export async function GET(request) {
         console.log("Query Params:", { search, page, limit });
 
         // Hanya ambil aset yang tidak memiliki ContactID
-        let whereCondition = { ContactID: 0 };
+        let whereCondition = { ContactID: null };
 
         if (search) {
             whereCondition.OR = [
                 { SerialNumber: { contains: search } },
                 { ProductName: { contains: search } },
-                { ProductNumber: { contains: search } },
+                { product_information: { ProductName: { contains: search } } },
             ];
         }
 
@@ -37,7 +37,10 @@ export async function GET(request) {
             where: whereCondition,
             skip: skip,
             take: limit,
-            orderBy: { ProductName: "asc" }
+            orderBy: { product_information: { ProductName: "asc" } },
+            include: {
+                product_information: true,
+            }
         });
 
         return NextResponse.json({

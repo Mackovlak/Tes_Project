@@ -51,7 +51,8 @@ export async function GET(request) {
             message: "List Data Case",
             data: case_information.map(caseData => ({
                     CaseID: caseData.CaseID,
-                    CreatedOn: caseData.CreatedOn,
+                    // CreatedOn: caseData.CreatedOn,
+                    CreatedOn: caseData.CreatedOn.toLocaleString('id-ID'),
                     CaseSubject: caseData.CaseSubject,
                     CustomerAccount: caseData.contact_information?.site_account?.Company || "No Company",
                     Primary: `${caseData.contact_information?.FirstName || ""} ${caseData.contact_information?.LastName || ""}`.trim(),

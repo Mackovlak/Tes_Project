@@ -309,7 +309,7 @@ const Search_case = () => {
     const navigate = useNavigate(); // ✅ Get the navigate function
 
       const handleCreateCase = async () => {
-        if (!selectedAssetForCase && selectedContactForCase) {
+        if (!selectedAssetForCase || !selectedContactForCase) {
           alert("Please select an asset/contact before creating a case!"); // 🔥 Prevent case creation
           return;
         }
@@ -382,13 +382,13 @@ const Search_case = () => {
             {/* <Button className="ml-50 cursor-pointer "><span></span>Customer Complaint</Button>
             <Button className="cursor-pointer"><span></span>Customer Complaint Legal</Button> */}
             {/* <Button className="mr-1.5 cursor-pointer"><span><Plus></Plus></span>Create Case</Button> */}
-            <BtnModal
-              handleCreateCase={handleCreateCase}
-              selectedAssetForCase={selectedAssetForCase}
-              selectedContactForCase={selectedContactForCase}
-              caseType={caseType}
-              setCaseType={setCaseType}
-            ></BtnModal>
+              <BtnModal
+                handleCreateCase={handleCreateCase}
+                selectedAssetForCase={selectedAssetForCase}
+                selectedContactForCase={selectedContactForCase}
+                caseType={caseType}
+                setCaseType={setCaseType}
+              ></BtnModal>
           </TabsList>
 
           {/* search tab */}

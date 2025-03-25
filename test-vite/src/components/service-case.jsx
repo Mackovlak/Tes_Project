@@ -215,9 +215,9 @@ export const ServiceCase = ({ caseDetails }) => {
             <CardHeader className="flex-row">
               <Lock className='size-4'></Lock>
               <CardTitle   className='h-5 mr-30'>Created ON</CardTitle>
-              <CardTitle>{caseDetails.CreatedOn}</CardTitle>
+              <CardTitle>{new Date(caseDetails.CreatedOn).toLocaleDateString('id-ID')}</CardTitle>
               <CalendarDays className='size-4 ml-5 mr-5'></CalendarDays>
-              <CardTitle>...</CardTitle>
+              <CardTitle>{new Date(caseDetails.CreatedOn).toLocaleTimeString('id-ID', { hour12: true, hour: "2-digit", minute: "2-digit" })}</CardTitle>
             </CardHeader>
 
             <CardHeader className="flex-row">

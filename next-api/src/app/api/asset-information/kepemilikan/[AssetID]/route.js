@@ -8,7 +8,7 @@ export async function PATCH(request, context) {
         const body = await request.json();
         const { params } = context; // Gunakan context untuk mendapatkan params
         const assetID = parseInt(params.AssetID, 10);
-        const { contactID } = body;
+        const { contactID, siteAccountID } = body;
 
         // Pastikan AssetID adalah angka yang valid
         if (isNaN(assetID)) {
@@ -41,7 +41,7 @@ export async function PATCH(request, context) {
         // Update hanya kolom ContactID
         const updatedAsset = await prisma.asset_information.update({
             where: { AssetID: assetID },
-            data: { ContactID: contactID }
+            data: { ContactID: contactID, SiteAccountID: siteAccountID }
         });
 
         return NextResponse.json({
