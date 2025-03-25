@@ -31,7 +31,7 @@ const App = () => {
   return (
     <div>
       <SidebarProvider style={{
-    "--sidebar-width": "15rem",
+    "--sidebar-width": "13rem",
     "--sidebar-width-mobile": "20rem",
   }}>
       <AppSidebar />

@@ -8,6 +8,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
+import { Link } from 'react-router'
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import {
@@ -49,7 +50,7 @@ import {
 
 const workorder = [
   {
-    workordernumber: "WO-028912819",
+    workordernumber: "WO-027816939",
     caseid: "54165182991",
     serviceaccount: "Icon Plus",
     substatus: "Waiting",
@@ -81,77 +82,77 @@ const partsorder = [
 export const TabsService = () => {
   return (
     <div className='border-1 flex items-center'>
-      <Button variant="link" className="rounded-none">
+      <Button variant="outline" className="rounded-none px-0 py-0 has-[>svg]:px-1.5 flex gap-0.5">
          <ArrowLeftFromLine></ArrowLeftFromLine>
       </Button>
 
-      <Button variant="link" className="rounded-none">
+      <Button variant="outline" className="rounded-none px-0 py-0 has-[>svg]:px-1.5 flex gap-0.5">
         <SquareArrowOutUpRight></SquareArrowOutUpRight>
       </Button>
 
-      <Button variant="link" className="rounded-none">
+      <Button variant="link" className="rounded-none px-0 py-0 has-[>svg]:px-1.5 flex gap-0.5">
          <Save></Save>
-         <span>Save</span>
+         <span className='text-md'>Save</span>
       </Button>
 
-      <Button variant="link" className="rounded-none">
+      <Button variant="link" className="rounded-none px-0 py-0 has-[>svg]:px-1.5 flex gap-0.5">
          <FileSymlink></FileSymlink>
-         <span>Save & Close</span>
+         <span className='text-md'>Save & Close</span>
       </Button>
 
-      <Button variant="link" className="rounded-none">
+      <Button variant="link" className="rounded-none px-0 py-0 has-[>svg]:px-1.5 flex gap-0.5">
         <RotateCw></RotateCw>
-         <span>Refresh</span>
+         <span className='text-md'>Refresh</span>
       </Button>    
 
-       <Button variant="link" className="rounded-none">
+       <Button variant="link" className="rounded-none px-0 py-0 has-[>svg]:px-1.5 flex gap-0.5">
         <StepBack></StepBack>
-         <span>Complaint</span>
+         <span className='text-md'>Complaint</span>
       </Button>    
 
-      <Button variant="link" className="rounded-none">
+      <Button variant="link" className="rounded-none px-0 py-0 has-[>svg]:px-1.5 flex gap-0.5">
         <StepBack></StepBack>
-         <span>CSR</span>
+         <span className='text-md'>CSR</span>
       </Button>    
 
-      <Button variant="link" className="rounded-none">
+      <Button variant="link" className="rounded-none px-0 py-0 has-[>svg]:px-1.5 flex gap-0.5">
         <StepBack></StepBack>
-         <span>Service Order</span>
+         <span className='text-md'>Service Order</span>
       </Button>    
 
-      <Button variant="link" className="rounded-none">
+      <Button variant="link" className="rounded-none px-0 py-0 has-[>svg]:px-1.5 flex gap-0.5">
         <StepBack></StepBack>
-         <span>Work Order</span>
+         <span className='text-md'>Work Order</span>
       </Button>    
 
-      <Button variant="link" className="rounded-none">
+      <Button variant="link" className="rounded-none px-0 py-0 has-[>svg]:px-1.5 flex gap-0.5">
         <StepBack></StepBack>
-         <span>Sales Offer</span>
+         <span className='text-md'>Sales Offer</span>
       </Button>    
 
-      <Button variant="link" className="rounded-none">
+      <Button variant="link" className="rounded-none px-0 py-0 has-[>svg]:px-1.5 flex gap-0.5">
         <StepBack></StepBack>
-         <span>Close Case</span>
+         <span className='text-md'>Close Case</span>
       </Button>    
 
-      <Button variant="link" className="rounded-none">
+      <Button variant="link" className="rounded-none px-0 py-0 has-[>svg]:px-1.5 flex gap-0.5">
         <StepBack></StepBack>
-         <span>Pick</span>
+         <span className='text-md'>Pick</span>
       </Button>    
 
-      <Button variant="link" className="rounded-none">
+      <Button variant="link" className="rounded-none px-0 py-0 has-[>svg]:px-1.5 flex gap-0.5">
         <StepBack></StepBack>
-         <span>Queue Details</span>
+         <span className='text-md'>Queue Details</span>
       </Button>    
 
-      <Button variant="link" className="rounded-none">
+      <Button variant="link" className="rounded-none px-0 py-0 has-[>svg]:px-1.5 flex gap-0.5">
         <UserPen></UserPen>
-         <span>Assign</span>
+         <span className='text-md'>Assign</span>
       </Button>    
 
-      <Button variant="link" className="rounded-none">
+      <Button variant="link" className="rounded-none px-0 py-0 has-[>svg]:px-1.5 flex gap-0.5">
         <StepBack></StepBack>
-         <span>Add to Queue</span>
+         <span className='text-md'>Add to Queue</span>
       </Button>    
     </div>
   )
@@ -160,145 +161,128 @@ export const TabsService = () => {
 
 export const ServiceCase = ({ caseDetails }) => {
   return (
-    <Card className="mt-2 rounded-b-md h-[160px]">
-      <CardHeader>
-        <CardTitle className="text-xl">{caseDetails.CaseID}</CardTitle>
-        <CardTitle className="text-sm">Case . Case</CardTitle>
-      </CardHeader>
-
-      <CardContent>
+    <Card className="mt-2 rounded-none p-0 border-0">
+      <CardHeader className="p-0">
         <Tabs defaultValue="case_info"> 
-          <TabsList className="bg-white">
-            <TabsTrigger value="case_info" className="cursor-pointer">Case Information</TabsTrigger>
-            <TabsTrigger value="customer,add,entitement" className="cursor-pointer white">Customer, Asset & Entitement</TabsTrigger>
-            <TabsTrigger value="ci_notes" className="cursor-pointer">Notes & Information</TabsTrigger>
-            <TabsTrigger value="ci_activitas" className="cursor-pointer">Activities</TabsTrigger>
-            <TabsTrigger value="ci_actions" className="cursor-pointer">Costumer Interactions</TabsTrigger>
-            <TabsTrigger value="ci_wo" className="cursor-pointer">Work Order Validation</TabsTrigger>
-            <TabsTrigger value="ci_orders" className="cursor-pointer">Orders</TabsTrigger>
-            <TabsTrigger value="ci_salles" className="cursor-pointer">Sales Offer</TabsTrigger>
-            <TabsTrigger value="ci_knowledge" className="cursor-pointer">Knowledge & Attachments</TabsTrigger>
-            <SelectBarRelated></SelectBarRelated>
-          </TabsList>
-
+          <CardContent className="flex flex-col gap-3 border-2 w-full p-4">
+            <CardTitle className="text-xl block">
+              {caseDetails.CaseID}
+              <p className="text-sm ">Case . Case</p>
+            </CardTitle>
+           
+            <TabsList className="bg-white">
+              <TabsTrigger variant="underline" value="case_info" className=" ">Case Information</TabsTrigger>
+              <TabsTrigger variant="underline" value="customer,add,entitement" className="">Customer, Asset & Entitement</TabsTrigger>
+              <TabsTrigger variant="underline" value="ci_notes" className="">Notes & Information</TabsTrigger>
+              <TabsTrigger variant="underline" value="ci_activitas" className="">Activities</TabsTrigger>
+              <TabsTrigger variant="underline" value="ci_actions" className="">Costumer Interactions</TabsTrigger>
+              <TabsTrigger variant="underline" value="ci_wo" className="">Work Order Validation</TabsTrigger>
+              <TabsTrigger variant="underline" value="ci_orders" className="">Orders</TabsTrigger>
+              <TabsTrigger variant="underline" value="ci_salles" className="">Sales Offer</TabsTrigger>
+              <TabsTrigger variant="underline" value="ci_knowledge" className="">Knowledge & Attachments</TabsTrigger>
+              <SelectBarRelated></SelectBarRelated>
+            </TabsList>
+          </CardContent>
+      
         <TabsContent value="case_info" >
           <Card className="flex-row">
+            <CardContent className="grid gap-10  grid-cols-6 p-3 ">
+              
+                <CardTitle className='flex font-medium'><Lock className='size-4'/>Case ID</CardTitle>
+                <CardTitle className="">{caseDetails.CaseID}</CardTitle>
+              
 
-            <CardContent className="grid gap-4.5 grid-flow-col grid-rows-8 ">
-            <CardHeader className="flex-row">
-              <Lock className='size-4'></Lock>
-              <CardTitle   className='h-5 mr-38'>Case ID</CardTitle>
-              <CardTitle>{caseDetails.CaseID}</CardTitle>
-            </CardHeader>
+              
+                <CardTitle  className="font-medium" >Case Subject</CardTitle>
+                <CardTitle className="col-span-3">{caseDetails.CaseSubject}</CardTitle>
+              
 
-            <CardHeader className="flex-row">
-              <Lock className='size-4'></Lock>
-              <CardTitle   className='h-5 mr-18.5'>Incoming Channel</CardTitle>
-              <CardTitle>{caseDetails.IncomingChannel}</CardTitle>
-            </CardHeader>
+              
+                <CardTitle   className='flex font-medium'><Lock className='size-4'/>Incoming Channel</CardTitle>
+                <CardTitle>{caseDetails.IncomingChannel}</CardTitle>
+              
 
-            <CardHeader className="flex-row">
-              <CardTitle   className='h-5 ml-5 mr-31.5'>Case Status</CardTitle>
-              <CardTitle>{caseDetails.CaseStatus}</CardTitle>
-            </CardHeader>
+             
+                <CardTitle className='font-medium'>Business Segment</CardTitle>
+                <CardTitle >...</CardTitle>
+              
+              
+              
+                <CardTitle className='ml-4 font-medium'>Email Status</CardTitle>
+                <CardTitle>...</CardTitle>
+              
 
-            <CardHeader className="flex-row">
-              <CardTitle   className='h-5 ml-5 mr-29.5'>Case Priority</CardTitle>
-              <CardTitle>{caseDetails.CasePriority}</CardTitle>
-            </CardHeader>
+              
+                <CardTitle className='ml-4 font-medium'>Case Status</CardTitle>
+                <CardTitle>{caseDetails.CaseStatus}</CardTitle>
+              
 
-            <CardHeader className="flex-row">
-              <CardTitle   className='h-5 ml-5 mr-19'>Customer Severity</CardTitle>
-              <CardTitle>{caseDetails.CustomerSeverity}</CardTitle>
-            </CardHeader>
+              
+                <CardTitle   className='font-medium'>Case Type</CardTitle>
+                <CardTitle>{caseDetails.CaseType}</CardTitle>
+              
 
-            <CardHeader className="flex-row">
-              <Lock className='size-4'></Lock>
-              <CardTitle   className='h-5 mr-30'>Created ON</CardTitle>
-              <CardTitle>{new Date(caseDetails.CreatedOn).toLocaleDateString('id-ID')}</CardTitle>
-              <CalendarDays className='size-4 ml-5 mr-5'></CalendarDays>
-              <CardTitle>{new Date(caseDetails.CreatedOn).toLocaleTimeString('id-ID', { hour12: true, hour: "2-digit", minute: "2-digit" })}</CardTitle>
-            </CardHeader>
+              
+                <CardTitle   className='ml-4 font-medium '>KCI For Case?</CardTitle>
+                <CardTitle>{caseDetails.KCI_Flag ? 'Yes' : 'No'}</CardTitle>
+              
 
-            <CardHeader className="flex-row">
-              <Lock className='size-4'></Lock>
-              <CardTitle   className='h-5 mr-20'>Case Closed Date</CardTitle>
-              <CardTitle>...</CardTitle>
-              <CalendarDays className='size-4 ml-5 mr-5'></CalendarDays>
-              <CardTitle>...</CardTitle>
-            </CardHeader>
+              
+                <CardTitle   className='ml-4 font-medium'>Case Priority</CardTitle>
+                <CardTitle>{caseDetails.CasePriority}</CardTitle>
+              
 
-            <CardHeader className="flex-row">
-              <Lock className='size-4'></Lock>
-              <CardTitle   className='h-5 mr-17.5'>Submitted To Base</CardTitle>
-              <CardTitle>...</CardTitle>
-              <CalendarDays className='size-4 ml-5 mr-5'></CalendarDays>
-              <CardTitle>...</CardTitle>
-            </CardHeader>
+              
+                <CardTitle className='font-medium '>HPI Segment</CardTitle>
+                <CardTitle>...</CardTitle>
+              
 
-            </CardContent>
+              
+                <CardTitle className='flex font-medium '><Lock className='size-4'/>Customer Tracking Number</CardTitle>
+                <CardTitle className="">...</CardTitle>
+              
 
-            <CardContent className="grid gap-4.5 grid-flow-col grid-rows-5">
+              
+                <CardTitle   className='ml-4 font-medium'>Customer Severity</CardTitle>
+                <CardTitle className="">{caseDetails.CustomerSeverity}</CardTitle>
+              
 
-            <CardHeader className="flex-row">
-              <CardTitle   className='h-5 mr-38'>Case Subject</CardTitle>
-              <CardTitle>{caseDetails.CaseSubject}</CardTitle>
-            </CardHeader>
+              
+                <CardTitle className="font-medium">Update Customer Tracking Number</CardTitle>
+                <CardTitle className='col-span-3'>...</CardTitle>
+              
 
-            
-            <CardHeader className="flex-row">
-              <CardTitle   className='h-5 mr-28.5'>Business Segment</CardTitle>
-              <CardTitle>...</CardTitle>
-            </CardHeader>
+              
+                
+                <CardTitle   className='flex font-medium'><Lock className='size-4'/>Created ON</CardTitle>
+                <CardTitle className="col-span-3 flex gap-[5em]">{new Date(caseDetails.CreatedOn).toLocaleDateString('id-ID')}<CalendarDays className='size-4 '/>{new Date(caseDetails.CreatedOn).toLocaleTimeString('id-ID', { hour12: true, hour: "2-digit", minute: "2-digit" })}</CardTitle>
+                
+                
+              
 
-            
-            <CardHeader className="flex-row">
-              <CardTitle   className='h-5 mr-43'>Case Type</CardTitle>
-              <CardTitle>{caseDetails.CaseType}</CardTitle>
-            </CardHeader>
+             
+                <CardTitle   className='ml-4 font-medium '>Alternate Customer Tracking Number</CardTitle>
+                <CardTitle>...</CardTitle>
+              
 
-            
-            <CardHeader className="flex-row">
-              <CardTitle   className='h-5 mr-37.5'>HPI Segment</CardTitle>
-              <CardTitle>...</CardTitle>
-            </CardHeader>
+              
+                
+                <CardTitle   className='flex font-medium'><Lock className='size-4'/>Case Closed Date</CardTitle>
+                <CardTitle className="flex col-span-3 gap-[5em]">...<CalendarDays className='size-4 '/>...</CardTitle>
+              
 
-            
-            <CardHeader className="flex-row">
-              <CardTitle  className='whitespace-break-spaces break-words h-5'>Update Customer Tracking Number</CardTitle>
-              <CardTitle>...</CardTitle>
-            </CardHeader>
+              
+                <CardTitle   className='flex font-medium'><Lock className='size-4'/>Irrelevant</CardTitle>
+                <CardTitle>...</CardTitle>
+              
 
-            <CardHeader className="flex-row">
-              <CardTitle   className='h-5 ml-5 mr-38'>Email Status</CardTitle>
-              <CardTitle>...</CardTitle>
-            </CardHeader>
+                        
 
-            
-            <CardHeader className="flex-row">
-              <CardTitle   className='h-5 ml-5 mr-36'>KCI For Case?</CardTitle>
-              <CardTitle>{caseDetails.KCI_Flag ? 'Yes' : 'No'}</CardTitle>
-            </CardHeader>
-
-            
-            <CardHeader className="flex-row">
-            <Lock className='size-4'></Lock>
-              <CardTitle   className='h-5'>Customer Tracking Number</CardTitle>
-              <CardTitle>...</CardTitle>
-            </CardHeader>
-
-            
-            <CardHeader className="flex-row">
-              <CardTitle   className='h-5 ml-5'>Alternate Customer Tracking Number</CardTitle>
-              <CardTitle>...</CardTitle>
-            </CardHeader>
-
-            
-            <CardHeader className="flex-row">
-            <Lock className='size-4'></Lock>
-              <CardTitle   className='h-5 mr-41'>Irrelevant</CardTitle>
-              <CardTitle>...</CardTitle>
-            </CardHeader>
+              
+                
+                <CardTitle   className='flex font-medium'><Lock className='size-4'/>Submitted To Base</CardTitle>
+                <CardTitle className="flex col-span-3 gap-[5em]">...<CalendarDays className='size-4 '/>...</CardTitle>
+              
 
             </CardContent>
           </Card>
@@ -800,7 +784,6 @@ export const ServiceCase = ({ caseDetails }) => {
           </Card>
         </TabsContent>
 
-
         <TabsContent value="ci_activitas" >
           <Card className="mt-7">
             <CardHeader>Hello Word</CardHeader>
@@ -898,7 +881,11 @@ export const ServiceCase = ({ caseDetails }) => {
               <TableBody>
                 {workorder.map((work) => (
                   <TableRow key={work.workordernumber}>
-                    <TableCell className="font-medium">{work.workordernumber}</TableCell>
+                    <TableCell className="font-medium">
+                      <Link to="/Work">
+                      {work.workordernumber}
+                      </Link>
+                      </TableCell>
                     <TableCell>{work.caseid}</TableCell>
                     <TableCell>{work.serviceaccount}</TableCell>
                     <TableCell>{work.substatus}</TableCell>
@@ -1002,7 +989,11 @@ export const ServiceCase = ({ caseDetails }) => {
 
               <TableBody>
                   <TableRow>
-                    <TableCell className="font-medium">No data available</TableCell>
+                    <TableCell className="font-medium">
+                      <Link to="/material_order">
+                       MO-8292819129 for WO-027816939
+                      </Link>
+                    </TableCell>
                   </TableRow>
               </TableBody>
             </Table>
@@ -1032,7 +1023,7 @@ export const ServiceCase = ({ caseDetails }) => {
           </Card>
         </TabsContent>
         </Tabs>
-      </CardContent>
+      </CardHeader>
     </Card>
   )
 }

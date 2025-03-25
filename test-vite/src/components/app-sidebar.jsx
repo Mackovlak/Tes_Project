@@ -66,7 +66,7 @@ const data = {
       title: "Master",
       url: "#",
       icon: Bot,
-      isActive: true,
+      // isActive: true,
       items: [
         {
           title: "Company",
@@ -101,7 +101,7 @@ const data = {
         },
         {
           title: "Material Order",
-          url: "#",
+          url: "/Material_order",
         },
       ],
     },
