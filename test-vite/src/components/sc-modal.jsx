@@ -35,6 +35,7 @@ import {
   SelectBar1,
   SelectBar2,
  } from "@/components/sc-select";
+ import { SnInput } from "./sn-input";
 
 import { Pencil, Trash } from "lucide-react";
 //import API
@@ -514,22 +515,27 @@ export function BtnModalAsset({
           <DialogDescription>Add Asset</DialogDescription>
         </DialogHeader>
 
-        <div className="flex gap-3">
-          <Input
-            className="border-2 border-black rounded-2xl w-55 text-md h-10"
-            type="text"
-            value={searchAsset}
-            onChange={(e) => {
-              setSearchAsset(e.target.value)
-              setCurrentPage(1);
-            }}
-          />
-          <Button variant="outline" className="bg-blue-700 text-white" onClick={handleSearch} disabled={isSearching}>
-            {isSearching ? "Processing..." : "Search"}
-          </Button>
+        <DialogHeader>
+          <DialogTitle className="text-md">Serial Number</DialogTitle>
+        </DialogHeader>
+
+        <div className="flex gap-3">  
+          <Input className="border-2 border-black rounded-2xl w-55 text-md h-10" type="Search" onChange={handleSearchInputAssetsChange}></Input>
+          <Button variant="outline" className="w-30 rounded-2xl h-10 border-blue-600 border-2">Search</Button>
+          <div className="mt-2">
+          <Checkbox id="terms" className="w-5 h-5 border-2 border-black"/>
+            <label
+              htmlFor="terms"
+              className="text-md font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 ml-2"
+            >
+              Not Available
+            </label>
+          </div>
+            <SnInput></SnInput>
         </div>
 
-        <Table>
+
+        <Table className="table-fixed border-spacing-0 mx-auto">
           <TableHeader>
             <TableRow className="bg-blue-200">
               <TableHead>Product Name</TableHead>

@@ -41,9 +41,7 @@ import {
   TabsTrigger,
 } from "@/components/ui/tabs"
 
-
-
-import { DialogCloseButton, DialogCompanyBtn } from './components/assets-modal'
+import { DialogCloseButton, DialogCompanyBtn, DialogContactBtn } from './components/assets-modal'
 import { SelectBar } from './components/sc-select'
 import { SelectBar1 } from './components/sc-select'
 import { SelectBar2 } from './components/sc-select'
@@ -643,23 +641,25 @@ const Search_case = () => {
           </TabsContent>  
           
           <TabsContent value="ci" className="flex flex-col gap-1">
-            <TabsList className="bg-white float-right mr-5 self-end">   
-                <TabsTrigger value="Account" className="cursor-pointer"><span><Plus></Plus></span>Create New</TabsTrigger>
-                <DialogCloseButton 
-                  isModalAssetOpen={isModalAssetOpen} 
-                  setIsModalAssetOpen={setIsModalAssetOpen} 
-                  search={search} 
-                  setSearch={setSearch} 
-                  onSelectAsset={handleSelectedAsset} 
-                />
-                <DialogCompanyBtn 
-                  isModalCompanyOpen={isModalCompanyOpen}
-                  setIsModalCompanyOpen={setIsModalCompanyOpen}
-                  search={search}
-                  setSearch={setSearch}
-                  onSelectCompany={handleSelectedSiteAccount}
-                />
-            </TabsList>
+          <TabsList className="bg-white float-right mr-5 self-end">   
+              <TabsTrigger value="Account" className="cursor-pointer"><span><Plus></Plus></span>Create New</TabsTrigger>
+              <DialogCloseButton 
+                isModalAssetOpen={isModalAssetOpen} 
+                setIsModalAssetOpen={setIsModalAssetOpen} 
+                search={search} 
+                setSearch={setSearch} 
+                onSelectAsset={handleSelectedAsset} 
+              />
+              <DialogCompanyBtn 
+                isModalCompanyOpen={isModalCompanyOpen}
+                setIsModalCompanyOpen={setIsModalCompanyOpen}
+                search={search}
+                setSearch={setSearch}
+                onSelectCompany={handleSelectedSiteAccount}
+              />
+              <DialogContactBtn/>
+              
+          </TabsList>
           <div className='mb-5'>
             {/* TODO : Change this Variable Name */}
             <TableCompany 
@@ -767,10 +767,10 @@ const Search_case = () => {
               <Card className="drop-shadow-md">
                 <CardHeader className="flex-row justify-between">
                 <CardTitle>
-                 Basic Informationdsada
+                 Basic Information
                   </CardTitle>
                   <CardTitle>
-                    Basic Informationdad
+                    Clear All
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="grid gap-5 grid-cols-5">
