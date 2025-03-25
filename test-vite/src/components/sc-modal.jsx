@@ -35,6 +35,7 @@ import {
   SelectBar1,
   SelectBar2,
  } from "@/components/sc-select";
+ import { SnInput } from "./sn-input";
 
 import { Pencil, Trash } from "lucide-react";
 //import API
@@ -431,7 +432,9 @@ export function BtnModalAsset() {
               Not Available
             </label>
           </div>
+            <SnInput></SnInput>
         </div>
+
 
         <Table className="table-fixed border-spacing-0 mx-auto">
           <TableHeader>

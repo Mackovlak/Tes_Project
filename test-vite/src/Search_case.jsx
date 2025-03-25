@@ -657,9 +657,8 @@ const Search_case = () => {
                 setSearch={setSearch}
                 onSelectCompany={handleSelectedSiteAccount}
               />
-              <DialogContactBtn>
-                
-              </DialogContactBtn>
+              <DialogContactBtn/>
+              
           </TabsList>
           <div className='mb-5'>
             {/* TODO : Change this Variable Name */}
@@ -768,10 +767,10 @@ const Search_case = () => {
               <Card className="drop-shadow-md">
                 <CardHeader className="flex-row justify-between">
                 <CardTitle>
-                 Basic Informationdsada
+                 Basic Information
                   </CardTitle>
                   <CardTitle>
-                    Basic Informationdad
+                    Clear All
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="grid gap-5 grid-cols-5">
