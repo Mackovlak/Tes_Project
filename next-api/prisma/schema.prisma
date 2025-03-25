@@ -8,23 +8,23 @@ datasource db {
 }
 
 model asset_information {
-  AssetID             Int                  @id @default(autoincrement())
-  SerialNumber        String               @db.VarChar(100)
-  ProductName         String?              @db.VarChar(255)
-  ProductNumber       String?              @db.VarChar(100)
-  ProductLine         String?              @db.VarChar(100)
+  AssetID             Int                  @id
+  SerialNumber        String               @db.VarChar(20)
+  ProductNumber       String               @db.VarChar(11)
   SiteAccountID       Int?
   ContactID           Int?
   site_account        site_account?        @relation(fields: [SiteAccountID], references: [SiteAccountID], onDelete: Restrict, onUpdate: Restrict, map: "asset_information_ibfk_1")
   contact_information contact_information? @relation(fields: [ContactID], references: [ContactID], onDelete: Restrict, onUpdate: Restrict, map: "asset_information_ibfk_2")
+  product_information product_information  @relation(fields: [ProductNumber], references: [ProductNumber], onUpdate: Restrict, map: "asset_information_ibfk_3")
   caseinformation     caseinformation[]
 
   @@index([SiteAccountID], map: "SiteAccountID")
   @@index([ContactID], map: "ContactID")
+  @@index([ProductNumber], map: "ProductNumber")
 }
 
 model caseinformation {
-  CaseID              Int                  @id @default(autoincrement())
+  CaseID              Int                  @id
   SiteAccountID       Int?
   ContactID           Int?
   AssetID             Int?
@@ -35,7 +35,7 @@ model caseinformation {
   CaseStatus          String?              @db.VarChar(50)
   CasePriority        String?              @db.VarChar(50)
   CustomerSeverity    String?              @db.VarChar(50)
-  CreatedOn           DateTime             @default(now()) @db.Timestamp(0)
+  CreatedOn           DateTime?            @default(now()) @db.DateTime(0)
   CaseClosedDate      DateTime?            @db.DateTime(0)
   CaseNote            String?              @db.Text
   SymptomCode         String?              @db.VarChar(50)
@@ -60,7 +60,7 @@ model casenotes {
   VisibleExternally Boolean?         @default(false)
   MinutesSpent      Int?
   Note              String?          @db.Text
-  CreatedOn         DateTime         @default(now()) @db.Timestamp(0)
+  CreatedOn         DateTime?        @default(now()) @db.DateTime(0)
   caseinformation   caseinformation? @relation(fields: [CaseID], references: [CaseID], onDelete: Restrict, onUpdate: Restrict, map: "casenotes_ibfk_1")
 
   @@index([CaseID], map: "CaseID")
@@ -100,7 +100,7 @@ model materialorder {
   OrderNumber            String?                  @db.VarChar(100)
   OrderStatus            String?                  @db.VarChar(50)
   OrderType              String?                  @db.VarChar(50)
-  CreatedOn              DateTime                 @default(now()) @db.Timestamp(0)
+  CreatedOn              DateTime?                @default(now()) @db.DateTime(0)
   SalesOrderNumber       String?                  @db.VarChar(100)
   RMANumber              String?                  @db.VarChar(100)
   ReadyForClosureDate    DateTime?                @db.DateTime(0)
@@ -192,10 +192,17 @@ model workorder {
   PreferredTime    DateTime?        @db.Time(0)
   ShipmentCountry  String?          @db.VarChar(50)
   ShipmentState    String?          @db.VarChar(50)
-  CreatedOn        DateTime         @default(now()) @db.Timestamp(0)
+  CreatedOn        DateTime?        @default(now()) @db.DateTime(0)
   Owner            String?          @db.VarChar(100)
   materialorder    materialorder[]
   caseinformation  caseinformation? @relation(fields: [CaseID], references: [CaseID], onDelete: Restrict, onUpdate: Restrict, map: "workorder_ibfk_1")
 
   @@index([CaseID], map: "CaseID")
+}
+
+model product_information {
+  ProductNumber     String              @id @db.VarChar(11)
+  ProductLine       String              @db.VarChar(3)
+  ProductName       String              @db.VarChar(255)
+  asset_information asset_information[]
 }

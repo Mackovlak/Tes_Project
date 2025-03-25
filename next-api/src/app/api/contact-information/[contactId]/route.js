@@ -1,125 +1,118 @@
 import { NextResponse } from "next/server";
-
 import prisma from "../../../../../prisma/client";
 
+// GET - Fetch Contact Information by ID
 export async function GET(request, { params }) {
-    //get params id
-    const contactId = parseInt(params.contactId);
-    //get detail post
-    const contact_information = await prisma.contact_information.findUnique({
-        where: {
-            ContactID: contactId,
-        },
-    });
+    try {
+        const contactId = parseInt(params.contactId); // Perbaiki format parameter
+        if (isNaN(contactId)) {
+            return NextResponse.json(
+                { success: false, message: "Invalid Contact ID", data: null },
+                { status: 400 }
+            );
+        }
 
-    if(!contact_information){
+        const contact_information = await prisma.contact_information.findUnique({
+            where: { ContactID: contactId },
+        });
+
+        if (!contact_information) {
+            return NextResponse.json(
+                { success: false, message: "Detail Data Contact Not Found!", data: null },
+                { status: 404 }
+            );
+        }
+
         return NextResponse.json(
-            {
-                success:true,
-                message: "Detail Data Contact Not Found!",
-                data: null,
-            },
-            {
-                status: 404,
-            }
+            { success: true, message: "Detail Data Contact", data: contact_information },
+            { status: 200 }
+        );
+    } catch (error) {
+        console.error("🔥 ERROR in GET:", error);
+        return NextResponse.json(
+            { success: false, message: "Internal Server Error", error: error.message },
+            { status: 500 }
         );
     }
-
-    return NextResponse.json(
-        {
-            success:true,
-            message: "Detail Data Contact",
-            data: contact_information,
-        },
-        {
-            status: 200,
-        }
-    );
 }
 
-// update data
+// PATCH - Update Contact Information
 export async function PATCH(request, { params }) {
-    const contactId = parseInt(params.contactId);
-
-    const { 
-        SiteAccountID,  
-        Salutation,
-        FirstName,
-        LastName,
-        Email,
-        PreferredLanguage,
-        Phone,
-        Mobile,
-        WorkPhone,
-        WorkExtension,
-        OtherPhone,
-        OtherExtension,
-        Fax,
-        AddressLine1,
-        AddressLine2,
-        City,
-        StateProvince,
-        Country,
-        ZipPostalCode
-    } = await request.json();
-
-    //update data
-    const contact_information = await prisma.contact_information.update({
-        where: {
-            ContactID: contactId,
-        },
-        data: {
-            SiteAccountID: SiteAccountID,  
-            Salutation: Salutation,
-            FirstName: FirstName,
-            LastName: LastName,
-            Email: Email,
-            PreferredLanguage: PreferredLanguage,
-            Phone: Phone,
-            Mobile: Mobile,
-            WorkPhone: WorkPhone,
-            WorkExtension: WorkExtension,
-            OtherPhone: OtherPhone,
-            OtherExtension: OtherExtension,
-            Fax: Fax,
-            AddressLine1: AddressLine1,
-            AddressLine2: AddressLine2,
-            City: City,
-            StateProvince: StateProvince,
-            Country: Country,
-            ZipPostalCode: ZipPostalCode
+    try {
+        const contactId = parseInt(params.contactId);
+        if (isNaN(contactId)) {
+            return NextResponse.json(
+                { success: false, message: "Invalid Contact ID" },
+                { status: 400 }
+            );
         }
-    })
 
-    return NextResponse.json(
-        {
-            success: true,
-            message: "Data Contact Information Updated!",
-            data: contact_information,
-        },
-        {
-            status: 200,
+        const existingContact = await prisma.contact_information.findUnique({
+            where: { ContactID: contactId },
+        });
+
+        if (!existingContact) {
+            return NextResponse.json(
+                { success: false, message: "Contact not found!" },
+                { status: 404 }
+            );
         }
-    )
+
+        const data = await request.json();
+
+        const updatedContact = await prisma.contact_information.update({
+            where: { ContactID: contactId },
+            data,
+        });
+
+        return NextResponse.json(
+            { success: true, message: "Data Contact Information Updated!", data: updatedContact },
+            { status: 200 }
+        );
+    } catch (error) {
+        console.error("🔥 ERROR in PATCH:", error);
+        return NextResponse.json(
+            { success: false, message: "Internal Server Error", error: error.message },
+            { status: 500 }
+        );
+    }
 }
 
-//delete data
+// DELETE - Remove Contact Information
 export async function DELETE(request, { params }) {
-    const contactId = parseInt(params.contactId);
-    
-    await prisma.caseinformation.delete({
-        where: {
-            ContactID: contactId,
+    try {
+        const contactId = parseInt(params.contactId);
+        if (isNaN(contactId)) {
+            return NextResponse.json(
+                { success: false, message: "Invalid Contact ID" },
+                { status: 400 }
+            );
         }
-    });
 
-    return NextResponse.json(
-        {
-        success: true,
-        message: "Data Contact Information Deleted"
-        },
-        {
-            status: 200
+        const existingContact = await prisma.contact_information.findUnique({
+            where: { ContactID: contactId },
+        });
+
+        if (!existingContact) {
+            return NextResponse.json(
+                { success: false, message: "Contact not found!" },
+                { status: 404 }
+            );
         }
-    );
+
+        await prisma.contact_information.delete({
+            where: { ContactID: contactId },
+        });
+
+        return NextResponse.json(
+            { success: true, message: "Data Contact Information Deleted" },
+            { status: 200 }
+        );
+    } catch (error) {
+        console.error("🔥 ERROR in DELETE:", error);
+        return NextResponse.json(
+            { success: false, message: "Internal Server Error", error: error.message },
+            { status: 500 }
+        );
+    }
 }

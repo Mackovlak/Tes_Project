@@ -1,58 +1,39 @@
 import { React, useState, useEffect } from 'react'
 import  { Card, CardHeader, CardFooter, CardTitle, CardDescription, CardContent } from './components/ui/card'
 import { Input } from './components/ui/input'
-import { InfoSide } from './components/info-sidebar'
-import { 
+import { useNavigate } from 'react-router'
+
+
+import {
   Sidebar,
   SidebarContent,
+  SidebarFooter,
   SidebarHeader,
-  SidebarTrigger,
-} from './components/ui/sidebar' 
-
+  SidebarRail,
+  SidebarProvider,
+  SidebarInset,
+  SidebarTrigger
+} from "@/components/ui/sidebar"
 
 //importing API
 import ApiCustomer from './api'
 
 import { Button } from "@/components/ui/button"
 import {
-  AudioWaveform,
-  BookOpen,
-  Bot,
-  Command,
-  Eye,
-  Frame,
-  GalleryVerticalEnd,
-  Home,
-  Map,
-  PieChart,
-  Settings2,
-  SquareTerminal,
+  PanelRight,
   Plus,
+  User2,
+  PhoneCall,
+  LucideLaptop,
+  Clock,
+  ChartCandlestickIcon,
+  File,
+  BadgeAlert,
+  Copy,
+  Search
 } from "lucide-react"
 
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog"
 import { Label } from "@/components/ui/label"
-import {
-  Table,
-  TableBody,
-  TableCaption,
-  TableCell,
-  TableFooter,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table"
-
 import {
   Tabs,
   TabsContent,
@@ -64,49 +45,200 @@ import { DialogCloseButton, DialogCompanyBtn, DialogContactBtn } from './compone
 import { SelectBar } from './components/sc-select'
 import { SelectBar1 } from './components/sc-select'
 import { SelectBar2 } from './components/sc-select'
+import { TableCompany, TableContact, TableAsset } from './components/sc-table'
 import { BtnModal, BtnModalContact, BtnModalAsset } from './components/sc-modal'
-import { TableContact, TableCompany, TableAsset } from './components/sc-table'
+import { Checkbox } from './components/ui/checkbox'
+
+import { InfoCase } from "@/components/info-case"
+
+const data = {
+  navModals: [
+    {
+      title: "Account Info",
+      url: "#",
+      icon: User2,
+      // isActive: true,
+      items: [
+        {
+          title: "Company",
+          url: "/master/Company_table",
+        },
+        {
+          title: "Assets",
+          url: "/master/Assets_table",
+        },
+        {
+          title: "Contact",
+          url: "/master/Contact_table",
+        },
+        {
+          title: "Case",
+          url: "/master/Case_table",
+        },
+      ],
+    },
+    {
+      title: "Contact Info",
+      url: "#",
+      icon: PhoneCall,
+      items: [
+        {
+          title: "Case",
+          url: "/Case",
+        },
+        {
+          title: "Work Order",
+          url: "#",
+        },
+        {
+          title: "Material Order",
+          url: "#",
+        },
+      ],
+    },
+    {
+      title: "Asset Info",
+      url: "#",
+      icon: LucideLaptop,
+      items: [
+        {
+          title: "Introduction",
+          url: "#",
+        },
+        {
+          title: "Get Started",
+          url: "#",
+        },
+        {
+          title: "Tutorials",
+          url: "#",
+        },
+        {
+          title: "Changelog",
+          url: "#",
+        },
+      ],
+    },
+    {
+      title: "Repair History",
+      url: "#",
+      icon: Clock,
+      items: [
+        {
+          title: "Introduction",
+          url: "#",
+        },
+        {
+          title: "Get Started",
+          url: "#",
+        },
+        {
+          title: "Tutorials",
+          url: "#",
+        },
+        {
+          title: "Changelog",
+          url: "#",
+        },
+      ],
+    },
+
+  ],
+  navMain:[
+    {
+      title: "Entitelement Info",
+      url: "#",
+      icon: ChartCandlestickIcon,
+      items: [
+        {
+          title: "Introduction",
+          url: "#",
+        },
+        {
+          title: "Get Started",
+          url: "#",
+        },
+        {
+          title: "Tutorials",
+          url: "#",
+        },
+        {
+          title: "Changelog",
+          url: "#",
+        },
+      ],
+    },
+    {
+      title: "Cases",
+      url: "#",
+      icon: File,
+      items: [
+        {
+          title: "Introduction",
+          url: "#",
+        },
+        {
+          title: "Get Started",
+          url: "#",
+        },
+        {
+          title: "Tutorials",
+          url: "#",
+        },
+        {
+          title: "Changelog",
+          url: "#",
+        },
+      ],
+    },
+    {
+      title: "Complaint",
+      url: "#",
+      icon: BadgeAlert,
+      items: [
+        {
+          title: "Introduction",
+          url: "#",
+        },
+        {
+          title: "Get Started",
+          url: "#",
+        },
+        {
+          title: "Tutorials",
+          url: "#",
+        },
+        {
+          title: "Changelog",
+          url: "#",
+        },
+      ],
+    },
+
+  ]
+
+}
 
 const Search_case = () => {
 
   //create search state
-  const [search, setSearch] = useState({
-    Email: "",
-    SerialNumber: "",
-    Country: "",
-    Company: "",
-    ZipPostalCode: "",
-    City: "",
-    Phone: "",
-    AssetTag: "",
-    ContractID: "",
-    TransactionType: "",
-    TransactionID: "",
-    Opsi: "",
-    LicenseKey: "",
-    PIN: ""
-  });
-
+  const [search, setSearch] = useState("");
   
-  //state modal
   const [isModalAssetOpen, setIsModalAssetOpen] = useState(false);
   const [isModalCompanyOpen, setIsModalCompanyOpen] = useState(false);
-  
+
   const [activeTab, setActiveTab] = useState("search"); // Default active tab
-  
+
   const handleSearchClick = () => {
-    console.log("BeforeChange:", activeTab);
-    console.log("Search Data:", search);
-    console.log(search);
-    // setIsModalAssetOpen(true); // Open modal
-    if(search.SerialNumber !== ""){
+    console.log("BeforeChange" + activeTab)
+     // setIsModalAssetOpen(true); // Open modal
+     if(search.SerialNumber !== ""){
       setIsModalAssetOpen(true);
       setActiveTab('ci'); // Switch tab to target
     }else if(search.Company !== ""){
       setIsModalCompanyOpen(true);
       setActiveTab('ci'); // Switch tab to target
     }
-    
   };
   useEffect(() => {
     console.log("Updated Active Tab:", activeTab);
@@ -122,29 +254,31 @@ const Search_case = () => {
       console.log(`Updated searchData:`, search);
       // }
       // console.log(search)
-      
-    }
-    
-    //creating Asset Data
-    const [assets, setAssets] = useState([]);
-    const [contacts, setContacts] = useState([]);
-    const [siteAccounts, setSiteAccounts] = useState([]);
-    
-    
-    //define method
-    const fetchDataAssets = async () => {
-      
-      //fetch data from API with Axios
-      await ApiCustomer.get('/api/asset-information')
-      .then(response => {
-        // console.log("Asset");
-        // console.log(response.data.data)
-        //assign response data to state "asset"
-        setAssets(response.data.data);
-      })
-      
-    }
-    
+
+    // }
+    console.log(search)
+  }
+
+  //creating Asset Data
+  const [assets, setAssets] = useState([]);
+  const [contacts, setContacts] = useState([]);
+  const [siteAccounts, setSiteAccounts] = useState([]);
+  
+  
+  //define method
+  const fetchDataAssets = async () => {
+
+    //fetch data from API with Axios
+    await ApiCustomer.get('/api/asset-information')
+        .then(response => {
+            // console.log("Asset");
+            // console.log(response.data.data)
+            //assign response data to state "asset"
+            setAssets(response.data.data);
+          })
+          
+        }
+        
         const fetchDataContacts = async () => {
           //fetch data from API with Axios
           await ApiCustomer.get('/api/contact-information')
@@ -164,9 +298,9 @@ const Search_case = () => {
             // console.log(response.data.data)
             //assign response data to state "asset"
             setSiteAccounts(response.data.data);
-          })
-        }
-        
+        })
+  }
+
   //run hook useEffect
   useEffect(() => {
     //call method
@@ -174,9 +308,10 @@ const Search_case = () => {
     fetchDataContacts();
     fetchDataSiteAccounts();
   }, []);
-  
-  //resetData Search
-  useEffect(() => {
+
+
+   //resetData Search
+   useEffect(() => {
     if (!isModalAssetOpen) {
       setSearch({
         Email: "",
@@ -216,18 +351,18 @@ const Search_case = () => {
       });
     }
   }, [isModalCompanyOpen]); // Runs whenever modal state changes
-
   //filter item
+  
   // const filteredAssets = assets.filter((asset) =>
-    //   asset.SerialNumber?.toLowerCase().includes(search.toLowerCase()) ||
+  //   asset.SerialNumber?.toLowerCase().includes(search.toLowerCase()) ||
   //   asset.ProductName?.toLowerCase().includes(search.toLowerCase())
   // );
   // console.log("filtered Asset")
   // console.log(filteredAssets);
-  
-  
-  
-  
+
+
+
+
   //form section
   // section account
   //set Form Data
@@ -242,7 +377,7 @@ const Search_case = () => {
     Country: '',
     ZipPostalCode: ''
   })
-  
+
   //make handler
   const handlerInputSiteAccountChange = (e) => {
     const { id, value } = e.target
@@ -296,8 +431,8 @@ const Search_case = () => {
   };
   
   const handlerContactSubmit = async () => {
-    console.log("formDataContact");
     console.log(formDataContact);
+    console.log("formDataContact");
     try {
       const response = await ApiCustomer.post("/api/contact-information", formDataContact);
       console.log("Success:", response.data);
@@ -327,47 +462,121 @@ const Search_case = () => {
     }
   };
 
-  useEffect(() => {
-    console.log("Updated selectedAsset:", selectedAsset);
-  }, [selectedAsset]); // Runs when `selectedAsset` updates
-  
-  
+    //handler site accunt
+    const [selectedSiteAccounts, setSelectedSiteAccounts] = useState([]);
+    
+    const handleSelectedSiteAccount = (company) => {
+      setSelectedSiteAccounts(company);
+      console.log("Company Selected:", selectedSiteAccounts);
+    };
+    
 
-  useEffect(() => {
-    console.log("Updated selectedAsset:", selectedAsset);
-  }, [selectedAsset]); // Runs when `selectedAsset` updates
-  
+    //todo : handler selected contact
+    const [selectedContact, setSelectedContact] = useState([]);
 
-  //handler site accunt
-  const [selectedSiteAccounts, setSelectedSiteAccounts] = useState([]);
-  
-  const handleSelectedSiteAccount = (company) => {
-    setSelectedSiteAccounts(company);
-    console.log("Company Selected:", selectedSiteAccounts);
-  };
-  
 
-  //todo : handler selected contact
-  const [selectedContact, setSelectedContact] = useState([]);
 
+    //handler for selected asset for creating case
+    const [selectedAssetForCase, setSelectedAssetForCase] = useState(null);
+    const [selectedContactForCase, setSelectedContactForCase] = useState(null);
+    //state
+    const [caseType, setCaseType] = useState(""); // ✅ Manage selected Case Type
+    
+    const navigate = useNavigate(); // ✅ Get the navigate function
+
+      const handleCreateCase = async () => {
+        if (!selectedAssetForCase && selectedContactForCase) {
+          alert("Please select an asset/contact before creating a case!"); // 🔥 Prevent case creation
+          return;
+        }
+
+
+          // ✅ Extract SiteAccountID only if it exists
+        const siteAccountID = selectedSiteAccounts ? selectedSiteAccounts.SiteAccountID : null;
+        
+        try {
+          const newCase = {
+            CaseID: Math.floor(Math.random() * 100000), // Example random ID
+            AssetID: selectedAssetForCase.AssetID,
+            ContactID: selectedContactForCase.ContactID,
+            SiteAccountID: siteAccountID, // If company exists
+            CaseSubject: document.getElementById("CaseSubject").value,
+            CaseType: caseType,
+            KCI_Flag: document.getElementById("KCI_Flag").checked,
+            
+            IncomingChannel: "Email",
+            CaseStatus: "Open",
+            CasePriority: "Medium",
+            CustomerSeverity: "Normal",
+            CaseClosedDate: null,
+            CaseNote: "This is a sample case note.",
+            SymptomCode: "General Issue",
+            CaseResolution: "",
+          };
+      
+          await ApiCustomer.post("/api/case-information", newCase);
+          alert("Case Created Successfully!");
+          navigate(`/case/${newCase.CaseID}`); // ✅ Redirect to case details page
+        } catch (error) {
+          console.error("Error creating case:", error);
+        }
+      };
+
+    //selected company for case
+    // const selectedCompanyForCase = companies ? companies[0] : null;
+
+    const [selectedCompanyForCase, setSelectedCompanyForCase] = useState(null);
+
+    /**
+     * TODO :
+     * Make the select is automatic when it's related
+     * right now is not automated, so i skiped this part
+     * but this is still used rn
+     */
+    const handleSelectedAssetForCaseRelated = (asset) => {
+      setSelectedAssetForCase(asset);
+    
+      if (asset.contact_information) {
+        setSelectedContactForCase(asset.contact_information); // 🔥 Auto-select related contact
+      }
+    
+      if (asset.site_account) {
+        setSelectedSiteAccounts(asset.site_account); // 🔥 Auto-select related company
+      }
+    };
+    
 
   return (
-    <div className="flex flex-1 mt-2  gap-4 p-4 pt-0">
-      <div className="flex min-h-[100vh] flex-1 rounded-xl md:min-h-min">
+    <div className="flex flex-1 p-2 pt-0">
+      <SidebarProvider className=" overflow-auto min-h-[full]">
+      <div className="flex flex-1 rounded-xl md:min-h-min">
         <Tabs defaultValue="search" className="w-full" value={activeTab} onValueChange={setActiveTab}>
           <TabsList className="drop-shadow-xl bg-sky-700 w-full h-15 flex justify-between">
             <div className="w-2xs p-2 text-white ">
               <TabsTrigger value="search" className="cursor-pointer">Search</TabsTrigger>
               <TabsTrigger value="ci" className="cursor-pointer">Costumer Information</TabsTrigger>
             </div>
-
-            <BtnModal></BtnModal>
+            {/* <Button className="ml-50 cursor-pointer "><span></span>Customer Complaint</Button>
+            <Button className="cursor-pointer"><span></span>Customer Complaint Legal</Button> */}
+            {/* <Button className="mr-1.5 cursor-pointer"><span><Plus></Plus></span>Create Case</Button> */}
+            <div className="flex gap-2 items-center">
+              <Button className="text-md rounded-2xl p-4 text-black bg-white font-bold">Create Legal Complaint</Button>
+              <Button className="text-md rounded-2xl p-4 bg-transparent border-black border-2">Create Complaint</Button>
+              <BtnModal
+                handleCreateCase={handleCreateCase}
+                selectedAssetForCase={selectedAssetForCase}
+                selectedContactForCase={selectedContactForCase}
+                caseType={caseType}
+                setCaseType={setCaseType}
+              ></BtnModal>
+              <SidebarTrigger className="-ml-1 bg-amber-50 scale-125 mr-1" icon={PanelRight}/>
+            </div>
           </TabsList>
 
           {/* search tab */}
           <TabsContent value="search">
             <Card className="drop-shadow-md">
-              <CardContent className="grid gap-5 grid-cols-3">
+            <CardContent className="grid gap-5 grid-cols-3">
                 <div className="space-y-0.5"> 
                   <Label htmlFor="Email">Email</Label>
                   <Input id="Email" className="border-b-black p-1 "  />
@@ -416,14 +625,14 @@ const Search_case = () => {
                   <Label htmlFor="Opsi">Opsi</Label>
                   <Input id="Opsi" className="border-b-black p-1" />
                 </div>
-                <div className="space-y-0.5">
+                {/* <div className="space-y-0.5">
                   <Label htmlFor="LicenseKey">Lisense key</Label>
                   <Input id="LicenseKey" className="border-b-black p-1"  />
                 </div>
                 <div className="space-y-0.5">
                   <Label htmlFor="PIN">Pin</Label>
                   <Input id="PIN" className="border-b-black p-1" />
-                </div>
+                </div> */}
               </CardContent>
               <CardFooter className="flex justify-end">
                 <Button variant="secondary" className="bg-white drop-shadow-md border-1 cursor-pointer w-40 h-11" onClick={handleSearchClick}><p className='text-2xl mb-1'>Search</p></Button>
@@ -461,206 +670,206 @@ const Search_case = () => {
               setSelectedAsset={setSelectedAsset}
               setSelectedSiteAccounts={setSelectedSiteAccounts}
               setSelectedContact={setSelectedContact}
+
+              selectedAssetForCase={selectedAssetForCase}
+              setSelectedAssetForCase={setSelectedAssetForCase}
+              selectedContactForCase={selectedContactForCase}
+              setSelectedContactForCase={setSelectedContactForCase}
+              selectedCompanyForCase={selectedCompanyForCase}
+              setSelectedCompanyForCase={setSelectedCompanyForCase}
+              handleCreateCase={handleCreateCase}
+              handleSelectedAssetForCaseRelated={handleSelectedAssetForCaseRelated}
             />
-            {/* <TableContact selectedAsset={selectedAsset} selectedCompany={selectedSiteAccounts} ></TableContact>
-            <TableAsset selectedAsset={selectedAsset} selectedCompany={selectedSiteAccounts} ></TableAsset> */}
           </div>
           </TabsContent>
 
          
-          <TabsContent value="Account">
-          <TabsList className="flex h-[3em] bg-white">
-            <div className="w-2xs p-2 text-black">
-              <TabsTrigger value="Account" className="cursor-pointer" >Account</TabsTrigger>
-              <TabsTrigger value="Contact" className="ml-2 cursor-pointer">Contact</TabsTrigger>
-            </div>
-          </TabsList>
-            <Card className="drop-shadow-md">
-              {/* <CardHeader>
-                <CardTitle>Password</CardTitle>
-                <CardDescription>
-                  Change your password here. After saving, you'll be logged out.
-                </CardDescription>
-              </CardHeader> */}
-           
-                  
-                <CardHeader className="flex-row justify-between">
-              <CardTitle>
-                  Basic Information
-                </CardTitle>  
-                <CardTitle>
-                  Clear All
-                </CardTitle>
-              </CardHeader>
-              
-              <CardContent className="grid gap-5 grid-cols-3">
-              <div className="space-y-0.5">
-                  <Label htmlFor="Company">Company</Label>
-                  <Input id="Company" className="border-b-black p-1" onChange={handlerInputSiteAccountChange} value={formDataSiteAccount.Company}/>
-                </div>
-                <div className="space-y-0.5">
-                  <Label htmlFor="Email">Email</Label>
-                  <Input id="Email" type="email" className="border-b-black p-1" onChange={handlerInputSiteAccountChange} value={formDataSiteAccount.Email}/>
-                </div>
-                <div className="space-y-0.5">
-                  <Label htmlFor="PrimaryPhone">Primary Phone</Label>
-                  <Input id="PrimaryPhone" type="text" className="border-b-black p-1" onChange={handlerInputSiteAccountChange} value={formDataSiteAccount.PrimaryPhone}/>
-                </div>
-              </CardContent>
+          
 
-              <CardHeader className="mt-4">
-                <CardTitle>
-                  Address
-                </CardTitle>
-              </CardHeader>
-
-              <CardContent className="grid gap-5 grid-cols-3">
-              <div className="space-y-0.5">
-                  <Label htmlFor="AddressLine1">Addres Line 1</Label>
-                  <Input id="AddressLine1" type="email" className="border-b-black p-1" onChange={handlerInputSiteAccountChange} value={formDataSiteAccount.AddressLine1} />
-                </div>
-                <div className="space-y-0.5">
-                  <Label htmlFor="AddressLine2">Addres Line 2</Label>
-                  <Input id="AddressLine2" type="email" className="border-b-black p-1" onChange={handlerInputSiteAccountChange} value={formDataSiteAccount.AddressLine2}/>
-                </div>
-                <div className="space-y-1">
-                  <Label htmlFor="City">City</Label>
-                  <Input id="City" type="text" className="border-b-black p-1"  onChange={handlerInputSiteAccountChange} value={formDataSiteAccount.City}/>
-                </div>
-                <div className="space-y-0.5">
-                  <Label htmlFor="StateProvince">State/Province</Label>
-                  <Input id="StateProvince" type="text" className="border-b-black p-1" onChange={handlerInputSiteAccountChange} value={formDataSiteAccount.StateProvince}/>
-                </div>
-                <div className="space-y-0.5">
-                  <Label htmlFor="current">Country</Label>
-                  <SelectBar onChange={handlerInputContactChange}></SelectBar>
-                </div>
-                <div className="space-y-0.5">
-                  <Label htmlFor="ZipPostalCode">Zip/Postal Code</Label>
-                  <Input id="ZipPostalCode" type="text" className="border-b-black p-1" onChange={handlerInputSiteAccountChange} value={formDataSiteAccount.ZipPostalCode}/>
-                </div>
-              </CardContent>
-              <CardFooter className="flex justify-end">
-                <Button variant="secondary" className="bg-white drop-shadow-md border-1 cursor-pointer" onClick={handlerSiteAccountSubmit}>Verify & Save</Button>
-              </CardFooter>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="Contact">
+            <TabsContent value="Account">
             <TabsList className="flex h-[3em] bg-white">
               <div className="w-2xs p-2 text-black">
-                <TabsTrigger value="Account" className="cursor-pointer">Account</TabsTrigger>
+                <TabsTrigger value="Account" className="cursor-pointer" >Account</TabsTrigger>
                 <TabsTrigger value="Contact" className="ml-2 cursor-pointer">Contact</TabsTrigger>
               </div>
             </TabsList>
-            <Card className="drop-shadow-md">
-              <CardHeader className="flex-row justify-between">
-              <CardTitle>
-               Basic Information
-                </CardTitle>  
+              <Card className="drop-shadow-md">
+                {/* <CardHeader>
+                  <CardTitle>Password</CardTitle>
+                  <CardDescription>
+                    Change your password here. After saving, you'll be logged out.
+                  </CardDescription>
+                </CardHeader> */}
+                <CardHeader>
+                  <CardTitle className="flex flex-col">
+                  <span className="flex items-center"><User2></User2>Basic Information</span>
+                  <Button className="self-end mr-2" variant="ghost">Clear All</Button>
+                  <Button className="bg-white text-gray-400  self-end "><Copy></Copy>Same in Account Adress </Button>
+                  </CardTitle>
+                </CardHeader>
+        
+                <CardContent className="grid gap-5 grid-cols-3">
+                <div className="space-y-0.5">
+                    <Label htmlFor="Company">Company</Label>
+                    <Input id="Company" className="border-b-black p-1" onChange={handlerInputSiteAccountChange} value={formDataSiteAccount.Company}/>
+                  </div>
+                  <div className="space-y-0.5">
+                    <Label htmlFor="Email">Email</Label>
+                    <Input id="Email" type="email" className="border-b-black p-1" onChange={handlerInputSiteAccountChange} value={formDataSiteAccount.Email}/>
+                  </div>
+                  <div className="space-y-0.5">
+                    <Label htmlFor="PrimaryPhone">Primary Phone</Label>
+                    <Input id="PrimaryPhone" type="text" className="border-b-black p-1" onChange={handlerInputSiteAccountChange} value={formDataSiteAccount.PrimaryPhone}/>
+                  </div>
+                </CardContent>
+                <CardHeader className="mt-4">
+                  <CardTitle>
+                    Address
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="grid gap-5 grid-cols-3">
+                <div className="space-y-0.5">
+                    <Label htmlFor="AddressLine1">Addres Line 1</Label>
+                    <Input id="AddressLine1" type="email" className="border-b-black p-1" onChange={handlerInputSiteAccountChange} value={formDataSiteAccount.AddressLine1} />
+                  </div>
+                  <div className="space-y-0.5">
+                    <Label htmlFor="AddressLine2">Addres Line 2</Label>
+                    <Input id="AddressLine2" type="email" className="border-b-black p-1" onChange={handlerInputSiteAccountChange} value={formDataSiteAccount.AddressLine2}/>
+                  </div>
+                  <div className="space-y-1">
+                    <Label htmlFor="City">City</Label>
+                    <Input id="City" type="text" className="border-b-black p-1"  onChange={handlerInputSiteAccountChange} value={formDataSiteAccount.City}/>
+                  </div>
+                  <div className="space-y-0.5">
+                    <Label htmlFor="StateProvince">State/Province</Label>
+                    <Input id="StateProvince" type="text" className="border-b-black p-1" onChange={handlerInputSiteAccountChange} value={formDataSiteAccount.StateProvince}/>
+                  </div>
+                  <div className="space-y-0.5 flex flex-col">
+                    <Label htmlFor="current">Country</Label>
+                    <SelectBar id="Country" onChange={handlerInputContactChange}/>
+                  </div>
+                  <div className="space-y-0.5">
+                    <Label htmlFor="ZipPostalCode">Zip/Postal Code</Label>
+                    <Input id="ZipPostalCode" type="text" className="border-b-black p-1" onChange={handlerInputSiteAccountChange} value={formDataSiteAccount.ZipPostalCode}/>
+                  </div>
+                </CardContent>
+                <CardFooter className="flex justify-end">
+                  <Button variant="secondary" className="bg-white drop-shadow-md border-1 cursor-pointer" onClick={handlerSiteAccountSubmit}>Verify & Save</Button>
+                </CardFooter>
+              </Card>
+            </TabsContent>
+            <TabsContent value="Contact">
+              <TabsList className="flex h-[3em] bg-white">
+                <div className="w-2xs p-2 text-black">
+                  <TabsTrigger value="Account" className="cursor-pointer">Account</TabsTrigger>
+                  <TabsTrigger value="Contact" className="ml-2 cursor-pointer">Contact</TabsTrigger>
+                </div>
+              </TabsList>
+              <Card className="drop-shadow-md">
+                <CardHeader className="flex-row justify-between">
                 <CardTitle>
-                  Clear All
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="grid gap-5 grid-cols-5">
-                <div className="space-y-0.5 grid grid-cols-2 gap-x-2.5 col-span-2">
-                  <Label htmlFor="Salutation">Salutation</Label>
-                  <Label htmlFor="PreferredLanguage" >Preferred Language</Label>
-                  <SelectBar1 id="Salutation" onChange={handlerInputContactChange} />
-                  <SelectBar2 id="PreferredLanguage" onChange={handlerInputContactChange} />
-                </div>
-                <div className="space-y-0.5">
-                  <Label htmlFor="FirstName">First Name</Label>
-                  <Input id="FirstName" type="text" className="border-b-black p-1" onChange={handlerInputContactChange} />
-                </div>
-                <div className="space-y-0.5">
-                  <Label htmlFor="LastName">Last Name</Label>
-                  <Input id="LastName" type="text" className="border-b-black p-1" onChange={handlerInputContactChange} />
-                </div>
-                <div className="space-y-0.5">
-                  <Label htmlFor="Email">Email</Label>
-                  <Input id="Email" type="email" className="border-b-black p-1" onChange={handlerInputContactChange} />
-                </div>
-              </CardContent>
-              <CardHeader className="mt-2">
-                <CardTitle>Phone Preferences</CardTitle>
-              </CardHeader>
-              <CardContent className="grid gap-5 grid-cols-4">
-                <div className="space-y-0.5">
-                  <Label htmlFor="Phone">Phone</Label>
-                  <Input id="Phone" type="text" className="border-b-black p-1" onChange={handlerInputContactChange} />
-                </div>
-                <div className="space-y-0.5">
-                  <Label htmlFor="Mobile">Mobile</Label>
-                  <Input id="Mobile" type="text" className="border-b-black p-1" onChange={handlerInputContactChange} />
-                </div>
-                <div className="space-y-0.5">
-                  <Label htmlFor="WorkPhone">Work</Label>
-                  <Input id="WorkPhone" type="text" className="border-b-black p-1" onChange={handlerInputContactChange} />
-                </div>
-                <div className="space-y-0.5">
+                 Basic Informationdsada
+                  </CardTitle>
+                  <CardTitle>
+                    Basic Informationdad
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="grid gap-5 grid-cols-5">
+                  <div className="space-y-0.5 grid grid-cols-2 gap-x-2.5 col-span-2">
+                    <Label htmlFor="Salutation">Salutation</Label>
+                    <Label htmlFor="PreferredLanguage" >Preferred Language</Label>
+                    <SelectBar1 id="Salutation" onChange={handlerInputContactChange} />
+                    <SelectBar2 id="PreferredLanguage" onChange={handlerInputContactChange} />
+                  </div>
+                  <div className="space-y-0.5">
+                    <Label htmlFor="FirstName">First Name</Label>
+                    <Input id="FirstName" type="text" className="border-b-black p-1" onChange={handlerInputContactChange} />
+                  </div>
+                  <div className="space-y-0.5">
+                    <Label htmlFor="LastName">Last Name</Label>
+                    <Input id="LastName" type="text" className="border-b-black p-1" onChange={handlerInputContactChange} />
+                  </div>
+                  <div className="space-y-0.5">
+                    <Label htmlFor="Email">Email</Label>
+                    <Input id="Email" type="email" className="border-b-black p-1" onChange={handlerInputContactChange} />
+                  </div>
+                </CardContent>
+                <CardHeader className="mt-2">
+                  <CardTitle>Phone Preferences</CardTitle>
+                </CardHeader>
+                <CardContent className="grid gap-5 grid-cols-4">
+                  <div className="space-y-0.5">
+                    <Label htmlFor="Phone">Phone</Label>
+                    <Input id="Phone" type="text" className="border-b-black p-1" onChange={handlerInputContactChange} />
+                  </div>
+                  <div className="space-y-0.5">
+                    <Label htmlFor="Mobile">Mobile</Label>
+                    <Input id="Mobile" type="text" className="border-b-black p-1" onChange={handlerInputContactChange} />
+                  </div>
+                  <div className="space-y-0.5">
+                    <Label htmlFor="WorkPhone">Work</Label>
+                    <Input id="WorkPhone" type="text" className="border-b-black p-1" onChange={handlerInputContactChange} />
+                  </div>
+                  <div className="space-y-0.5">
                   <Label htmlFor="WorkExtension">Work EXTN</Label>
-                  <Input id="WorkExtension" type="text" className="border-b-black p-1" onChange={handlerInputContactChange} />
-                </div>
-                <div className="space-y-0.5">
-                  <Label htmlFor="OtherPhone">Other</Label>
-                  <Input id="OtherPhone" type="text" className="border-b-black p-1" onChange={handlerInputContactChange} />
-                </div>
-                <div className="space-y-0.5">
-                  <Label htmlFor="OtherExtension"> Other EXTN</Label>
-                  <Input id="OtherExtension" type="text" className="border-b-black p-1" onChange={handlerInputContactChange} />
-                </div>
-                <div className="space-y-0.5">
-                  <Label htmlFor="Fax">FAX</Label>
-                  <Input id="Fax" type="text" className="border-b-black p-1" onChange={handlerInputContactChange} />
-                </div>
-              </CardContent>
-              <CardHeader className="mt-2">
-                <CardTitle>Address</CardTitle>
-              </CardHeader>
-              <CardContent className="grid gap-5 grid-cols-3">
-                <div className="space-y-0.5">
-                  <Label htmlFor="AddressLine1">Address Line 1</Label>
-                  <Input id="AddressLine1" type="text" className="border-b-black p-1" onChange={handlerInputContactChange} />
-                </div>
-                <div className="space-y-0.5">
-                  <Label htmlFor="AddressLine2">Address Line 2</Label>
-                  <Input id="AddressLine2" type="text" className="border-b-black p-1" onChange={handlerInputContactChange} />
-                </div>
-                <div className="space-y-1">
-                  <Label htmlFor="City">City</Label>
-                  <Input id="City" type="text" className="border-b-black p-1" onChange={handlerInputContactChange} />
-                </div>
-                <div className="space-y-0.5">
-                  <Label htmlFor="StateProvince">State/Province</Label>
-                  <Input id="StateProvince" type="text" className="border-b-black p-1" onChange={handlerInputContactChange} />
-                </div>
-                <div className="space-y-0.5">
-                  <Label htmlFor="current">Country</Label>
-                  <SelectBar id="Country" onChange={handlerInputContactChange}/>
-                </div>
-                <div className="space-y-0.5">
-                  <Label htmlFor="ZipPostalCode">Zip/Postal Code</Label>
-                  <Input id="ZipPostalCode" type="text" className="border-b-black p-1" onChange={handlerInputContactChange} />
-
-                </div>
-              </CardContent>
-
-              <CardFooter className="flex justify-end gap-4">
-              <Button variant="secondary" className="bg-white drop-shadow-md border-1 cursor-pointer w-20" onClick={handlerContactSubmit}>Save</Button>
-                <Button variant="secondary" className="bg-white drop-shadow-md border-1 cursor-pointer" onClick={handlerContactSubmit}>Verify & Save</Button>
-              </CardFooter>
-            </Card>
-          </TabsContent>
-        </Tabs>
-      </div>
-      {/* <div className="flex  flex-col min-h-[100vh]  rounded-xl bg-muted/50 md:min-h-min">
-        <Sidebar side='right' className="relative" collapsible='icon'>
-          <SidebarContent>
-            <InfoSide items={data.navMain} />
-          </SidebarContent>
-        </Sidebar>
-      </div> */}
+                    <Input id="WorkExtension" type="text" className="border-b-black p-1" onChange={handlerInputContactChange} />
+                  </div>
+                  <div className="space-y-0.5">
+                    <Label htmlFor="OtherPhone">Other</Label>
+                    <Input id="OtherPhone" type="text" className="border-b-black p-1" onChange={handlerInputContactChange} />
+                  </div>
+                  <div className="space-y-0.5">
+                    <Label htmlFor="OtherExtension">Other EXTN</Label>
+                    <Input id="OtherExtension" type="text" className="border-b-black p-1" onChange={handlerInputContactChange} />
+                  </div>
+                  <div className="space-y-0.5">
+                    <Label htmlFor="Fax">FAX</Label>
+                    <Input id="Fax" type="text" className="border-b-black p-1" onChange={handlerInputContactChange} />
+                  </div>
+                </CardContent>
+                <CardHeader className="mt-2">
+                  <CardTitle>Address</CardTitle>
+                </CardHeader>
+                <CardContent className="grid gap-5 grid-cols-3">
+                  <div className="space-y-0.5">
+                    <Label htmlFor="AddressLine1">Address Line 1</Label>
+                    <Input id="AddressLine1" type="text" className="border-b-black p-1" onChange={handlerInputContactChange} />
+                  </div>
+                  <div className="space-y-0.5">
+                    <Label htmlFor="AddressLine2">Address Line 2</Label>
+                    <Input id="AddressLine2" type="text" className="border-b-black p-1" onChange={handlerInputContactChange} />
+                  </div>
+                  <div className="space-y-1">
+                    <Label htmlFor="City">City</Label>
+                    <Input id="City" type="text" className="border-b-black p-1" onChange={handlerInputContactChange} />
+                  </div>
+                  <div className="space-y-0.5">
+                    <Label htmlFor="StateProvince">State/Province</Label>
+                    <Input id="StateProvince" type="text" className="border-b-black p-1" onChange={handlerInputContactChange} />
+                  </div>
+                  <div className="space-y-0.5 flex flex-col">
+                    <Label htmlFor="current">Country</Label>
+                    <SelectBar id="Country" onChange={handlerInputContactChange}/>
+                  </div>
+                  <div className="space-y-0.5">
+                    <Label htmlFor="ZipPostalCode">Zip/Postal Code</Label>
+                    <Input id="ZipPostalCode" type="text" className="border-b-black p-1" onChange={handlerInputContactChange} />
+                  </div>
+                </CardContent>
+                <CardFooter className="flex justify-end gap-4">
+                <Button variant="secondary" className="bg-white drop-shadow-md border-1 cursor-pointer w-20" onClick={handlerContactSubmit}>Save</Button>
+                  <Button variant="secondary" className="bg-white drop-shadow-md border-1 cursor-pointer" onClick={handlerContactSubmit}>Verify & Save</Button>
+                </CardFooter>
+              </Card>
+            </TabsContent>
+          </Tabs>
+        </div>
+          <Sidebar side='right' className="relative h-full" collapsible='icon'>
+            <SidebarContent>
+              <InfoCase items={data.navModals} items2={data.navMain}/>
+            </SidebarContent>
+          </Sidebar>
+      </SidebarProvider>
     </div>
   )
 }

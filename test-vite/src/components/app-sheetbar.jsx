@@ -23,11 +23,11 @@ export function SheetBar() {
       <SheetTrigger asChild>
         <Button variant="outline" className="bg-white"><BadgeAlert className='size-5'></BadgeAlert></Button>
       </SheetTrigger>
-      <SheetContent className="bg-white w-70">
+      <SheetContent className="bg-white ">
         <SheetHeader>
           <SheetTitle className="flex justify-center text-2xl mt-5">INFORMATION</SheetTitle>
         </SheetHeader>
-        <div className=''>
+        <div className='overflow-auto'>
         <AppAccordion></AppAccordion>
         </div>
         {/* <div>

@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Mar 10, 2025 at 08:30 AM
+-- Generation Time: Mar 21, 2025 at 08:39 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -29,12 +29,20 @@ SET time_zone = "+00:00";
 
 CREATE TABLE `asset_information` (
   `AssetID` int(11) NOT NULL,
-  `SerialNumber` varchar(100) NOT NULL,
-  `ProductName` varchar(255) DEFAULT NULL,
-  `ProductNumber` varchar(100) DEFAULT NULL,
-  `ProductLine` varchar(100) DEFAULT NULL,
-  `SiteAccountID` int(11) DEFAULT NULL
+  `SerialNumber` varchar(20) NOT NULL,
+  `ProductNumber` varchar(11) NOT NULL,
+  `SiteAccountID` int(11) DEFAULT NULL,
+  `ContactID` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `asset_information`
+--
+
+INSERT INTO `asset_information` (`AssetID`, `SerialNumber`, `ProductNumber`, `SiteAccountID`, `ContactID`) VALUES
+(1, '5CD2355XDD', '6G1L7PA', 1, 3),
+(2, '5CG1329SV6', '483R7PA', 1, 2),
+(3, '5CG1329SV7', '483R7PA', NULL, 1);
 
 -- --------------------------------------------------------
 
@@ -54,11 +62,14 @@ CREATE TABLE `caseinformation` (
   `CaseStatus` varchar(50) DEFAULT NULL,
   `CasePriority` varchar(50) DEFAULT NULL,
   `CustomerSeverity` varchar(50) DEFAULT NULL,
-  `CreatedOn` timestamp DEFAULT current_timestamp(),
+  `CreatedOn` datetime DEFAULT current_timestamp(),
   `CaseClosedDate` datetime DEFAULT NULL,
   `CaseNote` text DEFAULT NULL,
   `SymptomCode` varchar(50) DEFAULT NULL,
-  `CaseResolution` text DEFAULT NULL
+  `CaseResolution` text DEFAULT NULL,
+  `CreatedBy` int(11) DEFAULT NULL,
+  `Owner` int(11) DEFAULT NULL,
+  `WorkGround` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -76,7 +87,7 @@ CREATE TABLE `casenotes` (
   `VisibleExternally` tinyint(1) DEFAULT 0,
   `MinutesSpent` int(11) DEFAULT NULL,
   `Note` text DEFAULT NULL,
-  `CreatedOn` timestamp DEFAULT current_timestamp()
+  `CreatedOn` datetime DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -108,6 +119,15 @@ CREATE TABLE `contact_information` (
   `ZipPostalCode` varchar(20) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Dumping data for table `contact_information`
+--
+
+INSERT INTO `contact_information` (`ContactID`, `SiteAccountID`, `Salutation`, `FirstName`, `LastName`, `Email`, `PreferredLanguage`, `Phone`, `Mobile`, `WorkPhone`, `WorkExtension`, `OtherPhone`, `OtherExtension`, `Fax`, `AddressLine1`, `AddressLine2`, `City`, `StateProvince`, `Country`, `ZipPostalCode`) VALUES
+(1, 2, 'Mr. ', 'RAFA', 'ELFARIZI', 'rafaelfarizi1@gmail.com', 'Bahasa Indonesia', '083834685279', '', '', '', '', '', '', 'Dukuh Cenang Desa Cenggini RT 03 RW 04', '', 'Kabupaten tegal', 'Jawa Tengah', 'Indonesia', '40511'),
+(2, 1, 'Mrs. ', 'Mey', 'Almasya', 'mey-miku21@gmail.com', 'English', '085755162771', '085755162771', '', '', '', '', '', 'Surakarta', '', 'Solo', 'Jawa Tengah', 'Indonesia', '40511'),
+(3, 1, 'Mr. ', 'Miku21', 'Margareth', 'mikucomunity21@gmail.com', 'English', '087731137512', '085755162771', '', '', '', '', '', 'Tegal', '', 'Kabupaten tegal', 'Jawa Tengah', 'Indonesia', '40511');
+
 -- --------------------------------------------------------
 
 --
@@ -120,7 +140,7 @@ CREATE TABLE `materialorder` (
   `OrderNumber` varchar(100) DEFAULT NULL,
   `OrderStatus` varchar(50) DEFAULT NULL,
   `OrderType` varchar(50) DEFAULT NULL,
-  `CreatedOn` timestamp DEFAULT current_timestamp(),
+  `CreatedOn` datetime DEFAULT current_timestamp(),
   `SalesOrderNumber` varchar(100) DEFAULT NULL,
   `RMANumber` varchar(100) DEFAULT NULL,
   `ReadyForClosureDate` datetime DEFAULT NULL,
@@ -143,6 +163,26 @@ CREATE TABLE `materialorderlineitems` (
   `Price` decimal(10,2) DEFAULT NULL,
   `Quantity` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `product_information`
+--
+
+CREATE TABLE `product_information` (
+  `ProductNumber` varchar(11) NOT NULL,
+  `ProductLine` varchar(3) NOT NULL,
+  `ProductName` varchar(255) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `product_information`
+--
+
+INSERT INTO `product_information` (`ProductNumber`, `ProductLine`, `ProductName`) VALUES
+('483R7PA', 'KV', 'HP 14s-cf2500TX'),
+('6G1L7PA', 'M7', 'Victus by HP 15.6 inch Gaming Laptop 15-fb0000 (598V1AV)');
 
 -- --------------------------------------------------------
 
@@ -214,8 +254,8 @@ CREATE TABLE `site_account` (
 --
 
 INSERT INTO `site_account` (`SiteAccountID`, `Company`, `Email`, `PrimaryPhone`, `AddressLine1`, `AddressLine2`, `City`, `StateProvince`, `Country`, `ZipPostalCode`) VALUES
-(1, 'Miku21 Store', 'mikucomunity21@gmail.com', '6287731137512', 'Virtual 1', '', 'Virtual World', 'Virtual World', 'Virtual', '13413'),
-(2, 'PT. Kapal Api', 'kapalapi@gmail.com', '6287731137512', 'Jakarta Pusat', '', 'Jakarta', 'DKI Jakarta', 'Indonesia', '13413');
+(1, 'Miku21 Store', 'mikucomunity21@gmail.com', '087731137512', 'Virtual', '', 'Virtual World', 'Virtual World', '', '40511'),
+(2, 'PT Kapal Api', 'kapalapi@gmail.com', '087731137512', 'Jakarta Utara', '', 'Jakarta', 'DKI Jakarta', '', '40511');
 
 -- --------------------------------------------------------
 
@@ -236,7 +276,7 @@ CREATE TABLE `workorder` (
   `PreferredTime` time DEFAULT NULL,
   `ShipmentCountry` varchar(50) DEFAULT NULL,
   `ShipmentState` varchar(50) DEFAULT NULL,
-  `CreatedOn` timestamp DEFAULT current_timestamp(),
+  `CreatedOn` datetime DEFAULT current_timestamp(),
   `Owner` varchar(100) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -249,7 +289,9 @@ CREATE TABLE `workorder` (
 --
 ALTER TABLE `asset_information`
   ADD PRIMARY KEY (`AssetID`),
-  ADD KEY `SiteAccountID` (`SiteAccountID`);
+  ADD KEY `SiteAccountID` (`SiteAccountID`),
+  ADD KEY `ContactID` (`ContactID`),
+  ADD KEY `ProductNumber` (`ProductNumber`);
 
 --
 -- Indexes for table `caseinformation`
@@ -289,6 +331,12 @@ ALTER TABLE `materialorderlineitems`
   ADD KEY `MOID` (`MOID`);
 
 --
+-- Indexes for table `product_information`
+--
+ALTER TABLE `product_information`
+  ADD PRIMARY KEY (`ProductNumber`);
+
+--
 -- Indexes for table `servicecatalog`
 --
 ALTER TABLE `servicecatalog`
@@ -322,13 +370,7 @@ ALTER TABLE `workorder`
 -- AUTO_INCREMENT for table `asset_information`
 --
 ALTER TABLE `asset_information`
-  MODIFY `AssetID` int(11) NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `caseinformation`
---
-ALTER TABLE `caseinformation`
-  MODIFY `CaseID` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `AssetID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `casenotes`
@@ -340,7 +382,7 @@ ALTER TABLE `casenotes`
 -- AUTO_INCREMENT for table `contact_information`
 --
 ALTER TABLE `contact_information`
-  MODIFY `ContactID` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `ContactID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `materialorder`
@@ -386,7 +428,9 @@ ALTER TABLE `workorder`
 -- Constraints for table `asset_information`
 --
 ALTER TABLE `asset_information`
-  ADD CONSTRAINT `asset_information_ibfk_1` FOREIGN KEY (`SiteAccountID`) REFERENCES `site_account` (`SiteAccountID`);
+  ADD CONSTRAINT `asset_information_ibfk_1` FOREIGN KEY (`SiteAccountID`) REFERENCES `site_account` (`SiteAccountID`),
+  ADD CONSTRAINT `asset_information_ibfk_2` FOREIGN KEY (`ContactID`) REFERENCES `contact_information` (`ContactID`),
+  ADD CONSTRAINT `asset_information_ibfk_3` FOREIGN KEY (`ProductNumber`) REFERENCES `product_information` (`ProductNumber`);
 
 --
 -- Constraints for table `caseinformation`
