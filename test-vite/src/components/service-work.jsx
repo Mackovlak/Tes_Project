@@ -1,5 +1,6 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
+import { Link } from "react-router";
 import {
   Card,
   CardContent,
@@ -19,7 +20,7 @@ import {
 } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { SelectBarRelated } from "./sc-select";
-import { Car, Lock } from "lucide-react";
+import { Car, Lock, Plus } from "lucide-react";
 import { CalendarDays } from "lucide-react";
 import {
   Table,
@@ -376,17 +377,20 @@ export const ServiceWork = () => {
               <CardContent className="grid gap-5">
                 <div className="font-bold flex">
                   <span>Requested Date Time (Customer)</span>
-                  <span className="ml-60">...</span>
+                  <span className="ml-50 mr-10">...</span>
+                  <CalendarDays></CalendarDays>
                 </div>
 
                 <div className="font-bold flex">
                   <span>Guaranteed Fix Time (Customer)</span>
-                  <span className="ml-61">...</span>
+                  <span className="ml-51 mr-10">...</span>
+                  <CalendarDays></CalendarDays>
                 </div>
 
                 <div className="font-bold flex">
                   <span>Due Date (Customer) </span>
-                  <span className="ml-82.5">...</span>
+                  <span className="ml-72.5 mr-10">...</span>
+                  <CalendarDays></CalendarDays>
                 </div>
               </CardContent>
             </Card>
@@ -394,6 +398,11 @@ export const ServiceWork = () => {
             <Card className="mt-5 flex-col">
               <span className="ml-5 font-bold text-xl">Booking</span>
               <CardContent className="grid">
+                <Button variant="link" className="w-50 ml-250 ">
+                  <Link to="/bookings">
+                    + New Bookable Resource
+                  </Link>
+                </Button>
               <Table>
                   <TableHeader>
                     <TableRow>

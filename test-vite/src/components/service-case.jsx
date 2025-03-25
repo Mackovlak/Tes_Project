@@ -8,6 +8,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
+import { Link } from 'react-router'
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import {
@@ -46,7 +47,7 @@ import { StepBack } from 'lucide-react'
 
 const workorder = [
   {
-    workordernumber: "WO-028912819",
+    workordernumber: "WO-027816939",
     caseid: "54165182991",
     serviceaccount: "Icon Plus",
     substatus: "Waiting",
@@ -73,87 +74,6 @@ const partsorder = [
     createdby: "-",
   },
 ]
-
-
-export const TabsService = () => {
-  return (
-    <div className='border-1 flex items-center'>
-      <Button variant="link" className="rounded-none">
-         <ArrowLeftFromLine></ArrowLeftFromLine>
-      </Button>
-
-      <Button variant="link" className="rounded-none">
-        <SquareArrowOutUpRight></SquareArrowOutUpRight>
-      </Button>
-
-      <Button variant="link" className="rounded-none">
-         <Save></Save>
-         <span>Save</span>
-      </Button>
-
-      <Button variant="link" className="rounded-none">
-         <FileSymlink></FileSymlink>
-         <span>Save & Close</span>
-      </Button>
-
-      <Button variant="link" className="rounded-none">
-        <RotateCw></RotateCw>
-         <span>Refresh</span>
-      </Button>    
-
-       <Button variant="link" className="rounded-none">
-        <StepBack></StepBack>
-         <span>Complaint</span>
-      </Button>    
-
-      <Button variant="link" className="rounded-none">
-        <StepBack></StepBack>
-         <span>CSR</span>
-      </Button>    
-
-      <Button variant="link" className="rounded-none">
-        <StepBack></StepBack>
-         <span>Service Order</span>
-      </Button>    
-
-      <Button variant="link" className="rounded-none">
-        <StepBack></StepBack>
-         <span>Work Order</span>
-      </Button>    
-
-      <Button variant="link" className="rounded-none">
-        <StepBack></StepBack>
-         <span>Sales Offer</span>
-      </Button>    
-
-      <Button variant="link" className="rounded-none">
-        <StepBack></StepBack>
-         <span>Close Case</span>
-      </Button>    
-
-      <Button variant="link" className="rounded-none">
-        <StepBack></StepBack>
-         <span>Pick</span>
-      </Button>    
-
-      <Button variant="link" className="rounded-none">
-        <StepBack></StepBack>
-         <span>Queue Details</span>
-      </Button>    
-
-      <Button variant="link" className="rounded-none">
-        <UserPen></UserPen>
-         <span>Assign</span>
-      </Button>    
-
-      <Button variant="link" className="rounded-none">
-        <StepBack></StepBack>
-         <span>Add to Queue</span>
-      </Button>    
-    </div>
-  )
-}
-
 
 export const ServiceCase = () => {
   return (
@@ -880,7 +800,11 @@ export const ServiceCase = () => {
               <TableBody>
                 {workorder.map((work) => (
                   <TableRow key={work.workordernumber}>
-                    <TableCell className="font-medium">{work.workordernumber}</TableCell>
+                    <TableCell className="font-medium">
+                      <Link to="/Work">
+                      {work.workordernumber}
+                      </Link>
+                      </TableCell>
                     <TableCell>{work.caseid}</TableCell>
                     <TableCell>{work.serviceaccount}</TableCell>
                     <TableCell>{work.substatus}</TableCell>
@@ -984,7 +908,11 @@ export const ServiceCase = () => {
 
               <TableBody>
                   <TableRow>
-                    <TableCell className="font-medium">No data available</TableCell>
+                    <TableCell className="font-medium">
+                      <Link to="/material_order">
+                       MO-8292819129 for WO-027816939
+                      </Link>
+                    </TableCell>
                   </TableRow>
               </TableBody>
             </Table>
