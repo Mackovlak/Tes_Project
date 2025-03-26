@@ -104,6 +104,7 @@ export async function POST(request) {
             Email: Email,
             PreferredLanguage: PreferredLanguage,
             Phone: Phone,
+            Mobile: Mobile,
             WorkPhone: WorkPhone,
             WorkExtension: WorkExtension,
             OtherPhone: OtherPhone,
