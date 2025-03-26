@@ -208,7 +208,7 @@ export function BtnModalContact({ selectedCompany, selectedContact, setSelectedC
           New Contacts
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[1000px] h-150 bg-white">
+      <DialogContent className="sm:max-w-[1000px] h-145 bg-white">
         <DialogHeader>
           <div className="flex justify-between">
             <DialogTitle className="text-xl flex gap-2"><PhoneCall></PhoneCall>Contact Information</DialogTitle>
@@ -442,7 +442,7 @@ export function BtnModalAsset() {
               <TableHead className="text-black">Product Name</TableHead>
               <TableHead className="text-black">Product Number</TableHead>
               <TableHead className="text-black">HW Profit Center</TableHead>
-              <TableHead className="text-black">Contact</TableHead>
+              <TableHead className="text-black" colSpan="2">Contact</TableHead>
             </TableRow>
           </TableHeader>
 
@@ -483,7 +483,7 @@ export function BtnModalAsset() {
       </DialogContent>
     </Dialog>
   )
-}
+};
 
 export function AssetEdit ({ assetId, onUpdate }) {
   const [asset, setAsset] = useState(null);
@@ -713,7 +713,7 @@ export function CompanyEdit({ siteAccountId, onUpdate }) {
       </DialogContent>
     </Dialog>
   );
-}
+};
 
 export function CompanyDelete ({ siteAccountId, isModalOpen, setIsModalOpen, onUpdate }) {
     //set modal
@@ -887,7 +887,7 @@ export function ContactEdit({ contactID, onUpdate }) {
       </DialogContent>
     </Dialog>
   );
-}
+};
 
 export function ContactDelete ({ contactID }) {
   const handleDelete = async () => {
@@ -920,3 +920,197 @@ export function ContactDelete ({ contactID }) {
     </Dialog>
   );
 };
+
+export function ProductAdd () {
+  // Form Product
+   const [formDataProduct, setFormDataProduct] = useState({
+      ProductNumber: '',
+      ProductLine: '',
+      ProductName: '',
+    })
+    
+    // Make Handler Product
+    const handlerInputProduct = (e) => {
+      const { id, value } = e.target
+      setFormDataProduct(prevState => ({
+        ...prevState,
+        [id]:value
+      }));
+    };
+
+    // Handler Submit
+    const handlerProduct = async () => {
+      if (!formDataProduct.ProductNumber || !formDataProduct.ProductLine || !formDataProduct.ProductName) {
+        alert("Please fill in all fields");
+        return;
+      }
+      try {
+        const response = await ApiCustomer.post("/api/product-information", formDataProduct);
+        console.log("Success:", response.data);
+        alert("Product Saved successfully");
+      } catch (err) {
+        console.error("Error saving product: ", err);
+        alert("Failed to save product");
+      }
+    };
+  return (
+    <Dialog>
+      <DialogTrigger asChild>
+        <Button variant="outline" className="h-11 rounded-sm ml-2"> Product Add</Button>
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Add Product Information</DialogTitle>
+          <DialogDescription>
+            Add the product Fields marked with * are required.
+          </DialogDescription>
+        </DialogHeader>
+        <div className="space-y-3">
+          <Label>Product Number</Label>
+          <Input type="text" id="ProductNumber" value={formDataProduct.ProductNumber} onChange={handlerInputProduct} />
+   
+          <Label>Product Line</Label>
+          <Input type="text" id="ProductLine" value={formDataProduct.ProductLine} onChange={handlerInputProduct} />
+         
+          <Label>Product Name</Label>
+          <Input type="text" id="ProductName" value={formDataProduct.ProductName} onChange={handlerInputProduct} />
+        </div>
+        <DialogFooter>
+          <Button onClick={handlerProduct}>Add</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  )
+}
+
+export function ProductEdit({ ProductNumber, onUpdate }) {
+  const [products, setProducts] = useState(null);
+  const [productLine, setProductLine] = useState("");
+  const [productName, setProductName] = useState("");
+  const [isOpen, setIsOpen] = useState(false);
+
+  const fetchProducts = async () => {
+    if (!ProductNumber) return;
+    try {
+      const response = await ApiCustomer.get(`/api/product-information/${ProductNumber}`);
+      const data = response.data.data;
+      setProducts(data);
+      setProductLine(data?.ProductLine || "");
+      setProductName(data?.ProductName || "");
+    } catch (error) {
+      console.error("Error fetching company information:", error);
+    }
+  };
+
+  useEffect(() => {
+    if (ProductNumber && isOpen) {
+      fetchProducts();
+    }
+  }, [ProductNumber, isOpen]);
+
+  useEffect(() => {
+    if (!isOpen) {
+      setProductLine("");
+      setProductName("");
+    }
+  }, [isOpen]);
+
+  const handleUpdate = async () => {
+    if (!productLine || !productName) {
+      alert("Fields marked with * are required!");
+      return;
+    }
+
+    try {
+      await ApiCustomer.patch(`/api/product-information/${ProductNumber}`, {
+        ProductLine: productLine,
+        ProductName: productName,
+      });
+      onUpdate();
+      setIsOpen(false);
+    } catch (error) {
+      console.error("Error updating product:", error);
+    }
+  };
+
+  return (
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+      <DialogTrigger asChild>
+        <Button variant="outline" onClick={() => { setIsOpen(true); fetchProducts(); }}>
+          <Pencil />
+        </Button>
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Edit Product Information</DialogTitle>
+          <DialogDescription>
+            Update the details of the product Fields marked with * are required.
+          </DialogDescription>
+        </DialogHeader>
+        <div className="space-y-3">
+          <Input value={productLine} onChange={(e) => setProductLine(e.target.value)} placeholder="Product Line*" />
+          <Input value={productName} onChange={(e) => setProductName(e.target.value)} placeholder="Product Name*" />
+        </div>
+        <DialogFooter>
+          <Button onClick={handleUpdate}>Update</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+};
+
+export function ProductDelete ({ ProductNumber, isModalOpen, setIsModalOpen, onUpdate }) {
+  //set modal
+const handleDelete = async () => {
+  try {
+    const response = await ApiCustomer.delete(`/api/product-information/${ProductNumber}`);
+    
+    console.log("Server Response:", response.data);
+    if (response.status === 409 || response.data.success === false) {
+      // 🚨 Restriction triggered - Show alert message
+      alert(response.data.message || "Cannot delete this product due to restrictions.");
+      return;
+    }
+    
+    alert("Product deleted successfully! ✅");
+    // ✅ Close the modal if it's open
+    setIsModalOpen(false);
+    // ✅ Refresh the table by calling `onUpdate()`
+    if (onUpdate) {
+      onUpdate();
+    }
+  } catch (error) {
+    if (error.response && error.response.status === 409) {
+      // 🚨 Handle 409 Conflict error from backend
+      alert(error.response.data.message || "Cannot delete! This product has related Product Type.");
+    } else {
+      alert("Failed to delete product. Please try again.");
+    }
+  }
+};
+
+return (
+  <Dialog>
+    <DialogTrigger asChild>
+      <Button variant="outline" className="text-red-500 hover:text-red-700">
+        <Trash />
+      </Button>
+    </DialogTrigger>
+    <DialogContent>
+      <DialogHeader>
+        <DialogTitle>Delete Product</DialogTitle>
+        <DialogDescription>
+          Delete Product confirm. 
+        </DialogDescription>
+      </DialogHeader>
+      <h1>Anda yakin ingin menghapus data ini?</h1>
+      <DialogFooter>
+        <Button variant="destructive" onClick={handleDelete}>Delete</Button>
+      </DialogFooter>
+    </DialogContent>
+  </Dialog>
+);
+};
+
+
+  

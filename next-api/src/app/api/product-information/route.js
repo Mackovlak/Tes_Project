@@ -12,8 +12,8 @@ export async function GET(request) {
 
         console.log("Query Params:", { search, page, limit });
         
-        // ✅ Check if table exists
-        // console.log("Prisma Model Names:", Object.keys(prisma)); // 🔥 Debug log
+        //  Check if table exists
+        // console.log("Prisma Model Names:", Object.keys(prisma)); // Debug log
 
         // Hitung jumlah data total
         const totalCount = await prisma.product_information.count({
@@ -79,30 +79,37 @@ export async function GET(request) {
  * MAKE CREATE ASSET AND CREATE PRODUCT SEPARATELY
  */
 export async function POST(request) {
-    //get all request
-    const { 
-        ProductNumber,
-        ProductName,
-        ProductLine,
-    } = await request.json();
+    try {
+        const { ProductNumber, ProductLine, ProductName } = await request.json();
 
-    //create data 
-    const asset_information = await prisma.asset_information.create({
-        data:{
-            ProductNumber: ProductNumber,
-            ProductName: ProductName,
-            ProductLine: ProductLine,
-        },
-    });
-
-    return NextResponse.json(
-        {
-            success: true,
-            message: "Asset Information Created Successfully!",
-            data: asset_information,
-        },
-        { 
-            status: 201
+        if (!ProductNumber || !ProductName || !ProductLine) {
+            return NextResponse.json(
+                { success: false, message: "Missing required fields" },
+                { status: 400 }
+            );
         }
-    )
+
+        const product_information = await prisma.product_information.create({
+            data: {
+                ProductNumber,
+                ProductLine,
+                ProductName,
+            },
+        });
+
+        return NextResponse.json(
+            {
+                success: true,
+                message: "Product Information Created Successfully!",
+                data: product_information,
+            },
+            { status: 201 }
+        );
+    } catch (error) {
+        console.error("Database error:", error);
+        return NextResponse.json(
+            { success: false, message: "Internal Server Error" },
+            { status: 500 }
+        );
+    }
 }

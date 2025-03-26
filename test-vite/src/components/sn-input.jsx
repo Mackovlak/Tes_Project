@@ -18,7 +18,7 @@ export const SnInput = () => {
     <DialogTrigger asChild>
       <Button variant="link" className="ml-30">Serial Number</Button>
     </DialogTrigger>
-    <DialogContent className="sm:max-w-[700px] ">
+    <DialogContent className="sm:max-w-[900px] ">
       <DialogHeader className="flex flex-row justify-between">
         <span className='mt-1 font-bold'>Serial Number</span>
         <Button variant="link">Clear All</Button>
