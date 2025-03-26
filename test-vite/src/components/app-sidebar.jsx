@@ -84,6 +84,10 @@ const data = {
           title: "Case",
           url: "/master/Case_table",
         },
+        {
+          title: "Product",
+          url: "/master/Product_table",
+        },
       ],
     },
     {

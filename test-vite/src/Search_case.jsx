@@ -226,6 +226,7 @@ const Search_case = () => {
   
   const [isModalAssetOpen, setIsModalAssetOpen] = useState(false);
   const [isModalCompanyOpen, setIsModalCompanyOpen] = useState(false);
+  const [isModalContactOpen, setIsModalContactOpen] = useState(false);
 
   const [activeTab, setActiveTab] = useState("search"); // Default active tab
 
@@ -238,6 +239,9 @@ const Search_case = () => {
     }else if(search.Company !== ""){
       setIsModalCompanyOpen(true);
       setActiveTab('ci'); // Switch tab to target
+    }else if (search.Contact  !== "") {
+      setIsModalContactOpen(true);
+      setActiveTab('ci');
     }
   };
   useEffect(() => {
@@ -469,11 +473,16 @@ const Search_case = () => {
       setSelectedSiteAccounts(company);
       console.log("Company Selected:", selectedSiteAccounts);
     };
-    
+  
 
-    //todo : handler selected contact
+    //handler selected contact
     const [selectedContact, setSelectedContact] = useState([]);
 
+    const handleSelectedContact = (contact) => {
+      setSelectedContact(contact);
+      console.log("Contact Selected:", selectedContact);
+    };
+     
 
 
     //handler for selected asset for creating case
@@ -579,7 +588,7 @@ const Search_case = () => {
             <CardContent className="grid gap-5 grid-cols-3">
                 <div className="space-y-0.5"> 
                   <Label htmlFor="Email">Email</Label>
-                  <Input id="Email" className="border-b-black p-1 "  />
+                  <Input id="Email" className="border-b-black p-1 " onChange={handleInputChange}/>
                 </div>
                 <div className="space-y-0.5">
                   <Label htmlFor="SerialNumber">Serial Number</Label>
@@ -657,7 +666,13 @@ const Search_case = () => {
                 setSearch={setSearch}
                 onSelectCompany={handleSelectedSiteAccount}
               />
-              <DialogContactBtn/>
+              <DialogContactBtn
+               isModalContactOpen={isModalContactOpen}
+               setIsModalContactOpen={setIsModalContactOpen}
+               search={search}
+               setSearch={setSearch}
+               onSelectContact={handleSelectedContact}
+              />
               
           </TabsList>
           <div className='mb-5'>

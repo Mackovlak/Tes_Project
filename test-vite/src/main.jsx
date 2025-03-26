@@ -10,11 +10,13 @@ import { Case } from './Case';
 import { Work } from './work';
 import { MaterialOrder } from './material_order';
 import { MoDetail } from './mo_detail';
-import { Company_table } from './Company_table';
-import { Assets_table } from './Assets_table';
-import { Contact_table } from './Contact_table';
-import { Case_table } from './Case_table';
+import { Company_table } from './master_table';
+import { Assets_table } from './master_table';
+import { Contact_table } from './master_table';
+import { Case_table } from './master_table';
+import { Product_table } from './master_table';
 import { Bookings } from './bookings';
+
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
@@ -32,8 +34,7 @@ createRoot(document.getElementById('root')).render(
           <Route path='/master/Assets_table' element={<Assets_table />} />
           <Route path='/master/Contact_table' element={<Contact_table />} />
           <Route path='/master/Case_table' element={<Case_table />} />
-
-          
+          <Route path='/master/Product_table' element={<Product_table/>}/>
         </Route>
         <Route path="/lorem" element={<Lorem />}/>
       </Routes>
