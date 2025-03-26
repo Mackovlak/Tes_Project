@@ -29,6 +29,25 @@ import {
   TableCaption,
 } from "@/components/ui/table";
 
+const contacts = [
+  {
+    ContactID: "INV001",
+    SiteAccountID: "Paid",
+    Salution: "$250.00",
+    Name: "Credit Card",
+    Email: "Pakrt556@gmail.com",
+    PreferredLanguage: "Indonesia",
+    Phone: "089677544227",
+    Mobile: "089677544227",
+    WorkPhone: "2498910048",
+    AddressLine: "Jakarta",
+    City: "DKI Jakarta",
+    StateProvince: "Jakarta",
+    Country: "Indonesia",
+    ZipPostalCode: "08972",
+  },
+]
+
 //importing API
 import ApiCustomer from "@/api";
 
@@ -178,9 +197,9 @@ export function DialogCloseButton({
                   className={`cursor-pointer hover:bg-gray-200 ${selectedAsset?.AssetID === asset.AssetID ? "bg-blue-300" : ""}`}
                   onClick={()=>handleSelectAsset(asset)}
                 >
-                  <TableCell>
+                  {/* <TableCell>
                   <input type="checkbox"/>
-                  </TableCell>
+                  </TableCell> */}
                   <TableCell className="font-medium whitespace-break-spaces">
                     {asset.product_information?.ProductName}
                   </TableCell>
@@ -400,5 +419,67 @@ export function DialogCompanyBtn({
         </DialogFooter>
       </DialogContent>
     </Dialog>
+  )
+}
+
+export function DialogContactBtn() {
+  return (
+    <Dialog>
+    <DialogTrigger asChild>
+      <Button variant="outline">Contact</Button>
+    </DialogTrigger>
+    <DialogContent className="sm:max-w-4xl gap-y-10 shadow-white">
+      <DialogHeader>
+          <DialogTitle className="mb-5">Contact</DialogTitle>
+          <DialogDescription className="text-black  gap-1">
+            <span className="flex items-center w-[20em]  gap-2 relative">Search Contact
+            <Search className="absolute right-1"/>
+            <Input className=" flex-1 ring-2 border-0 rounded-2xl pr-10"
+            /></span>
+          </DialogDescription>
+        </DialogHeader>
+
+        <Table className="table-fixed border-spacing-0 mx-auto">
+            <TableHeader className="flex">
+                <TableRow className="text-md bg-blue-200">
+                    <TableHead>ContactID</TableHead>
+                    <TableHead>SiteAccountID</TableHead>
+                    <TableHead>Salution</TableHead>
+                    <TableHead>Name</TableHead>
+                    <TableHead>Email</TableHead>
+                    <TableHead>PreferredLanguage</TableHead>
+                    <TableHead>Phone</TableHead>
+                    <TableHead>Mobile</TableHead>
+                    <TableHead>WorkPhone</TableHead>
+                    <TableHead>AddressLine</TableHead>
+                    <TableHead>City</TableHead>
+                    <TableHead>StateProvince</TableHead>
+                    <TableHead>Country</TableHead>
+                    <TableHead>ZipPostalCode</TableHead>
+                </TableRow>
+            </TableHeader>
+            <TableBody className="flex">
+            {contacts.map((contact) => (
+              <TableRow key={contact. ContactID}>
+                <TableCell className="font-medium">{contact.ContactID}</TableCell>
+                <TableCell>{contact.SiteAccountID}</TableCell>
+                <TableCell>{contact.Salution}</TableCell>
+                <TableCell>{contact.Name}</TableCell>
+                <TableCell>{contact.Email}</TableCell>
+                <TableCell>{contact.PreferredLanguage}</TableCell>
+                <TableCell>{contact.Phone}</TableCell>
+                <TableCell>{contact.Mobile}</TableCell>
+                <TableCell>{contact.WorkPhone}</TableCell>
+                <TableCell>{contact.AddressLine}</TableCell>
+                <TableCell>{contact.City}</TableCell>
+                <TableCell>{contact.StateProvince}</TableCell>
+                <TableCell>{contact.Country}</TableCell>
+                <TableCell>{contact.ZipPostalCode}</TableCell>
+              </TableRow>
+             ))}   
+            </TableBody>
+        </Table>
+    </DialogContent>
+  </Dialog>
   )
 }

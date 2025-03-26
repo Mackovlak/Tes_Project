@@ -62,9 +62,9 @@ import {
     )
   }
 
-  export function SelectBar3() {
+  export function SelectBar3({ value, onChange }) {
     return (
-      <Select>
+      <Select value={value} onValueChange={onChange}>
         <SelectTrigger className="w-[200px] border-b-black">
           <SelectValue/>
         </SelectTrigger>

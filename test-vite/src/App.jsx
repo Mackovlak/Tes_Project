@@ -30,9 +30,12 @@ const App = () => {
   
   return (
     <div>
-      <SidebarProvider>
+      <SidebarProvider style={{
+    "--sidebar-width": "13rem",
+    "--sidebar-width-mobile": "20rem",
+  }}>
       <AppSidebar />
-      <SidebarInset>
+      <SidebarInset className="overflow-auto">
         <header className="border-2 rounded-b-xl flex h-14 items-center justify-between px-4 gap-2">
           <div className="flex items-center gap-2 px-4">
             <SidebarTrigger className="-ml-1" />

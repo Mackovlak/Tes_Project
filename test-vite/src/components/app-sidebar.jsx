@@ -66,7 +66,7 @@ const data = {
       title: "Master",
       url: "#",
       icon: Bot,
-      isActive: true,
+      // isActive: true,
       items: [
         {
           title: "Company",
@@ -97,11 +97,11 @@ const data = {
         },
         {
           title: "Work Order",
-          url: "#",
+          url: "/Work",
         },
         {
           title: "Material Order",
-          url: "#",
+          url: "/Material_order",
         },
       ],
     },
@@ -162,7 +162,7 @@ const data = {
 
   recent: [
     {
-      name: "Pinned",
+      name: "Recent",
       url: "#",
       icon: PieChart,
     }

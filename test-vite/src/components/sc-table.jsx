@@ -25,28 +25,38 @@ import { Input } from "./ui/input";
 import { ContactRound, User,Search, Laptop } from "lucide-react";
 
 
+
 import ApiCustomer from "@/api";
 
 
 
 
 
-export function TableCompany({ 
-  selectedAsset = [],
-  selectedCompany = [],
-  selectedContact = [],
-  setSelectedAsset,
-  setSelectedSiteAccounts,
-  setSelectedContact,
-}) {
+  export function TableCompany({ 
+    selectedAsset = [],
+    selectedCompany = [],
+    selectedContact = [],
+    setSelectedAsset,
+    setSelectedSiteAccounts,
+    setSelectedContact,
 
-  
-  useEffect(() => {
-    console.log("Updated selectedContact 123:", selectedContact);
-  }, [selectedContact]); // ✅ Logs the updated value when `selectedAsset` changes
+    selectedAssetForCase,
+    setSelectedAssetForCase,
+    selectedContactForCase,
+    setSelectedContactForCase,
+    selectedCompanyForCase,
+    setSelectedCompanyForCase,
+    handleCreateCase,
+    // handleSelectedAssetForCaseRelated
+  }) {
 
-  const [checkedCompanies, setCheckedCompanies] = useState({});
-  const [relatedData, setRelatedData] = useState({}); // Stores related contacts/assets
+    
+    useEffect(() => {
+      console.log("Updated selectedContact 123:", selectedContact);
+    }, [selectedContact]); // ✅ Logs the updated value when `selectedAsset` changes
+
+    const [checkedCompanies, setCheckedCompanies] = useState({});
+    const [relatedData, setRelatedData] = useState({}); // Stores related contacts/assets
   /// Check if both `selectedAsset` and `selectedCompany` are empty
   const ifEmptyQuerySearch =
   (!selectedAsset || selectedAsset.length === 0) &&
@@ -80,6 +90,7 @@ export function TableCompany({
         : [selectedContact]) // ✅ Wrap object in an array if necessary
     .map((contact) => ({
         ContactID: contact.ContactID,
+        SiteAccountID: contact.SiteAccountID,
         FirstName: contact.FirstName,
         LastName: contact.LastName,
         Email: contact.Email,
@@ -106,6 +117,8 @@ export function TableCompany({
       isparent: "-",
       parentasset: "-",
       source: "CRM",
+      ContactID: asset.ContactID,
+      SiteAccountID: asset.SiteAccountID,
     }))
   : [];
 
@@ -160,11 +173,47 @@ export function TableCompany({
     }
   }
 
+   /**
+     * TODO :
+     * Make the select is automatic when it's related
+     * right now is not automated, so i skiped this part
+     * but this is still used rn
+     */
+   const handleSelectedAssetForCaseRelated = async (asset) => {
+    setSelectedAssetForCase(asset);
+    console.log("Asset in Selected Asset For Case Related : ", asset);
+    try{
+      const response = await ApiCustomer(`/api/asset-information/${asset.AssetID}`)
+      const assetRelated = response.data.data;
+      console.log("Asset in ApiCustomer Asset For Case Related : ", assetRelated);
   
+      if (assetRelated.contactID !== null) {
+        setSelectedContact(assetRelated.contact_information); // 🔥 Auto-select related contact
+        setSelectedContactForCase(assetRelated.contact_information ); // 🔥 Auto-select related contact
+      }
+    }catch (error){
+      console.error("Error fetching asset details:", error);
+    }
+  
+    // if (assetRelated.site_account !== null) {
+    //   setSelectedSiteAccounts(assetRelated.site_account); // 🔥 Auto-select related company
+    // }
+  };
+
+  
+  // useEffect(() => {
+  //   console.log("Checked Companies : ",checkedCompanies);
+  // }, [checkedCompanies]); // ✅ Run only when `companies` updates
   
   console.log("selectedAsset:", selectedAsset);
   console.log("selectedCompany:", selectedCompany);
   console.log("selectedContact:", selectedContact);
+
+
+  console.log("selectedContactForCase in BtnModalAsset:", selectedContactForCase);
+
+  
+
 
   return (
     // Company
@@ -192,8 +241,9 @@ export function TableCompany({
         )}
         </CardContent>
 
-        {/* Contact */}
+        {(checkedCompanies[companies?.[0]?.key] || selectedAsset.length !== 0)  && (
         <CardFooter className="p-0 flex flex-col">
+          {/* Contact */}
             <div className=" bg-blue-200 p-3 text-black font-bold text-xl flex w-full justify-between  ">
               <div className="flex items-center gap-2">
                 <User></User>
@@ -223,7 +273,13 @@ export function TableCompany({
             </TableHeader>
             <TableBody>
               {contacts.length > 0 ? contacts.map((contact) => (
-                <TableRow key={contact.ContactID}>
+                <TableRow key={contact.ContactID}
+                onClick={() => {
+                  setSelectedContact(contact)
+                  setSelectedContactForCase(contact);
+                }
+              }
+                className={`cursor-pointer hover:bg-gray-200 ${selectedContactForCase ?.ContactID === contact.ContactID ? "bg-blue-300" : "bg-white"}`}>
                   <TableCell>{contact.FirstName}</TableCell>
                   <TableCell>{contact.LastName}</TableCell>
                   <TableCell>{contact.Email}</TableCell>
@@ -249,7 +305,14 @@ export function TableCompany({
                   <Search className="absolute right-1"/><Input className="bg-white ring-2 border-0 rounded-2xl pr-10"/>
                 </span>
               </div>
-              <BtnModalAsset></BtnModalAsset>
+              <BtnModalAsset 
+                contactID={selectedContact.ContactID}
+                siteAccountID={selectedContact.SiteAccountID}
+                selectedContactForCase={selectedContactForCase}
+                selectedCompany={companyData}
+                selectedAsset={selectedAsset}
+                setSelectedAsset={setSelectedAsset}
+              />
               </div>
           <Table> 
             <TableHeader className="bg-gray-400 text-black font-bold">
@@ -265,7 +328,13 @@ export function TableCompany({
             </TableHeader>
             <TableBody>
                 {assets.length > 0 ? assets.map((asset) => (
-                  <TableRow key={asset.AssetID}>
+                  <TableRow 
+                    key={asset.AssetID}
+                    onClick={() => handleSelectedAssetForCaseRelated(asset)} // ✅ Set selected asset
+                    className={`cursor-pointer hover:bg-gray-200 ${
+                      selectedAssetForCase?.AssetID === asset.AssetID ? "bg-blue-300" : ""
+                    }`}
+                  >
                     <TableCell>{asset.ProductName}</TableCell>
                     <TableCell>{asset.ProductNumber}</TableCell>
                     <TableCell>{asset.SerialNumber}</TableCell>
@@ -282,6 +351,7 @@ export function TableCompany({
             </TableBody>
           </Table>
         </CardFooter>
+      )}
       </Card>
     
   );

@@ -28,13 +28,14 @@ import { Plus,PhoneCall, Copy } from "lucide-react";
 import { Checkbox } from "./ui/checkbox";
 import { SelectBar3, SelectBarContact4 } from "./sc-select";
 import { 
-  SelectBarContact, 
+  SelectBarContact,
   SelectBarContact2,
   SelectBarContact3,
   SelectBar,
   SelectBar1,
   SelectBar2,
  } from "@/components/sc-select";
+ import { SnInput } from "./sn-input";
 
 import { Pencil, Trash } from "lucide-react";
 //import API
@@ -50,13 +51,26 @@ import axios from "axios";
 //   },
 // ];
 
-export function BtnModal() {
+export function BtnModal({
+  handleCreateCase,
+  selectedAssetForCase,
+  selectedContactForCase,
+  caseType,
+  setCaseType
+}) {
   
+  
+
 
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant="outline" className="bg-white mr-4">
+        <Button 
+          variant="outline" 
+          onClick={handleCreateCase}
+          disabled={!selectedAssetForCase || !selectedContactForCase } // 🔥 Button disabled if no asset selected
+          className={`mr-4${(!selectedAssetForCase || !selectedContactForCase) ? "bg-white cursor-not-allowed" : "bg-blue-500"}`}
+        >
           <Plus></Plus>Create Case
         </Button>
       </DialogTrigger>
@@ -65,22 +79,22 @@ export function BtnModal() {
           <DialogTitle>Case Information</DialogTitle>
         </DialogHeader>
         <div className="flex items-center space-x-3">
-          <div className="w-55">
+          <div className="">
             <Label htmlFor="name" className="text-right">
               Case Subject
             </Label>
-            <Input id="name" className="col-span-3 border-b-black p-1" />
+            <Input id="CaseSubject" className="col-span-3 border-b-black p-1" />
           </div>
           <div className="">
-            <Label htmlFor="name" className="text-right">
+            <Label htmlFor="CaseType" className="text-right">
               Case Type
             </Label>
-            <SelectBar3></SelectBar3>
+            <SelectBar3 value={caseType} onChange={setCaseType}></SelectBar3>
           </div>
           <div className="flex items-center space-x-2 mt-5">
-            <Checkbox id="terms" />
+            <Checkbox id="KCI_Flag" />
             <label
-              htmlFor="terms"
+              htmlFor="KCI_Flag"
               className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
             >
               KCI For this case?
@@ -88,7 +102,7 @@ export function BtnModal() {
           </div>
         </div>
         <DialogFooter>
-          <Button type="submit">DONE</Button>
+          <Button type="submit" onClick={handleCreateCase}>DONE</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
@@ -330,25 +344,29 @@ export function BtnModalContact({ selectedCompany, selectedContact, setSelectedC
  * TODO 
  * MAKE ROUTE FOR PRODUCT
  */
-export function BtnModalAsset() {
+export function BtnModalAsset({
+  contactID, 
+  siteAccountID, 
+  selectedContactForCase,
+  selectedCompany,
+  setSelectedAsset,
+  selectedAsset,
+}) {
   //set asset
   const [assets, setAssets] = useState([])
-  //fetchDAta
-  const fetchDataAssets = async () => {
-    try {
-      const response = await ApiCustomer.get("/api/asset-information")
-      setAssets(response.data.data);
-    }catch (error)  {
-      console.error("Error fetching assets: ", error)
-    }
-  }
   //prevent infinite loop of calling fetchDataAssets
   useEffect(() => {
     fetchDataAssets();
+    fetchUnownedAssets();
   }, []); 
 
   //set search state
   const [searchAsset, setSearchAsset] = useState("");
+
+  const [currentPage, setCurrentPage] = useState(null);
+
+  const [totalPages, setTotalPages] = useState(null);
+
   //handle Change Input
   const handleSearchInputAssetsChange = (e) =>{
     const searchQuery = e.target.value;
@@ -364,42 +382,137 @@ export function BtnModalAsset() {
 
   //handling dialog state
   const [isOpen, setIsOpen] = useState(false);
+  const [selectedAssetForCreatingAsset, setSelectedAssetForCreatingAsset] = useState(null);
+  const [isUpdating, setIsUpdating] = useState(false);
+  const [isSearching, setIsSearching] = useState(false);
+  const itemsPerPage = 10;
+  const [unownedAssets, setUnownedAssets] = useState([]);
+  const [loadingUnowned, setLoadingUnowned] = useState(false);
+  const [searchUnowned, setSearchUnowned] = useState("");
+  
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  
+  
+  useEffect(() => {
+    if (!contactID) return;
+    fetchUnownedAssets();
+    fetchDataAssets();
+    console.log("selectedContactForCase : ",selectedContactForCase)
+    console.log('ContactIDFromSelectedContact')
+  }, [contactID, currentPage, searchAsset]);
 
-  //handling save button
-  const [newSearchedAsset, setNewSearchedAsset] = useState({
-    SerialNumber: "",
-    ProductName: "",
-    ProductNumber: "",
-    HWProfitCenter: "",
-    ContactFirstName: "",
-    ContactLastName: "",
-  })
+  const fetchDataAssets = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await ApiCustomer.get(`/api/asset-information/kepemilikan`, {
+        params: { page: currentPage, limit: itemsPerPage, search: searchAsset, contactID },
+      });
 
-  const handleNewAssetChange = (e) => {
-    setNewSearchedAsset({
-      ...newSearchedAsset,
-      [e.target.name]: e.target.value,
-    })
+      setAssets(response.data.data);
+      // setSelectedAsset(response.data.data);
+      setTotalPages(response.data.totalPages);
+      return response.data.data;
+    } catch (error) {
+      setError("Failed to load asset data.");
+      console.error("Error fetching assets:", error);
+      return []; // ✅ Return an empty array instead of `undefined`
+    } finally{
+      setLoading(false);
+    }
+  };
+
+  const fetchAssetTable = async (companyID = null, contactID = null) => {
+    try {
+      let query = '';
+      if(companyID !== null){
+        query += `SiteAccountID=${companyID}`
+      }
+      if(contactID !== null){
+        if(companyID !== null) query += `&`
+        query += `ContactID=${contactID}`
+      }
+      const response = await ApiCustomer.get(`/api/asset-information?${query}`);
+      console.log("response Fetch Contacts: ", response.data)
+      return response.data.data; // ✅ Return updated contacts
+    } catch (error) {
+      console.error("Error fetching contacts:", error);
+      return [];
+    }
   }
+  
+  
+  const fetchUnownedAssets = async () => {
+    setLoadingUnowned(true);
+    try {
+      console.log("Search Unowned : ",searchUnowned)
+      const response = await ApiCustomer.get(`/api/asset-information/kepemilikan/unowned`, {
+        params: {page: 1, limit: 10, search: searchUnowned},
+      });
+      setUnownedAssets(response.data.data);
+    } catch (error) {
+      console.error("Error fetching unowned assets:", error);
+    }
+    setLoadingUnowned(false);
+  };
 
-  //TODO : Post new Save Asset after created the serial number file
+  const handleUpdateAsset = async () => {
+    if (!selectedAssetForCreatingAsset) return;
+    setIsUpdating(true);
+    console.log(siteAccountID);
+    
+    try {
+      const response = await ApiCustomer.patch(`/api/asset-information/kepemilikan/${selectedAssetForCreatingAsset.AssetID}`, {
+        contactID,
+        siteAccountID
+      });
+      
+      if (response.status === 200) {
+        const updatedAssets = await fetchAssetTable(siteAccountID, contactID);
+        setSelectedAsset(updatedAssets);
+        console.log("Selected Asset after Creating New One : ", updatedAssets);
+        alert("Asset berhasil diperbarui!");
+
+        setIsOpen(false);
+        // fetchDataAssets();
+
+        if(selectedAssetForCreatingAsset?.AssetID){
+        }
+      }
+    } catch (error) {
+      alert("Terjadi kesalahan saat memperbarui asset. ", error);
+      console.error("Terjadi kesalahan : ", error)
+    }
+    setIsUpdating(false);
+  };
+  
+  
+  const handleSearch = async () => {
+    setIsSearching(true);
+    setCurrentPage(1);
+    await fetchDataAssets();
+    setIsSearching(false);
+    await fetchUnownedAssets();
+  };
+
   return (
-    <Dialog
-      open={isOpen} onOpenChange={setIsOpen}
-    >
-    <DialogTrigger asChild>
-      <Button variant="outline" className="bg-white mt-0.5" onClick={() => setIsOpen(true)}>
-        New Asset
-      </Button>
-    </DialogTrigger>
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+      <DialogTrigger asChild>
+        <Button 
+          variant="outline" 
+          // className="bg-white mt-0.5"
+          className={`mt-0.5 ${(!selectedContactForCase) ? "bg-white cursor-not-allowed" : "bg-blue-500"}`} 
+          onClick={() => setIsOpen(true)}
+          disabled={!selectedContactForCase } // 🔥 Button disabled if no contact selected
+        >
+          New Asset
+        </Button>
+      </DialogTrigger>
       <DialogContent className="sm:max-w-[800px] bg-white">
         <DialogHeader>
-          <div className="flex justify-between">
-            <DialogTitle className="text-xl">Asset Information</DialogTitle>
-            <DialogTitle className="flex justify-end text-sm mt-2.5">
-              Clear All
-            </DialogTitle>
-          </div>
+          <DialogTitle className="text-xl">Asset Information</DialogTitle>
+          <DialogDescription>Add Asset</DialogDescription>
         </DialogHeader>
 
         <DialogHeader>
@@ -418,29 +531,22 @@ export function BtnModalAsset() {
               Not Available
             </label>
           </div>
+            <SnInput></SnInput>
         </div>
+
 
         <Table className="table-fixed border-spacing-0 mx-auto">
           <TableHeader>
             <TableRow className="bg-blue-200">
-              <TableHead className="text-black">Product Name</TableHead>
-              <TableHead className="text-black">Product Number</TableHead>
-              <TableHead className="text-black">HW Profit Center</TableHead>
-              <TableHead className="text-black">Contact</TableHead>
+              <TableHead>Product Name</TableHead>
+              <TableHead>Product Number</TableHead>
+              <TableHead>HW Profit Center</TableHead>
+              <TableHead>Contact</TableHead>
             </TableRow>
           </TableHeader>
 
           <TableBody >
-            {filteredAssets.length > 0 ? (
-              filteredAssets.map((asset) => (
-                <TableRow key={asset?.AssetID}>
-                <TableCell className="whitespace-break-spaces ">{asset?.product_information?.ProductName}</TableCell>
-                <TableCell>{asset?.product_information?.ProductNumber}</TableCell>
-                <TableCell>{asset?.HWPorfitCenter ? asset?.HWPorfitCenter : '-' }</TableCell>
-                <TableCell>{asset?.contact_information !== null ? asset?.contact_information?.FirstName + ' ' + asset?.contact_information?.LastName : '-'   }</TableCell>
-              </TableRow>
-              ))
-            ) : assets.length > 0 ? ( assets.map((asset) => (
+            {assets.length > 0 ? ( assets.map((asset) => (
               <TableRow key={asset?.AssetID}>
                 <TableCell className="whitespace-break-spaces ">{asset?.product_information?.ProductName}</TableCell>
                 <TableCell>{asset?.product_information?.ProductNumber}</TableCell>
@@ -456,17 +562,78 @@ export function BtnModalAsset() {
                     Data Belum Tersedia
                   </TableCell>
                 </TableRow>
-             )}
+              )}
           </TableBody>
-          </Table>
+        </Table>
 
-          <div className="flex justify-end gap-2">
-            <Button variant="outline" className="w-20 border-2 border-blue-500" onClick={() => setIsOpen(false)}>Back</Button>
-            <Button variant="outline" className="w-20 bg-blue-700 text-white">Save</Button>
-          </div>
+        <h3 className="text-lg font-semibold mt-4">Unowned Assets</h3>
+        
+        <div className="flex gap-3">
+          <Input
+            className="border-2 border-black rounded-2xl w-55 text-md h-10 my-2"
+            type="Search"
+            value={searchUnowned}
+            onChange={(e) => setSearchUnowned(e.target.value)}
+          />
+          <Button
+            variant="outline"
+            className="bg-blue-700 text-white"
+            onClick={fetchUnownedAssets}
+          >
+            Search
+          </Button>
+        </div>
+
+        <Table className="table-fixed border-spacing-0 mx-auto mt-2">
+          <TableHeader>
+            <TableRow className="bg-gray-200">
+              <TableHead>Serial Number</TableHead>
+              <TableHead>Product Name</TableHead>
+              <TableHead>Product Number</TableHead>
+              <TableHead>Product Line</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {loadingUnowned ? (
+              <TableRow>
+                <TableCell colSpan={4}>Loading...</TableCell>
+              </TableRow>
+            ) : unownedAssets.length > 0 ? (
+              unownedAssets.map((asset) => (
+                <TableRow
+                  key={asset.AssetID}
+                  onClick={() => setSelectedAssetForCreatingAsset(asset)}
+                  className={`cursor-pointer hover:bg-gray-200 ${
+                    selectedAsset?.AssetID === asset.AssetID ? "bg-blue-300" : ""
+                  }`}
+                >
+                  <TableCell>{asset.SerialNumber}</TableCell>
+                  <TableCell>{asset.product_information?.ProductName}</TableCell>
+                  <TableCell>{asset.ProductNumber}</TableCell>
+                  <TableCell>{asset.product_information?.ProductLine}</TableCell>
+                </TableRow>
+              ))
+            ) : (
+              <TableRow>
+                <TableCell colSpan={4}>No Unowned Assets Available</TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+
+        <div className="flex justify-end gap-2 mt-2">
+          <Button
+            variant="outline"
+            className="bg-blue-700 text-white"
+            onClick={handleUpdateAsset}
+            disabled={isUpdating || !selectedAssetForCreatingAsset}
+          >
+            {isUpdating ? "Processing..." : "Select"}
+          </Button>
+        </div>
       </DialogContent>
     </Dialog>
-  )
+  );
 }
 
 export function AssetEdit ({ assetId, onUpdate }) {
