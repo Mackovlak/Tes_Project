@@ -436,7 +436,7 @@ export function DialogContactBtn({
 
   const fetchDataContacts = async () => {
     try {
-      const response = await ApiCustomer.get("/api/contact-information");
+      const response = await ApiCustomer.get("/api/search-email-phone");
       console.log("Fetched Contacts:", response.data.data);
       setContacts(response.data.data);
     } catch (err) {
@@ -510,7 +510,7 @@ export function DialogContactBtn({
         <Table className="table-fixed border-spacing-0 mx-auto">
           <TableHeader className="flex">
             <TableRow className="text-md bg-blue-200">
-              <TableHead>ContactID</TableHead>
+              <TableHead>Tipe</TableHead>
               <TableHead>SiteAccountID</TableHead>
               <TableHead>Salution</TableHead>
               <TableHead>Name</TableHead>

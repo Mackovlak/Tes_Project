@@ -16,6 +16,7 @@ import { Contact_table } from './master_table';
 import { Case_table } from './master_table';
 import { Product_table } from './master_table';
 import { Bookings } from './bookings';
+import { Product_type } from './Product_type';
 
 
 createRoot(document.getElementById('root')).render(
@@ -35,6 +36,7 @@ createRoot(document.getElementById('root')).render(
           <Route path='/master/Contact_table' element={<Contact_table />} />
           <Route path='/master/Case_table' element={<Case_table />} />
           <Route path='/master/Product_table' element={<Product_table/>}/>
+          <Route path='/master/Product_type' element={<Product_type/>}/>
         </Route>
         <Route path="/lorem" element={<Lorem />}/>
       </Routes>

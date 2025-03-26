@@ -88,6 +88,10 @@ const data = {
           title: "Product",
           url: "/master/Product_table",
         },
+        {
+          title: "Product Type",
+          url: "/master/Product_type",
+        },        
       ],
     },
     {
