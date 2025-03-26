@@ -8,7 +8,7 @@ datasource db {
 }
 
 model asset_information {
-  AssetID             Int                  @id
+  AssetID             Int                  @id @default(autoincrement())
   SerialNumber        String               @db.VarChar(20)
   ProductNumber       String               @db.VarChar(11)
   SiteAccountID       Int?
@@ -40,6 +40,9 @@ model caseinformation {
   CaseNote            String?              @db.Text
   SymptomCode         String?              @db.VarChar(50)
   CaseResolution      String?              @db.Text
+  CreatedBy           Int?
+  Owner               Int?
+  WorkGround          Int?
   site_account        site_account?        @relation(fields: [SiteAccountID], references: [SiteAccountID], onDelete: Restrict, onUpdate: Restrict, map: "caseinformation_ibfk_1")
   contact_information contact_information? @relation(fields: [ContactID], references: [ContactID], onDelete: Restrict, onUpdate: Restrict, map: "caseinformation_ibfk_2")
   asset_information   asset_information?   @relation(fields: [AssetID], references: [AssetID], onDelete: Restrict, onUpdate: Restrict, map: "caseinformation_ibfk_3")
@@ -201,8 +204,35 @@ model workorder {
 }
 
 model product_information {
-  ProductNumber     String              @id @db.VarChar(11)
-  ProductLine       String              @db.VarChar(3)
-  ProductName       String              @db.VarChar(255)
-  asset_information asset_information[]
+  ProductNumber       String              @id @db.VarChar(11)
+  ProductLine         String              @db.VarChar(3)
+  ProductName         String              @db.VarChar(255)
+  ProductTypeID       Int
+  end_of_sales_date   DateTime?           @db.Date
+  end_of_support_date DateTime?           @db.Date
+  vendor              String?             @db.VarChar(50)
+  asset_information   asset_information[]
+  product_type        product_type        @relation(fields: [ProductTypeID], references: [ProductTypeID], onUpdate: Restrict, map: "product_information_ibfk_1")
+
+  @@index([ProductTypeID], map: "ProductTypeID")
+}
+
+model product_type {
+  ProductTypeID       Int                        @id @default(autoincrement())
+  ProductType         String                     @db.VarChar(50)
+  ProductTower        product_type_ProductTower?
+  ProductGroup        product_type_ProductGroup?
+  product_information product_information[]
+}
+
+enum product_type_ProductTower {
+  PSG
+  IPG
+  EMPTY_ENUM_VALUE @map("")
+}
+
+enum product_type_ProductGroup {
+  Commercial
+  Consumer
+  EMPTY_ENUM_VALUE @map("")
 }

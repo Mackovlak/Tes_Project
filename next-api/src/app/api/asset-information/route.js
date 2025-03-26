@@ -100,14 +100,17 @@ export async function POST(request) {
         SerialNumber,
         ProductNumber,
         SiteAccountID,
+        ProductTypeID,
         ContactID
     } = await request.json();
 
+    console.log()
     //create data 
     const asset_information = await prisma.asset_information.create({
         data:{
             SerialNumber: SerialNumber,
             ProductNumber: ProductNumber,
+            ProductTypeID: ProductTypeID,
             SiteAccountID: SiteAccountID,
             ContactID: ContactID
         },

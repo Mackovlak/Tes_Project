@@ -496,6 +496,9 @@ export function BtnModalAsset({
     await fetchUnownedAssets();
   };
 
+  //handler check for creating product with frontdesk
+  const [isCheckedForCreateProduct, setIsCheckedForCreateProduct] = useState(false);
+
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
@@ -522,16 +525,7 @@ export function BtnModalAsset({
         <div className="flex gap-3">  
           <Input className="border-2 border-black rounded-2xl w-55 text-md h-10" type="Search" onChange={handleSearchInputAssetsChange}></Input>
           <Button variant="outline" className="w-30 rounded-2xl h-10 border-blue-600 border-2">Search</Button>
-          <div className="mt-2">
-          <Checkbox id="terms" className="w-5 h-5 border-2 border-black"/>
-            <label
-              htmlFor="terms"
-              className="text-md font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 ml-2"
-            >
-              Not Available
-            </label>
-          </div>
-            <SnInput></SnInput>
+          
         </div>
 
 
@@ -582,6 +576,22 @@ export function BtnModalAsset({
           >
             Search
           </Button>
+          <div className="mt-2">
+          <Checkbox id="terms" className="w-5 h-5 border-2 border-black" checked={isCheckedForCreateProduct} onCheckedChange={setIsCheckedForCreateProduct} />
+            <label
+              htmlFor="terms"
+              className="text-md font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 ml-2"
+            >
+              Not Available
+            </label>
+          </div>
+          {isCheckedForCreateProduct && 
+            <SnInput 
+              unownedAssets={unownedAssets}
+              setUnownedAssets={setUnownedAssets}
+              fetchUnownedAssets={fetchUnownedAssets}
+            />
+          }
         </div>
 
         <Table className="table-fixed border-spacing-0 mx-auto mt-2">
