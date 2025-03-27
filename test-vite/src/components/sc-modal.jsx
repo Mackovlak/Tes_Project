@@ -345,6 +345,7 @@ export function BtnModalContact({ selectedCompany, selectedContact, setSelectedC
  * MAKE ROUTE FOR PRODUCT
  */
 export function BtnModalAsset({
+  typeSearch,
   contactID, 
   siteAccountID, 
   selectedContactForCase,
@@ -353,6 +354,7 @@ export function BtnModalAsset({
   selectedAsset,
 }) {
   //set asset
+  console.log("BtnModalAsset ContactID : ",contactID)
   const [assets, setAssets] = useState([])
   //prevent infinite loop of calling fetchDataAssets
   useEffect(() => {
@@ -505,9 +507,9 @@ export function BtnModalAsset({
         <Button 
           variant="outline" 
           // className="bg-white mt-0.5"
-          className={`mt-0.5 ${(!selectedContactForCase) ? "bg-white cursor-not-allowed" : "bg-blue-500"}`} 
+          className={`mt-0.5 ${(!selectedContactForCase && typeSearch !== 'individual') ? "bg-white cursor-not-allowed" : "bg-blue-500"}`} 
           onClick={() => setIsOpen(true)}
-          disabled={!selectedContactForCase } // 🔥 Button disabled if no contact selected
+          disabled={!selectedContactForCase && typeSearch !== 'individual'} // 🔥 Button disabled if no contact selected
         >
           New Asset
         </Button>
@@ -522,14 +524,14 @@ export function BtnModalAsset({
           <DialogTitle className="text-md">Serial Number</DialogTitle>
         </DialogHeader>
 
-        <div className="flex gap-3">  
+        {/* <div className="flex gap-3">  
           <Input className="border-2 border-black rounded-2xl w-55 text-md h-10" type="Search" onChange={handleSearchInputAssetsChange}></Input>
           <Button variant="outline" className="w-30 rounded-2xl h-10 border-blue-600 border-2">Search</Button>
           
-        </div>
+        </div> */}
 
 
-        <Table className="table-fixed border-spacing-0 mx-auto">
+        {/* <Table className="table-fixed border-spacing-0 mx-auto">
           <TableHeader>
             <TableRow className="bg-blue-200">
               <TableHead>Product Name</TableHead>
@@ -558,9 +560,9 @@ export function BtnModalAsset({
                 </TableRow>
               )}
           </TableBody>
-        </Table>
+        </Table> */}
 
-        <h3 className="text-lg font-semibold mt-4">Unowned Assets</h3>
+        {/* <h3 className="text-lg font-semibold mt-4">Unowned Assets</h3> */}
         
         <div className="flex gap-3">
           <Input

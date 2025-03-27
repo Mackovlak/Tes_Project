@@ -21,7 +21,7 @@ export async function GET(request) {
                 ? {
                     OR: [
                         { ProductNumber: { contains: search } },
-                        { ProductName: { contains: search } }
+                        { ProductName: { contains: `%${search}%` } }
                     ]
                 }
                 : undefined, // Jika search kosong, tidak pakai filter

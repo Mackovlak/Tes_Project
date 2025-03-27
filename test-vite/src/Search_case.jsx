@@ -228,6 +228,11 @@ const data = {
 const Search_case = () => {
   //create search state
   const [search, setSearch] = useState("");
+  
+  //creating Asset Data
+  const [assets, setAssets] = useState([]);
+  const [contacts, setContacts] = useState([]);
+  const [siteAccounts, setSiteAccounts] = useState([]);
 
   const [isModalAssetOpen, setIsModalAssetOpen] = useState(false);
   const [isModalCompanyOpen, setIsModalCompanyOpen] = useState(false);
@@ -276,8 +281,8 @@ const Search_case = () => {
     }
   };
   useEffect(() => {
-    console.log("Updated Active Tab:", activeTab);
-  }, [activeTab]); // This runs every time activeTab changes
+    console.log("Contacts Searched trhough Phone:", contacts);
+  }, [contacts]); // This runs every time activeTab changes
 
   const handleInputChange = (e) => {
     // if (search.trim() !== "") {
@@ -294,51 +299,39 @@ const Search_case = () => {
     console.log(search);
   };
 
-  //creating Asset Data
-  const [assets, setAssets] = useState([]);
-  const [contacts, setContacts] = useState([]);
-  const [siteAccounts, setSiteAccounts] = useState([]);
 
   //define method
   const fetchDataAssets = async () => {
     //fetch data from API with Axios
     await ApiCustomer.get("/api/asset-information").then((response) => {
-      // console.log("Asset");
-      // console.log(response.data.data)
       //assign response data to state "asset"
       setAssets(response.data.data);
     });
   };
 
-  const fetchDataContacts = async (query) => {
+  const fetchDataContacts = async (query = '') => {
     //fetch data from API with Axios
     await ApiCustomer.get(`/api/contact-information${query}`).then(
       (response) => {
-        // console.log("Contact");
-        // console.log(response.data.data)
-        //assign response data to state "asset"
         setContacts(response.data.data);
       }
     );
   };
 
-  const fetchDataSiteAccounts = async (query) => {
+  const fetchDataSiteAccounts = async (query = '') => {
     //fetch data from API with Axios
     await ApiCustomer.get(`/api/site_account${query}`).then((response) => {
-      // console.log("Site Account");
-      // console.log(response.data.data)
-      //assign response data to state "asset"
       setSiteAccounts(response.data.data);
     });
   };
 
   //run hook useEffect
-  useEffect(() => {
-    //call method
-    fetchDataAssets();
-    fetchDataContacts();
-    fetchDataSiteAccounts();
-  }, []);
+  // useEffect(() => {
+  //   //call method
+  //   fetchDataAssets();
+  //   fetchDataContacts();
+  //   fetchDataSiteAccounts();
+  // }, []);
 
   //resetData Search
   useEffect(() => {
@@ -757,6 +750,11 @@ const Search_case = () => {
                   handleSelectedAssetForCaseRelated={
                     handleSelectedAssetForCaseRelated
                   }
+                  searchByEmailPhoneForGlobalSearch={searchByEmailPhoneForGlobalSearch}
+                  setSearchByEmailPhoneForGlobalSearch={setSearchByEmailPhoneForGlobalSearch}
+                  assetBasedOnContactsSearch={assets}
+                  contactsBasedOnContactsSearch={contacts}
+                  companyBasedOnContactsSearch={siteAccounts}
                 />
               </div>
             </TabsContent>

@@ -49,6 +49,11 @@ export const SnInput = ({
 //handle input change
   const handleChange = (key, value) => {
     setFormData((prev) => ({ ...prev, [key]: value }));
+
+    // ✅ Update the selected product type
+    if (key === "ProductTypeID") {
+      setSelectedProductType(value);
+    }
   }
   
   //handle Check PN 
@@ -72,6 +77,7 @@ export const SnInput = ({
   //getDataProducttype
   const [selectedProductTower, setSelectedProductTower] = useState("");
   const [selectedProductGroup, setSelectedProductGroup] = useState("");
+  const [selectedProductType, setSelectedProductType] = useState("");
   const [productTypeList, setProductTypeList] = useState([]);
 
   // Fetch product types when both tower and group are selected
@@ -133,6 +139,19 @@ export const SnInput = ({
       alert("Failed to add asset. Please try again.");
     }
   }
+
+  //handle create type :
+  const [productDetails, setProductDetails] = useState({
+    ProductNumber: "",
+    ProductName: "",
+    ProductLine: "",
+    ProductType: "",
+    ProductTower: "",
+    ProductGroup: ""
+  });
+  
+
+  
   return (
     <Dialog open={isOpenModal} onOpenChange={setIsOpenModal}>
     <DialogTrigger asChild>
@@ -170,15 +189,24 @@ export const SnInput = ({
                       <li 
                           key={product.ProductNumber} 
                           className="px-3 py-2 hover:bg-gray-100 cursor-pointer "
-                          onClick={() => {
+                          onClick={async () => {
                               setCheckPNTerm(product.ProductTypeID); // ✅ Set input field
                               setProductResult([]); // ✅ Hide dropdown
+                              console.log("Product Type Selected : ",product)
+                              const productTower = product.product_type?.ProductTower || "";
+                              const productGroup = product.product_type?.ProductGroup || "";
                               document.getElementById("ProductNumber").value = product.ProductNumber;
                               document.getElementById("ProductName").value = product.ProductName;
                               document.getElementById("ProductLine").value = product.ProductLine;
-                              document.getElementById("ProductType").value = product.product_type?.ProductType || "";
-                              document.getElementById("ProductTower").value = product.product_type?.ProductTower || "";
-                              document.getElementById("ProductGroup").value = product.product_type?.ProductGroup || "";
+
+                              setSelectedProductTower(product.product_type?.ProductTower || "");
+                              setSelectedProductGroup(product.product_type?.ProductGroup || "");
+                              
+                              await fetchProductTypes(product.product_type?.ProductTower, product.product_type?.ProductGroup);
+                              
+                              setSelectedProductType(product.ProductTypeID || "");
+                              console.log(selectedProductType)
+                              // document.getElementById("ProductType").value = product.product_type?.ProductType || "";
 
                               setFormData((prev) => ({
                                 ...prev,
@@ -202,7 +230,7 @@ export const SnInput = ({
             Product tower
           </Label>
           {/* <Input id="ProductTower"  onChange={handleChange}  className="col-span-3" /> */}
-          <Select onValueChange={setSelectedProductTower} >
+          <Select onValueChange={setSelectedProductTower} id="ProductTower" value={selectedProductTower}>
             <SelectTrigger className="col-span-3 w-full">
               <SelectValue placeholder="Product tower"/>
             </SelectTrigger>
@@ -222,7 +250,7 @@ export const SnInput = ({
             Product group
           </Label>
           {/* <Input id="ProductGroup"  onChange={handleChange}  className="col-span-3" /> */}
-          <Select onValueChange={setSelectedProductGroup}>
+          <Select onValueChange={setSelectedProductGroup} id="ProductGroup" value={selectedProductGroup}>
             <SelectTrigger className="col-span-3 w-full">
               <SelectValue placeholder="Product tower"/>
             </SelectTrigger>
@@ -241,7 +269,7 @@ export const SnInput = ({
             Product type
           </Label>
           {/* <Input id="ProductType"  onChange={handleChange}  className="col-span-3" /> */}
-          <Select  disabled={!selectedProductTower || !selectedProductGroup} onValueChange={(value) => handleChange("ProductTypeID", value)}>
+          <Select  disabled={!selectedProductTower || !selectedProductGroup} onValueChange={(value) => handleChange("ProductTypeID", value)} id="ProductType" value={selectedProductType}> 
             <SelectTrigger className="col-span-3 w-full">
               <SelectValue placeholder="Product tower"/>
             </SelectTrigger>
@@ -251,6 +279,7 @@ export const SnInput = ({
                 productTypeList.map((product) => (
                   <SelectItem key={product.ProductTypeID} value={product.ProductTypeID}>
                     {product.ProductType}
+                    {/* {product.ProductTypeID} */}
                   </SelectItem>
                 ))
               ) : (
