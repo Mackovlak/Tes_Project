@@ -41,9 +41,7 @@ import {
   TabsTrigger,
 } from "@/components/ui/tabs"
 
-
-
-import { DialogCloseButton, DialogCompanyBtn } from './components/assets-modal'
+import { DialogCloseButton, DialogCompanyBtn, DialogContactBtn } from './components/assets-modal'
 import { SelectBar } from './components/sc-select'
 import { SelectBar1 } from './components/sc-select'
 import { SelectBar2 } from './components/sc-select'
@@ -228,6 +226,7 @@ const Search_case = () => {
   
   const [isModalAssetOpen, setIsModalAssetOpen] = useState(false);
   const [isModalCompanyOpen, setIsModalCompanyOpen] = useState(false);
+  const [isModalContactOpen, setIsModalContactOpen] = useState(false);
 
   const [activeTab, setActiveTab] = useState("search"); // Default active tab
 
@@ -240,6 +239,9 @@ const Search_case = () => {
     }else if(search.Company !== ""){
       setIsModalCompanyOpen(true);
       setActiveTab('ci'); // Switch tab to target
+    }else if (search.Contact  !== "") {
+      setIsModalContactOpen(true);
+      setActiveTab('ci');
     }
   };
   useEffect(() => {
@@ -471,11 +473,16 @@ const Search_case = () => {
       setSelectedSiteAccounts(company);
       console.log("Company Selected:", selectedSiteAccounts);
     };
-    
+  
 
-    //todo : handler selected contact
+    //handler selected contact
     const [selectedContact, setSelectedContact] = useState([]);
 
+    const handleSelectedContact = (contact) => {
+      setSelectedContact(contact);
+      console.log("Contact Selected:", selectedContact);
+    };
+     
 
 
     //handler for selected asset for creating case
@@ -581,7 +588,7 @@ const Search_case = () => {
             <CardContent className="grid gap-5 grid-cols-3">
                 <div className="space-y-0.5"> 
                   <Label htmlFor="Email">Email</Label>
-                  <Input id="Email" className="border-b-black p-1 "  />
+                  <Input id="Email" className="border-b-black p-1 " onChange={handleInputChange}/>
                 </div>
                 <div className="space-y-0.5">
                   <Label htmlFor="SerialNumber">Serial Number</Label>
@@ -643,23 +650,31 @@ const Search_case = () => {
           </TabsContent>  
           
           <TabsContent value="ci" className="flex flex-col gap-1">
-            <TabsList className="bg-white float-right mr-5 self-end">   
-                <TabsTrigger value="Account" className="cursor-pointer"><span><Plus></Plus></span>Create New</TabsTrigger>
-                <DialogCloseButton 
-                  isModalAssetOpen={isModalAssetOpen} 
-                  setIsModalAssetOpen={setIsModalAssetOpen} 
-                  search={search} 
-                  setSearch={setSearch} 
-                  onSelectAsset={handleSelectedAsset} 
-                />
-                <DialogCompanyBtn 
-                  isModalCompanyOpen={isModalCompanyOpen}
-                  setIsModalCompanyOpen={setIsModalCompanyOpen}
-                  search={search}
-                  setSearch={setSearch}
-                  onSelectCompany={handleSelectedSiteAccount}
-                />
-            </TabsList>
+          <TabsList className="bg-white float-right mr-5 self-end">   
+              <TabsTrigger value="Account" className="cursor-pointer"><span><Plus></Plus></span>Create New</TabsTrigger>
+              <DialogCloseButton 
+                isModalAssetOpen={isModalAssetOpen} 
+                setIsModalAssetOpen={setIsModalAssetOpen} 
+                search={search} 
+                setSearch={setSearch} 
+                onSelectAsset={handleSelectedAsset} 
+              />
+              <DialogCompanyBtn 
+                isModalCompanyOpen={isModalCompanyOpen}
+                setIsModalCompanyOpen={setIsModalCompanyOpen}
+                search={search}
+                setSearch={setSearch}
+                onSelectCompany={handleSelectedSiteAccount}
+              />
+              <DialogContactBtn
+               isModalContactOpen={isModalContactOpen}
+               setIsModalContactOpen={setIsModalContactOpen}
+               search={search}
+               setSearch={setSearch}
+               onSelectContact={handleSelectedContact}
+              />
+              
+          </TabsList>
           <div className='mb-5'>
             {/* TODO : Change this Variable Name */}
             <TableCompany 
