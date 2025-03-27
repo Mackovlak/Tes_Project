@@ -17,6 +17,8 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
+  SelectLabel,
+  SelectGroup,
 } from "@/components/ui/select"
 import {
   Tabs,
@@ -235,16 +237,65 @@ export const ServiceCase = ({ caseDetails }) => {
       ]
     : [];
 
+
+    const [selected, setSelected] = useState("apple"); // Default to 'apple'
   return (
     <Card className="mt-2 rounded-none p-0 border-0">
       <CardHeader className="p-0">
         <Tabs defaultValue="case_info"> 
-          <CardContent className="flex flex-col gap-3 border-2 w-full p-4">
-            <CardTitle className="text-xl block">
-              {caseDetails.CaseID}
-              <p className="text-sm ">Case . Case</p>
-            </CardTitle>
-           
+          <CardContent className="flex flex-col gap-3 border-2 w-full p-2">
+            <div className="flex justify-between">
+              <CardTitle className="text-xl ">
+                {caseDetails.CaseID}
+                <span className="text-sm flex items-center">Case .
+                  <Select onValueChange={setSelected} defaultValue="case" className="shadow-xl">
+                  <SelectTrigger className="shadow-none border-none">
+                    <SelectValue  />
+                  </SelectTrigger>
+                  <SelectContent >
+                    <SelectGroup>
+                      <SelectItem value="case">Case</SelectItem>
+                      <SelectItem value="??">??</SelectItem>
+                      <SelectItem value="!!">!!</SelectItem>
+                      <SelectItem value="**">**</SelectItem>
+                      <SelectItem value="&&">&&</SelectItem>
+                    </SelectGroup>
+                  </SelectContent>
+                  </Select>
+                </span>
+              </CardTitle>
+              <CardTitle className="flex">
+                <div className="px-2 flex flex-col item-center justify-center border-r-2">
+                  <h1 className='text-blue-500'>Kamisyah Indriani</h1>
+                  <p className="text-sm font-light ">Owner</p>
+                </div>
+                <div className="px-2 flex flex-col item-center justify-center border-r-2">
+                  <h1 className='text-blue-500'>---</h1>
+                  <p className="text-sm font-light ">Queue</p>
+                </div>
+                <div className="px-2 flex flex-col item-center justify-center border-r-2">
+                  <h1 className='text-blue-500'>Harva Anwar</h1>
+                  <p className="text-sm font-light ">Contact</p>
+                </div>
+                <div className="px-2 flex flex-col item-center justify-center border-r-2">
+                <Select onValueChange={setSelected} defaultValue="first" >
+                  <SelectTrigger className="shadow-none border-none text-blue-500 p-0">
+                    <SelectValue  />
+                  </SelectTrigger>
+                  <SelectContent className="p-0">
+                    <SelectGroup className="p-0">
+                    <SelectItem value="first" className="p-0">PT BANK SBI INDONESIA</SelectItem>
+                    <SelectItem value="??">??</SelectItem>
+                      <SelectItem value="!!">!!</SelectItem>
+                      <SelectItem value="**">**</SelectItem>
+                      <SelectItem value="&&">&&</SelectItem>
+                    </SelectGroup>
+                  </SelectContent>
+                  </Select>
+                  <p className="text-sm font-light ">Site Account</p>
+                </div>
+              </CardTitle>
+            </div>
             <TabsList className="bg-white">
             {visibleTabs.map((tab, index) => tab.component ? (
             <div key={index}>{tab.component}</div> // Ensure SelectBarRelated renders properly
