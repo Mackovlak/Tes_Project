@@ -7,35 +7,75 @@ export async function GET(request) {
         // Ambil parameter pencarian & pagination
         const { searchParams } = new URL(request.url);
         const search = searchParams.get("search") || "";
+        
+        const email = searchParams.get("email") || "";
+        const phone = searchParams.get("phone") || "";
+        const country = searchParams.get("country") || "";
+
         const siteAccountID = searchParams.get("SiteAccountID") || "";
         const page = parseInt(searchParams.get("page")) || 1;
         const limit = parseInt(searchParams.get("limit")) || 10;
 
         console.log("Query Params:", { search, page, limit, siteAccountID });
 
-        // ✅ Ensure optional filtering
-        const filters = {
-            ...(siteAccountID ? { SiteAccountID: parseInt(siteAccountID, 10) } : {}),
-            ...(search
-                ? { OR: [
-                    { FirstName: { contains: search } },
-                    { LastName: { contains: search } },
-                    { Email: { contains: search } },
-                    { Phone: { contains: search } },
-                    { Country: { contains: search } },
-                    { City: { contains: search } },
-                    { StateProvince: { contains: search } },
-                    { ZipPostalCode: { contains: search } },
-                    { site_account: { Company: { contains: search } } }
-                ]}
-                : {})
-        };
+         // Initialize filters
+         let whereCondition = {};
 
+         // Search by Email (must be in the selected country)
+         if (email) {
+             whereCondition.AND = [
+                 { Email: { contains: email } },
+                //  country ? { Country: { contains: country } } : {}
+             ];
+         }
+ 
+         // Search by Phone (match phone in any country)
+         if (phone) {
+             whereCondition.OR = [
+                 { Phone: { contains: phone } },
+                 { Mobile: { contains: phone } },
+                 { OtherPhone: { contains: phone } }
+             ];
+         }
+ 
+         // If both Email and Phone exist, apply the combined filter
+         if (email && phone) {
+             whereCondition = {
+                 AND: [
+                     { OR: whereCondition.OR }, // Match phone
+                     { Email: { contains: email } }, // Match email
+                    //  country ? { Country: { contains: country } } : {}
+                 ]
+             };
+         }
+ 
+         // If searching within a company
+         if (siteAccountID) {
+             whereCondition.SiteAccountID = parseInt(siteAccountID);
+         }
+ 
+         console.log("Final Where Condition:", whereCondition);
+         // ✅ Ensure optional filtering
+         // const filters = {
+         //     ...(siteAccountID ? { SiteAccountID: parseInt(siteAccountID, 10) } : {}),
+         //     ...(search
+         //         ? { OR: [
+         //             { FirstName: { contains: search } },
+         //             { LastName: { contains: search } },
+         //             { Email: { contains: search } },
+         //             { Phone: { contains: search } },
+         //             { Country: { contains: search } },
+         //             { City: { contains: search } },
+         //             { StateProvince: { contains: search } },
+         //             { ZipPostalCode: { contains: search } },
+         //             { site_account: { Company: { contains: search } } }
+         //         ]}
+         //         : {})
+         // };
+ 
+         // Get total count
+         const totalCount = await prisma.contact_information.count({ where: whereCondition });
 
-        // Hitung jumlah data total
-        const totalCount = await prisma.contact_information.count({
-            where: filters
-        });
 
         console.log("Total Data:", totalCount);
 
@@ -46,7 +86,7 @@ export async function GET(request) {
 
         // Ambil data dengan filter & pagination
         const contact_information = await prisma.contact_information.findMany({
-            where: filters,
+            where: whereCondition,
             skip: (page - 1) * limit,
             take: limit,
             orderBy: { FirstName: "asc" },

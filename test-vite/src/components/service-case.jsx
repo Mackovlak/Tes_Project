@@ -407,7 +407,7 @@ export const ServiceCase = ({ caseDetails }) => {
               
                 
                 <CardTitle   className='flex font-medium'><Lock className='size-4'/>Created ON</CardTitle>
-                <CardTitle className="col-span-3 flex gap-[5em]">{caseDetails.CreatedOn}<CalendarDays className='size-4 '/>...</CardTitle>
+                <CardTitle className="col-span-3 flex gap-[5em]">{new Date(caseDetails.CreatedOn).toLocaleDateString('id-ID')}<CalendarDays className='size-4 '/>{new Date(caseDetails.CreatedOn).toLocaleTimeString('id-ID', { hour12: true, hour: "2-digit", minute: "2-digit" })}</CardTitle>
                 
                 
               

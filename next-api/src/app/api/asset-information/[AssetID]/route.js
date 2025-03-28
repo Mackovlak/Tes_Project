@@ -14,6 +14,11 @@ export async function GET(request, { params }) {
 
     const asset_information = await prisma.asset_information.findUnique({
         where: { AssetID: assetID },
+        include: {
+            site_account: true,
+            contact_information: true,
+            product_information:true,
+        }
     });
 
     if (!asset_information) {

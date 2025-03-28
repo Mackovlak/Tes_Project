@@ -51,17 +51,8 @@ export async function GET(request) {
             message: "List Data Case",
             data: case_information.map(caseData => ({
                     CaseID: caseData.CaseID,
-                    CreatedOn: caseData.CreatedOn
-                    ? new Date(caseData.CreatedOn).toLocaleString("en-US", {
-                        year: "numeric",
-                        month: "2-digit",
-                        day: "2-digit",
-                        hour: "2-digit",
-                        minute: "2-digit",
-                        second: "2-digit",
-                        hour12: false, // Change to true if you want AM/PM format
-                    })
-                    : "No Date",
+                    // CreatedOn: caseData.CreatedOn,
+                    CreatedOn: caseData.CreatedOn.toLocaleString('id-ID'),
                     CaseSubject: caseData.CaseSubject,
                     CustomerAccount: caseData.contact_information?.site_account?.Company || "No Company",
                     Primary: `${caseData.contact_information?.FirstName || ""} ${caseData.contact_information?.LastName || ""}`.trim(),

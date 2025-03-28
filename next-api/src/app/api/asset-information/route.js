@@ -7,22 +7,41 @@ export async function GET(request) {
         // Ambil parameter pencarian & pagination
         const { searchParams } = new URL(request.url);
         const search = searchParams.get("search") || "";
+
+        const siteAccountID = searchParams.get("SiteAccountID") ? parseInt(searchParams.get("SiteAccountID")) : null;
+        const contactID = searchParams.get("ContactID") ? parseInt(searchParams.get("ContactID")) : null;
+
         const page = parseInt(searchParams.get("page")) || 1;
         const limit = parseInt(searchParams.get("limit")) || 10;
 
         console.log("Query Params:", { search, page, limit });
 
-        // Hitung jumlah data total
-        const totalCount = await prisma.asset_information.count({
-            where: search
-                ? {
+        let whereCondition = {}
+        if (siteAccountID !== null) {
+            whereCondition.SiteAccountID = siteAccountID;
+        }
+        if (contactID !== null) {
+            whereCondition.ContactID = contactID;
+        }
+          // If `search` is provided, add OR conditions but ensure SiteAccountID/ContactID are required if present
+          if (search) {
+            whereCondition.AND = [
+                whereCondition, // Keep SiteAccountID & ContactID constraints
+                {
                     OR: [
                         { SerialNumber: { contains: search } },
                         { ProductNumber: { contains: search } },
-                        { ProductName: { contains: search } }
+                        { product_information: { ProductName: { contains: search } } }
                     ]
                 }
-                : undefined // Jika search kosong, tidak pakai filter
+            ];
+        }
+
+        console.log("Final WHERE Condition:", JSON.stringify(whereCondition));
+
+        // Hitung jumlah data total
+        const totalCount = await prisma.asset_information.count({
+            where: whereCondition
         });
 
         console.log("Total Data:", totalCount);
@@ -32,15 +51,7 @@ export async function GET(request) {
 
         // Ambil data dengan filter & pagination
         const asset_information = await prisma.asset_information.findMany({
-            where: search
-                ? {
-                    OR: [
-                        { SerialNumber: { contains: search } },
-                        { ProductNumber: { contains: search } },
-                        { product_information: { ProductName: { contains: search } } }
-                    ]
-                }
-                : undefined,
+            where: whereCondition,
             skip: skip,
             take: limit,
             orderBy: { product_information: { ProductName: "asc" } },
@@ -89,14 +100,17 @@ export async function POST(request) {
         SerialNumber,
         ProductNumber,
         SiteAccountID,
+        ProductTypeID,
         ContactID
     } = await request.json();
 
+    console.log()
     //create data 
     const asset_information = await prisma.asset_information.create({
         data:{
             SerialNumber: SerialNumber,
             ProductNumber: ProductNumber,
+            ProductTypeID: ProductTypeID,
             SiteAccountID: SiteAccountID,
             ContactID: ContactID
         },

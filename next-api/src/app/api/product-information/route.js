@@ -21,10 +21,10 @@ export async function GET(request) {
                 ? {
                     OR: [
                         { ProductNumber: { contains: search } },
-                        { ProductName: { contains: search } }
+                        { ProductName: { contains: `%${search}%` } }
                     ]
                 }
-                : undefined // Jika search kosong, tidak pakai filter
+                : undefined, // Jika search kosong, tidak pakai filter
         });
 
         console.log("Total Data:", totalCount);
@@ -44,12 +44,13 @@ export async function GET(request) {
                 : undefined,
             skip: skip,
             take: limit,
-            orderBy: { ProductName: "asc" }
+            orderBy: { ProductName: "asc" },
+            include: { product_type: true }
         });
 
         return NextResponse.json({
             success: true,
-            message: "List Data Assets Information",
+            message: "List Data Product ",
             data: product_information,
             totalPages: Math.ceil(totalCount / limit),
             currentPage: page
@@ -79,32 +80,54 @@ export async function GET(request) {
  * MAKE CREATE ASSET AND CREATE PRODUCT SEPARATELY
  */
 export async function POST(request) {
-    try {
-        const { ProductNumber, ProductLine, ProductName } = await request.json();
+    //get all request
+    const { 
+        ProductNumber,
+        ProductName,
+        ProductLine,
+        ProductTypeID
+    } = await request.json();
 
-        if (!ProductNumber || !ProductName || !ProductLine) {
-            return NextResponse.json(
-                { success: false, message: "Missing required fields" },
-                { status: 400 }
-            );
-        }
+    
+    try{
 
-        const product_information = await prisma.product_information.create({
-            data: {
-                ProductNumber,
-                ProductLine,
-                ProductName,
-            },
+    
+      // ✅ Check if ProductNumber already exists
+        const existingProduct = await prisma.product_information.findUnique({
+            where: { ProductNumber }
         });
 
-        return NextResponse.json(
-            {
+        if (existingProduct) {
+            // ✅ If Product exists, do nothing and return success
+            return NextResponse.json({
                 success: true,
-                message: "Product Information Created Successfully!",
-                data: product_information,
-            },
-            { status: 201 }
-        );
+                message: "Product already exists. No need to create a new entry.",
+                data: existingProduct
+            }, { status: 200 });
+        }
+
+    
+
+    //create data 
+    const product_information = await prisma.product_information.create({
+        data:{
+            ProductNumber: ProductNumber,
+            ProductName: ProductName,
+            ProductLine: ProductLine,
+            ProductTypeID: ProductTypeID,
+        },
+    });
+
+    return NextResponse.json(
+        {
+            success: true,
+            message: "Product Information Created Successfully!",
+            data: product_information,
+        },
+        { 
+            status: 201
+        }
+    );
     } catch (error) {
         console.error("Database error:", error);
         return NextResponse.json(

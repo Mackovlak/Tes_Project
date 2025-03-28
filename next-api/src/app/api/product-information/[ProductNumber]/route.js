@@ -48,18 +48,6 @@ export async function PATCH(request, { params }) {
             }, { status: 400 });
         }
 
-        // Cek apakah AssetID ada
-        const existingProductInformation = await prisma.product_information.findUnique({
-            where: { ProductNumber: productNumber }
-        });
-
-        if (!existingProductInformation) {
-            return NextResponse.json({
-                success: false,
-                message: "Product Information not found!"
-            }, { status: 404 });
-        }
-
         // Update data
         const updatedProductInformation = await prisma.product_information.update({
             where: { ProductNumber: productNumber },

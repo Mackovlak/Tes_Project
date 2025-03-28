@@ -190,28 +190,31 @@ export function DialogCloseButton({
                   </TableCell>
                 </TableRow>
               ))
-            ) : assets.length > 0 ? (
-              assets.map((asset) => (
-                <TableRow 
-                  key={asset.AssetID}
-                  className={`cursor-pointer hover:bg-gray-200 ${selectedAsset?.AssetID === asset.AssetID ? "bg-blue-300" : ""}`}
-                  onClick={()=>handleSelectAsset(asset)}
-                >
-                  {/* <TableCell>
-                  <input type="checkbox"/>
-                  </TableCell> */}
-                  <TableCell className="font-medium whitespace-break-spaces">
-                    {asset.product_information?.ProductName}
-                  </TableCell>
-                  <TableCell>{asset.SerialNumber}</TableCell>
-                  <TableCell>{asset.ProductNumber}</TableCell>
-                  <TableCell>{asset.product_information?.ProductLine}</TableCell>
-                  <TableCell className="text-right">
-                    {asset.site_account?.Company}
-                  </TableCell>
-                </TableRow>
-              ))
-            ) : (
+            ) : 
+            // assets.length > 0 ? (
+            //   assets.map((asset) => (
+            //     <TableRow 
+            //       key={asset.AssetID}
+            //       className={`cursor-pointer hover:bg-gray-200 ${selectedAsset?.AssetID === asset.AssetID ? "bg-blue-300" : ""}`}
+            //       onClick={()=>handleSelectAsset(asset)}
+            //     >
+            //       {/* <TableCell>
+            //       <input type="checkbox"/>
+            //       </TableCell> */}
+            //       <TableCell className="font-medium whitespace-break-spaces">
+            //         {asset.product_information?.ProductName}
+            //       </TableCell>
+            //       <TableCell>{asset.SerialNumber}</TableCell>
+            //       <TableCell>{asset.ProductNumber}</TableCell>
+            //       <TableCell>{asset.product_information?.ProductLine}</TableCell>
+            //       <TableCell className="text-right">
+            //         {asset.site_account?.Company}
+            //       </TableCell>
+            //     </TableRow>
+            //   ))
+            // ) 
+            // : 
+            (
               <TableRow>
                 <TableCell
                   colSpan={5}
@@ -379,8 +382,7 @@ export function DialogCompanyBtn({
   {(filteredSiteAccountSearched.length > 0
     ? filteredSiteAccountSearched
     : filteredSiteAccount.length > 0
-    ? filteredSiteAccount
-    : siteAccounts
+    ? filteredSiteAccount : []
   ).map((company) => (
     <TableRow
       key={company.SiteAccountID}
@@ -450,112 +452,112 @@ export function DialogContactBtn({
     }, []);
     
     
-    useEffect(() => {
-      console.log("contacts in useEffect: ", contacts);
-      console.log("search in useEffect: ", search);
+    // useEffect(() => {
+    //   console.log("contacts in useEffect: ", contacts);
+    //   console.log("search in useEffect: ", search);
     
-      if (contacts.length === 0) {
-        setFilteredContacts([]); // Reset jika data kontak kosong
-        return;
-      }
+    //   if (contacts.length === 0) {
+    //     setFilteredContacts([]); // Reset jika data kontak kosong
+    //     return;
+    //   }
     
-      // Ambil input pencarian dan konversi ke lowercase
-      const lowerEmail = search.Email?.toLowerCase().trim();
-      const lowerPhone = search.Phone?.toLowerCase().trim();
-      const lowerCountry = search.Country?.toLowerCase().trim();
+    //   // Ambil input pencarian dan konversi ke lowercase
+    //   const lowerEmail = search.Email?.toLowerCase().trim();
+    //   const lowerPhone = search.Phone?.toLowerCase().trim();
+    //   const lowerCountry = search.Country?.toLowerCase().trim();
     
-      // Jika semua filter kosong, reset hasil pencarian
-      if (!lowerEmail && !lowerPhone && !lowerCountry) {
-        setFilteredContacts([]);
-        return;
-      }
+    //   // Jika semua filter kosong, reset hasil pencarian
+    //   if (!lowerEmail && !lowerPhone && !lowerCountry) {
+    //     setFilteredContacts([]);
+    //     return;
+    //   }
     
-      // Filter berdasarkan kombinasi email, phone, dan country
-      const filteredResults = contacts.filter(contact => {
-        const matchesEmail = lowerEmail ? contact.Email?.toLowerCase().includes(lowerEmail) : true;
-        const matchesPhone = lowerPhone ? contact.Phone?.toLowerCase().includes(lowerPhone) : true;
-        const matchesCountry = lowerCountry ? contact.Country?.toLowerCase().includes(lowerCountry) : true;
+    //   // Filter berdasarkan kombinasi email, phone, dan country
+    //   const filteredResults = contacts.filter(contact => {
+    //     const matchesEmail = lowerEmail ? contact.Email?.toLowerCase().includes(lowerEmail) : true;
+    //     const matchesPhone = lowerPhone ? contact.Phone?.toLowerCase().includes(lowerPhone) : true;
+    //     const matchesCountry = lowerCountry ? contact.Country?.toLowerCase().includes(lowerCountry) : true;
     
-        return matchesEmail && matchesPhone && matchesCountry;
-      });
+    //     return matchesEmail && matchesPhone && matchesCountry;
+    //   });
     
-      setFilteredContacts(filteredResults); // Set hasil pencarian
+    //   setFilteredContacts(filteredResults); // Set hasil pencarian
     
-      console.log("Filtered Contacts: ", filteredResults);
+    //   console.log("Filtered Contacts: ", filteredResults);
     
-    }, [search, contacts]);
+    // }, [search, contacts]);
 
 
-  return (
-    <Dialog open={isModalContactOpen} onOpenChange={setIsModalContactOpen}>
-      {/* <DialogTrigger asChild>
-        <Button variant="outline">Contact</Button>
-      </DialogTrigger> */}
-      <DialogContent className="sm:max-w-4xl gap-y-10 shadow-white">
-        <DialogHeader>
-          <DialogTitle className="mb-5">Contact</DialogTitle>
-          <DialogDescription className="text-black  gap-1">
-            <span className="flex items-center w-[20em]  gap-2 relative">
-              Search Contact
-              <Search className="absolute right-1"/>
-              <Input 
-                className="flex-1 ring-2 border-0 rounded-2xl pr-10"
-                value={searchContact}
-                onChange={(e) => setSearchContact(e.target.value)}
-              />
-            </span>
-          </DialogDescription>
-        </DialogHeader>
+  // return (
+  //   <Dialog open={isModalContactOpen} onOpenChange={setIsModalContactOpen}>
+  //     {/* <DialogTrigger asChild>
+  //       <Button variant="outline">Contact</Button>
+  //     </DialogTrigger> */}
+  //     <DialogContent className="sm:max-w-4xl gap-y-10 shadow-white">
+  //       <DialogHeader>
+  //         <DialogTitle className="mb-5">Contact</DialogTitle>
+  //         <DialogDescription className="text-black  gap-1">
+  //           <span className="flex items-center w-[20em]  gap-2 relative">
+  //             Search Contact
+  //             <Search className="absolute right-1"/>
+  //             <Input 
+  //               className="flex-1 ring-2 border-0 rounded-2xl pr-10"
+  //               value={searchContact}
+  //               onChange={(e) => setSearchContact(e.target.value)}
+  //             />
+  //           </span>
+  //         </DialogDescription>
+  //       </DialogHeader>
 
-        <Table className="table-fixed border-spacing-0 mx-auto">
-          <TableHeader className="flex">
-            <TableRow className="text-md bg-blue-200">
-              <TableHead>Tipe</TableHead>
-              <TableHead>SiteAccountID</TableHead>
-              <TableHead>Salution</TableHead>
-              <TableHead>Name</TableHead>
-              <TableHead>Email</TableHead>
-              <TableHead>PreferredLanguage</TableHead>
-              <TableHead>Phone</TableHead>
-              <TableHead>Mobile</TableHead>
-              <TableHead>WorkPhone</TableHead>
-              <TableHead>AddressLine</TableHead>
-              <TableHead>City</TableHead>
-              <TableHead>StateProvince</TableHead>
-              <TableHead>Country</TableHead>
-              <TableHead>ZipPostalCode</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {filteredContacts.length > 0 ? (
-              filteredContacts.map((contact) => (
-                <TableRow key={contact.ContactID}>
-                  <TableCell className="font-medium">{contact.ContactID}</TableCell>
-                  <TableCell>{contact.SiteAccountID}</TableCell>
-                  <TableCell>{contact.Salution}</TableCell>
-                  <TableCell>{contact.FirstName}</TableCell>
-                  <TableCell>{contact.Email}</TableCell>
-                  <TableCell>{contact.PreferredLanguage}</TableCell>
-                  <TableCell>{contact.Phone}</TableCell>
-                  <TableCell>{contact.Mobile}</TableCell>
-                  <TableCell>{contact.WorkPhone}</TableCell>
-                  <TableCell>{contact.AddressLine}</TableCell>
-                  <TableCell>{contact.City}</TableCell>
-                  <TableCell>{contact.StateProvince}</TableCell>
-                  <TableCell>{contact.Country}</TableCell>
-                  <TableCell>{contact.ZipPostalCode}</TableCell>
-                </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell colSpan="14" className="text-center text-red-500">
-                  No contacts found
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
-      </DialogContent>
-    </Dialog>
-  )
+  //       <Table className="table-fixed border-spacing-0 mx-auto">
+  //         <TableHeader className="flex">
+  //           <TableRow className="text-md bg-blue-200">
+  //             <TableHead>Tipe</TableHead>
+  //             <TableHead>SiteAccountID</TableHead>
+  //             <TableHead>Salution</TableHead>
+  //             <TableHead>Name</TableHead>
+  //             <TableHead>Email</TableHead>
+  //             <TableHead>PreferredLanguage</TableHead>
+  //             <TableHead>Phone</TableHead>
+  //             <TableHead>Mobile</TableHead>
+  //             <TableHead>WorkPhone</TableHead>
+  //             <TableHead>AddressLine</TableHead>
+  //             <TableHead>City</TableHead>
+  //             <TableHead>StateProvince</TableHead>
+  //             <TableHead>Country</TableHead>
+  //             <TableHead>ZipPostalCode</TableHead>
+  //           </TableRow>
+  //         </TableHeader>
+  //         <TableBody>
+  //           {filteredContacts.length > 0 ? (
+  //             filteredContacts.map((contact) => (
+  //               <TableRow key={contact.ContactID}>
+  //                 <TableCell className="font-medium">{contact.ContactID}</TableCell>
+  //                 <TableCell>{contact.SiteAccountID}</TableCell>
+  //                 <TableCell>{contact.Salution}</TableCell>
+  //                 <TableCell>{contact.FirstName}</TableCell>
+  //                 <TableCell>{contact.Email}</TableCell>
+  //                 <TableCell>{contact.PreferredLanguage}</TableCell>
+  //                 <TableCell>{contact.Phone}</TableCell>
+  //                 <TableCell>{contact.Mobile}</TableCell>
+  //                 <TableCell>{contact.WorkPhone}</TableCell>
+  //                 <TableCell>{contact.AddressLine}</TableCell>
+  //                 <TableCell>{contact.City}</TableCell>
+  //                 <TableCell>{contact.StateProvince}</TableCell>
+  //                 <TableCell>{contact.Country}</TableCell>
+  //                 <TableCell>{contact.ZipPostalCode}</TableCell>
+  //               </TableRow>
+  //             ))
+  //           ) : (
+  //             <TableRow>
+  //               <TableCell colSpan="14" className="text-center text-red-500">
+  //                 No contacts found
+  //               </TableCell>
+  //             </TableRow>
+  //           )}
+  //         </TableBody>
+  //       </Table>
+  //     </DialogContent>
+  //   </Dialog>
+  // )
 }

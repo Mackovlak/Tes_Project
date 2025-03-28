@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Mar 21, 2025 at 08:39 AM
+-- Generation Time: Mar 27, 2025 at 05:15 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -42,7 +42,15 @@ CREATE TABLE `asset_information` (
 INSERT INTO `asset_information` (`AssetID`, `SerialNumber`, `ProductNumber`, `SiteAccountID`, `ContactID`) VALUES
 (1, '5CD2355XDD', '6G1L7PA', 1, 3),
 (2, '5CG1329SV6', '483R7PA', 1, 2),
-(3, '5CG1329SV7', '483R7PA', NULL, 1);
+(3, '5CG1329SV7', '483R7PA', NULL, 1),
+(4, '5CG2172BXY', '61G62PA', 4, 7),
+(5, '5CG2202BXY', '483R7PA', 6, 11),
+(6, '5CD2375XDD', '6G1L7PA', 3, 5),
+(11, '5CG9087V5T', '6G1L7PA', NULL, 8),
+(13, 'jojo', '67', 8, 13),
+(14, '5CG1987SV6', '6G1L7PQ', 3, 5),
+(15, '5CG2037CSB', '6G1L7PA', NULL, NULL),
+(16, '5CG1329GST', '6G1LGL8', NULL, 15);
 
 -- --------------------------------------------------------
 
@@ -71,6 +79,36 @@ CREATE TABLE `caseinformation` (
   `Owner` int(11) DEFAULT NULL,
   `WorkGround` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `caseinformation`
+--
+
+INSERT INTO `caseinformation` (`CaseID`, `SiteAccountID`, `ContactID`, `AssetID`, `CaseSubject`, `CaseType`, `KCI_Flag`, `IncomingChannel`, `CaseStatus`, `CasePriority`, `CustomerSeverity`, `CreatedOn`, `CaseClosedDate`, `CaseNote`, `SymptomCode`, `CaseResolution`, `CreatedBy`, `Owner`, `WorkGround`) VALUES
+(1, 1, 3, 1, 'Ngawur', 'aaa', 0, NULL, NULL, NULL, NULL, '2025-03-22 13:10:17', NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(1801, 1, 2, 2, 'asdasd', 'Depot Repair', 0, 'Email', 'Open', 'Medium', 'Normal', '2025-03-27 08:52:40', NULL, 'This is a sample case note.', 'General Issue', '', NULL, NULL, NULL),
+(5492, 8, 13, 13, 'juju', 'Depot Repair', 0, 'Email', 'Open', 'Medium', 'Normal', '2025-03-26 06:05:10', NULL, 'This is a sample case note.', 'General Issue', '', NULL, NULL, NULL),
+(8644, 1, 2, 2, 'Kerusakan LCD', 'Depot Repair', 0, 'Email', 'Open', 'Medium', 'Normal', '2025-03-24 07:52:15', NULL, 'This is a sample case note.', 'General Issue', '', NULL, NULL, NULL),
+(9811, NULL, 1, 3, 'a', 'Depot Repair', 0, 'Email', 'Open', 'Medium', 'Normal', '2025-03-22 09:56:09', NULL, 'This is a sample case note.', 'General Issue', '', NULL, NULL, NULL),
+(10716, NULL, 1, 3, 'asd', 'Depot Repair', 0, 'Email', 'Open', 'Medium', 'Normal', '2025-03-27 11:58:04', NULL, 'This is a sample case note.', 'General Issue', '', NULL, NULL, NULL),
+(28827, 1, 3, 1, 'asdasdasd', 'Item2', 0, 'Email', 'Open', 'Medium', 'Normal', '2025-03-23 18:05:23', NULL, 'This is a sample case note.', 'General Issue', '', NULL, NULL, NULL),
+(38197, 1, 3, 1, 'aasdasd', 'Depot Repair', 0, 'Email', 'Open', 'Medium', 'Normal', '2025-03-24 02:52:55', NULL, 'This is a sample case note.', 'General Issue', '', NULL, NULL, NULL),
+(38541, NULL, 15, 16, 'asasa', 'Depot Repair', 0, 'Email', 'Open', 'Medium', 'Normal', '2025-03-27 15:47:17', NULL, 'This is a sample case note.', 'General Issue', '', NULL, NULL, NULL),
+(42741, 1, 2, 1, '9820192891', 'Depot Repair', 0, 'Email', 'Open', 'Medium', 'Normal', '2025-03-24 07:39:54', NULL, 'This is a sample case note.', 'General Issue', '', NULL, NULL, NULL),
+(54186, 6, 11, 5, 'asdasd', 'Depot Repair', 0, 'Email', 'Open', 'Medium', 'Normal', '2025-03-25 22:13:41', NULL, 'This is a sample case note.', 'General Issue', '', NULL, NULL, NULL),
+(57599, 1, 2, 2, 'sadsd', 'Depot Repair', 0, 'Email', 'Open', 'Medium', 'Normal', '2025-03-27 09:18:22', NULL, 'This is a sample case note.', 'General Issue', '', NULL, NULL, NULL),
+(64562, 1, 2, 2, 'asdas', 'Depot Repair', 0, 'Email', 'Open', 'Medium', 'Normal', '2025-03-25 22:04:13', NULL, 'This is a sample case note.', 'General Issue', '', NULL, NULL, NULL),
+(71341, 1, 2, 1, '9820192891', 'Depot Repair', 0, 'Email', 'Open', 'Medium', 'Normal', '2025-03-24 07:39:54', NULL, 'This is a sample case note.', 'General Issue', '', NULL, NULL, NULL),
+(74486, 4, 7, 4, 'sadas', 'Depot Repair', 0, 'Email', 'Open', 'Medium', 'Normal', '2025-03-25 22:21:47', NULL, 'This is a sample case note.', 'General Issue', '', NULL, NULL, NULL),
+(81919, 1, 3, 1, 'asad', 'Depot Repair', 0, 'Email', 'Open', 'Medium', 'Normal', '2025-03-25 22:03:51', NULL, 'This is a sample case note.', 'General Issue', '', NULL, NULL, NULL),
+(82129, 1, 2, 2, 'a', 'Depot Repair', 0, 'Email', 'Open', 'Medium', 'Normal', '2025-03-22 09:51:12', NULL, 'This is a sample case note.', 'General Issue', '', NULL, NULL, NULL),
+(83521, NULL, 8, 11, 'asdasd', 'Depot Repair', 0, 'Email', 'Open', 'Medium', 'Normal', '2025-03-27 15:40:31', NULL, 'This is a sample case note.', 'General Issue', '', NULL, NULL, NULL),
+(85893, 4, 7, 4, 'aset', 'Depot Repair', 0, 'Email', 'Open', 'Medium', 'Normal', '2025-03-25 20:53:28', NULL, 'This is a sample case note.', 'General Issue', '', NULL, NULL, NULL),
+(87388, 3, 5, 14, 'sadas', 'Depot Repair', 0, 'Email', 'Open', 'Medium', 'Normal', '2025-03-27 05:58:33', NULL, 'This is a sample case note.', 'General Issue', '', NULL, NULL, NULL),
+(91574, 1, 3, 1, 'as', 'Depot Repair', 0, 'Email', 'Open', 'Medium', 'Normal', '2025-03-25 21:07:28', NULL, 'This is a sample case note.', 'General Issue', '', NULL, NULL, NULL),
+(92136, NULL, 13, 13, 'asdsad', 'Depot Repair', 0, 'Email', 'Open', 'Medium', 'Normal', '2025-03-27 09:56:18', NULL, 'This is a sample case note.', 'General Issue', '', NULL, NULL, NULL),
+(97609, 1, 3, 1, 'asdasdasd', 'Depot Repair', 0, 'Email', 'Open', 'Medium', 'Normal', '2025-03-22 10:34:16', NULL, 'This is a sample case note.', 'General Issue', '', NULL, NULL, NULL),
+(99098, 4, 7, 4, 'sdasa', 'Depot Repair', 0, 'Email', 'Open', 'Medium', 'Normal', '2025-03-25 22:04:34', NULL, 'This is a sample case note.', 'General Issue', '', NULL, NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -124,9 +162,19 @@ CREATE TABLE `contact_information` (
 --
 
 INSERT INTO `contact_information` (`ContactID`, `SiteAccountID`, `Salutation`, `FirstName`, `LastName`, `Email`, `PreferredLanguage`, `Phone`, `Mobile`, `WorkPhone`, `WorkExtension`, `OtherPhone`, `OtherExtension`, `Fax`, `AddressLine1`, `AddressLine2`, `City`, `StateProvince`, `Country`, `ZipPostalCode`) VALUES
-(1, 2, 'Mr. ', 'RAFA', 'ELFARIZI', 'rafaelfarizi1@gmail.com', 'Bahasa Indonesia', '083834685279', '', '', '', '', '', '', 'Dukuh Cenang Desa Cenggini RT 03 RW 04', '', 'Kabupaten tegal', 'Jawa Tengah', 'Indonesia', '40511'),
+(1, NULL, 'Mr. ', 'RAFA', 'ELFARIZI', 'rafaelfarizi1@gmail.com', 'Bahasa Indonesia', '083834685279', '', '', '', '', '', '', 'Dukuh Cenang Desa Cenggini RT 03 RW 04', '', 'Kabupaten tegal', 'Jawa Tengah', 'Indonesia', '40511'),
 (2, 1, 'Mrs. ', 'Mey', 'Almasya', 'mey-miku21@gmail.com', 'English', '085755162771', '085755162771', '', '', '', '', '', 'Surakarta', '', 'Solo', 'Jawa Tengah', 'Indonesia', '40511'),
-(3, 1, 'Mr. ', 'Miku21', 'Margareth', 'mikucomunity21@gmail.com', 'English', '087731137512', '085755162771', '', '', '', '', '', 'Tegal', '', 'Kabupaten tegal', 'Jawa Tengah', 'Indonesia', '40511');
+(3, 1, 'Mr. ', 'Miku21', 'Margareth', 'mikucomunity21@gmail.com', 'English', '087731137512', '085755162771', '', '', '', '', '', 'Tegal', '', 'Kabupaten tegal', 'Jawa Tengah', 'Indonesia', '40511'),
+(4, 2, 'Mrs. ', 'Meisa', 'Putra', 'meisaputra@gmail.co.id', 'Spanish', '089677544227', '087731137512', '', '', '', '', '', 'Dukuh Cenang Desa Cenggini RT 03 RW 04', '', 'Kabupaten tegal', 'Jawa Tengah', '', '40511'),
+(5, 3, 'Mrs. ', 'Miku21', 'Margareth', 'mikucomunity21@gmail.com', 'Spanish', '087731137512', '', '', '', '', '', '', 'Dukuh Cenang Desa Cenggini RT 03 RW 04', '', 'Kabupaten tegal', 'Jawa Tengah', '', '40511'),
+(6, NULL, 'Mrs. ', 'Meisa', 'Putra', 'Meisaputra@gmail.com', 'Spanish', '087731137512', '', '', '', '', '', '', 'Dukuh Cenang Desa Cenggini RT 03 RW 04', '', '', '', 'Indonesia', ''),
+(7, 4, 'Mr. ', 'Aprilia', 'Margaret', 'afmmargareth@gmail.com', 'Bahasa Indonesia', '6287712341234', '', '', '', '', '', '', 'Jakarta Selatan', '', 'Jakarta', 'DKI Jakarta', 'Indonesia', '40511'),
+(8, NULL, 'Mrs. ', 'Joko', 'Wi', 'jokowi@gmail.com', 'English', '89271123', '8928123', '', '', '', '', '', 'Jakarta Utara', '', 'Jakarta', 'bandung', 'Indonesia', '88201'),
+(9, 4, 'Mrs. ', 'Fidelis', 'Margareth', 'mikucomunity21@gmail.com', 'English', '087731137512', '', '', '', '', '', '', 'Dukuh Cenang Desa Cenggini RT 03 RW 04', '', 'Kabupaten tegal', 'Jawa Tengah', '', '40511'),
+(11, 6, 'Mrs. ', 'Aprilia', 'Margareth', 'mikucomunity21@gmail.com', 'English', '087731137512', '', '', '', '', '', '', 'Dukuh Cenang Desa Cenggini RT 03 RW 04', '', 'Kabupaten tegal', 'Jawa Tengah', '', '40511'),
+(12, 7, 'Mr. ', 'RAFA', 'ELFARIZI', 'rafaelfarizi1@gmail.com', 'English', '083834685279', '', '', '', '', '', '', 'Dukuh Cenang Desa Cenggini RT 03 RW 04', '', 'Kabupaten tegal', 'Jawa Tengah', '', '40511'),
+(13, 8, 'Mrs. ', 'Hida', 'Bee', 'Hildabee@gmail.com', 'Bahasa Indonesia', '878787', '9999', 'Cenggini', '', '', '', '', 'Yogyakarta', '', 'jau', 'nuuu', 'Singapura', '2222'),
+(15, NULL, 'Mr. ', 'Ajax', 'Query', 'ajax@gmail.com', 'English', '082121212121', '082121212121', '', '', '', '', '', 'Java', '', 'Jawa', 'Jawa Tengah', 'Indonesia', '40511');
 
 -- --------------------------------------------------------
 
@@ -173,16 +221,50 @@ CREATE TABLE `materialorderlineitems` (
 CREATE TABLE `product_information` (
   `ProductNumber` varchar(11) NOT NULL,
   `ProductLine` varchar(3) NOT NULL,
-  `ProductName` varchar(255) NOT NULL
+  `ProductName` varchar(255) NOT NULL,
+  `ProductTypeID` int(11) NOT NULL,
+  `end_of_sales_date` date DEFAULT NULL,
+  `end_of_support_date` date DEFAULT NULL,
+  `vendor` varchar(50) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `product_information`
 --
 
-INSERT INTO `product_information` (`ProductNumber`, `ProductLine`, `ProductName`) VALUES
-('483R7PA', 'KV', 'HP 14s-cf2500TX'),
-('6G1L7PA', 'M7', 'Victus by HP 15.6 inch Gaming Laptop 15-fb0000 (598V1AV)');
+INSERT INTO `product_information` (`ProductNumber`, `ProductLine`, `ProductName`, `ProductTypeID`, `end_of_sales_date`, `end_of_support_date`, `vendor`) VALUES
+('483R7PA', 'KV', 'HP 14s-cf2500TX', 5, NULL, NULL, 'HP'),
+('61G62PA', '6U', 'HP 245 G8', 5, NULL, NULL, 'HP'),
+('67', 'jk', 'juju', 7, NULL, NULL, NULL),
+('6G1L7PA', 'M7', 'Victus by HP 15.6 inch Gaming Laptop 15-fb0000 (598V1AV)', 5, NULL, NULL, 'HP'),
+('6G1L7PQ', 'M7', 'Yui', 7, NULL, NULL, NULL),
+('6G1LGL8', 'M7', 'Calculator X7', 7, NULL, NULL, NULL);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `product_type`
+--
+
+CREATE TABLE `product_type` (
+  `ProductTypeID` int(11) NOT NULL,
+  `ProductType` varchar(50) NOT NULL,
+  `ProductTower` enum('PSG','IPG','') DEFAULT NULL,
+  `ProductGroup` enum('Commercial','Consumer','') DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `product_type`
+--
+
+INSERT INTO `product_type` (`ProductTypeID`, `ProductType`, `ProductTower`, `ProductGroup`) VALUES
+(1, 'Accessories', 'PSG', 'Commercial'),
+(2, 'Desktop', 'PSG', 'Consumer'),
+(3, 'Tablet', 'PSG', 'Consumer'),
+(4, 'Monitor', 'PSG', 'Consumer'),
+(5, 'Notebook/Laptop', 'PSG', 'Consumer'),
+(6, 'Desktop - C ', 'PSG', 'Consumer'),
+(7, 'Calculator', 'PSG', 'Consumer');
 
 -- --------------------------------------------------------
 
@@ -255,7 +337,12 @@ CREATE TABLE `site_account` (
 
 INSERT INTO `site_account` (`SiteAccountID`, `Company`, `Email`, `PrimaryPhone`, `AddressLine1`, `AddressLine2`, `City`, `StateProvince`, `Country`, `ZipPostalCode`) VALUES
 (1, 'Miku21 Store', 'mikucomunity21@gmail.com', '087731137512', 'Virtual', '', 'Virtual World', 'Virtual World', '', '40511'),
-(2, 'PT Kapal Api', 'kapalapi@gmail.com', '087731137512', 'Jakarta Utara', '', 'Jakarta', 'DKI Jakarta', '', '40511');
+(2, 'PT Kapal Api', 'kapalapi@gmail.com', '087731137512', 'Jakarta Utara', '', 'Jakarta', 'DKI Jakarta', '', '40511'),
+(3, 'Miku21Bot', 'rafaelfarizi1@gmail.com', '083834685279', 'Dukuh Cenang Desa Cenggini RT 03 RW 04', 'Tegal', 'Kabupaten tegal', 'Jawa Tengah', '', '40511'),
+(4, 'AFM Company', 'afmcompany@gmail.com', '6289112341234', 'Jakarta Selatan', '', 'Jakarta', 'DKI Jakarta', '', '40511'),
+(6, 'AFMC', 'mikucomunity21@gmail.com', '087731137512', '', '', 'Kabupaten tegal', 'Jawa Tengah', '', '40511'),
+(7, 'UGM', 'ugm@gmail.com', '083834685279', '', '', 'Kabupaten tegal', 'Jawa Tengah', '', '40511'),
+(8, 'Janu', 'Ari@gmail.com', '08777777', 'Surabaya', '', 'Kediri', 'Jawir', '', '23233');
 
 -- --------------------------------------------------------
 
@@ -334,7 +421,14 @@ ALTER TABLE `materialorderlineitems`
 -- Indexes for table `product_information`
 --
 ALTER TABLE `product_information`
-  ADD PRIMARY KEY (`ProductNumber`);
+  ADD PRIMARY KEY (`ProductNumber`),
+  ADD KEY `ProductTypeID` (`ProductTypeID`);
+
+--
+-- Indexes for table `product_type`
+--
+ALTER TABLE `product_type`
+  ADD PRIMARY KEY (`ProductTypeID`);
 
 --
 -- Indexes for table `servicecatalog`
@@ -370,7 +464,7 @@ ALTER TABLE `workorder`
 -- AUTO_INCREMENT for table `asset_information`
 --
 ALTER TABLE `asset_information`
-  MODIFY `AssetID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `AssetID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
 
 --
 -- AUTO_INCREMENT for table `casenotes`
@@ -382,7 +476,7 @@ ALTER TABLE `casenotes`
 -- AUTO_INCREMENT for table `contact_information`
 --
 ALTER TABLE `contact_information`
-  MODIFY `ContactID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `ContactID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
 
 --
 -- AUTO_INCREMENT for table `materialorder`
@@ -395,6 +489,12 @@ ALTER TABLE `materialorder`
 --
 ALTER TABLE `materialorderlineitems`
   MODIFY `LineItemID` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `product_type`
+--
+ALTER TABLE `product_type`
+  MODIFY `ProductTypeID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT for table `servicecatalog`
@@ -412,7 +512,7 @@ ALTER TABLE `servicecatalog_parts`
 -- AUTO_INCREMENT for table `site_account`
 --
 ALTER TABLE `site_account`
-  MODIFY `SiteAccountID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `SiteAccountID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- AUTO_INCREMENT for table `workorder`
@@ -463,6 +563,12 @@ ALTER TABLE `materialorder`
 --
 ALTER TABLE `materialorderlineitems`
   ADD CONSTRAINT `materialorderlineitems_ibfk_1` FOREIGN KEY (`MOID`) REFERENCES `materialorder` (`MOID`);
+
+--
+-- Constraints for table `product_information`
+--
+ALTER TABLE `product_information`
+  ADD CONSTRAINT `product_information_ibfk_1` FOREIGN KEY (`ProductTypeID`) REFERENCES `product_type` (`ProductTypeID`);
 
 --
 -- Constraints for table `servicecatalog_parts`
