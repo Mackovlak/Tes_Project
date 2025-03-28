@@ -25,7 +25,7 @@ export async function GET(request) {
          if (email) {
              whereCondition.AND = [
                  { Email: { contains: email } },
-                 country ? { Country: { contains: country } } : {}
+                //  country ? { Country: { contains: country } } : {}
              ];
          }
  
@@ -44,7 +44,7 @@ export async function GET(request) {
                  AND: [
                      { OR: whereCondition.OR }, // Match phone
                      { Email: { contains: email } }, // Match email
-                     country ? { Country: { contains: country } } : {}
+                    //  country ? { Country: { contains: country } } : {}
                  ]
              };
          }

@@ -32,16 +32,16 @@ export async function GET(request) {
             whereCondition.OR = [...(whereCondition.OR || []), { Company: { contains: search } }];
         }
  
-         // If both Email and Phone exist, apply the combined filter
-         if (email && phone) {
-             whereCondition = {
-                 OR: [
-                     { Email: { contains: email } },
-                     { PrimaryPhone: { contains: phone } },
-                     { Company: { contains: search } }
-                 ]
-             };
-         }
+        //  // If both Email and Phone exist, apply the combined filter
+        //  if (email && phone) {
+        //      whereCondition = {
+        //          OR: [
+        //              { Email: { contains: email } },
+        //              { PrimaryPhone: { contains: phone } },
+        //              { Company: { contains: search } }
+        //          ]
+        //      };
+        //  }
 
         // Hitung jumlah data total
         const totalCount = await prisma.site_account.count({
