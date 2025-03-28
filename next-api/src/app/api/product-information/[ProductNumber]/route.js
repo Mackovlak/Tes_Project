@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 import prisma from "../../../../../prisma/client";
 
 export async function GET(request, { params }) {
-    const productNumber = params.ProductNumber;
+    const productNumber = await params.ProductNumber;
 
     if (isNaN(productNumber)) {
         return NextResponse.json({
@@ -34,7 +34,7 @@ export async function GET(request, { params }) {
 
 // update data
 export async function PATCH(request, { params }) {
-    const productNumber = params.ProductNumber;
+    const productNumber = await params.ProductNumber;
 
     try {
         const body = await request.json();
@@ -59,7 +59,7 @@ export async function PATCH(request, { params }) {
 
         return NextResponse.json({
             success: true,
-            message: "Data Asset Information Updated!",
+            message: "Data pRODUCT Information Updated!",
             data: updatedProductInformation
         }, { status: 200 });
 
@@ -75,7 +75,7 @@ export async function PATCH(request, { params }) {
 
 //delete data
 export async function DELETE(request, { params }) {
-    const productNumber = params.ProductNumber;
+    const productNumber = await params.ProductNumber;
 
     try {
         const deletedProductInformation = await prisma.product_information.delete({

@@ -236,6 +236,7 @@ const Search_case = () => {
 
   const [isModalAssetOpen, setIsModalAssetOpen] = useState(false);
   const [isModalCompanyOpen, setIsModalCompanyOpen] = useState(false);
+  const [isModalContactOpen, setIsModalContactOpen] = useState(false);
 
   const [activeTab, setActiveTab] = useState("search"); // Default active tab
 
@@ -908,8 +909,13 @@ const Search_case = () => {
               </TabsList>
               <Card className="drop-shadow-md">
                 <CardHeader className="flex-row justify-between">
-                  <CardTitle>Basic Information</CardTitle>
-                  <CardTitle>Clear All</CardTitle>
+                <CardTitle>
+                 Basic Information
+                  </CardTitle>
+                  <div>
+                    <Button className="bg-white text-gray-400  self-end "><Copy></Copy>Same in Account Adress </Button>
+                    <Button className="self-end mr-2" variant="ghost">Clear All</Button>
+                  </div>
                 </CardHeader>
                 <CardContent className="grid gap-5 grid-cols-5">
                   <div className="space-y-0.5 grid grid-cols-2 gap-x-2.5 col-span-2">

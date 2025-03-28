@@ -17,6 +17,8 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
+  SelectLabel,
+  SelectGroup,
 } from "@/components/ui/select"
 import {
   Tabs,
@@ -47,7 +49,10 @@ import {
   UserPen
  } from 'lucide-react'
 
-
+ import { useLocation } from "react-router-dom";
+ import { useState, useEffect } from "react";
+ import { useSidebar } from '@/components/ui/sidebar'
+ import { DropdownMenu, DropdownMenuItem, DropdownMenuContent, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 const workorder = [
   {
     workordernumber: "WO-027816939",
@@ -80,9 +85,58 @@ const partsorder = [
 
 
 export const TabsService = () => {
+  
+
+  const { open } = useSidebar();
+
+  
+
+  const buttons = [
+    { icon: ArrowLeftFromLine, label: "" },
+    { icon: SquareArrowOutUpRight, label: "" },
+    { icon: Save, label: "Save" },
+    { icon: FileSymlink, label: "Save & Close" },
+    { icon: RotateCw, label: "Refresh" },
+    { icon: StepBack, label: "Complaint" },
+    { icon: StepBack, label: "CSR" },
+    { icon: StepBack, label: "Service Order" },
+    { icon: StepBack, label: "Work Order" },
+    { icon: StepBack, label: "Sales Offer" },
+    { icon: StepBack, label: "Close Case" },
+    { icon: StepBack, label: "Pick" },
+    { icon: StepBack, label: "Queue Details" },
+    { icon: UserPen, label: "Assign" },
+    { icon: StepBack, label: "Add to Queue" },
+  ];
+  const visibleButtons = open ? buttons.slice(0, -3) : buttons;
+  const hiddenButtons = open ? buttons.slice(-3) : [];
   return (
-    <div className='border-1 flex items-center'>
-      <Button variant="outline" className="rounded-none px-0 py-0 has-[>svg]:px-1.5 flex gap-0.5">
+    <div className='border-1 flex items-center '>
+       {visibleButtons.map((btn, index) => (
+          <Button
+            key={index}
+            variant="link"
+            className={`rounded-none px-0 py-0  flex items-center gap-0.5 transition-all duration-300 has-[>svg]:px-1.5  `}
+          >
+            <btn.icon className="h-4 w-4" />
+            {btn.label && <span className="text-md">{btn.label}</span>}
+          </Button>
+        ))}
+
+{open && hiddenButtons.length > 0 && (
+          <DropdownMenu>
+            <DropdownMenuTrigger className="px-2 py-1 rounded-md bg-gray-200">...</DropdownMenuTrigger>
+            <DropdownMenuContent>
+              {hiddenButtons.map((btn, index) => (
+                <DropdownMenuItem key={index}>
+                  <btn.icon className="h-4 w-4 inline-block mr-2" />
+                  {btn.label}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        )}
+      {/* <Button variant="outline" className="rounded-none px-0 py-0 has-[>svg]:px-1.5 flex gap-0.5">
          <ArrowLeftFromLine></ArrowLeftFromLine>
       </Button>
 
@@ -153,25 +207,105 @@ export const TabsService = () => {
       <Button variant="link" className="rounded-none px-0 py-0 has-[>svg]:px-1.5 flex gap-0.5">
         <StepBack></StepBack>
          <span className='text-md'>Add to Queue</span>
-      </Button>    
+      </Button>     */}
     </div>
   )
 }
 
 
 export const ServiceCase = ({ caseDetails }) => {
+  const { open } = useSidebar();
+
+  const tabs = [
+    { value: "case_info", label: "Case Information" },
+    { value: "customer,add,entitement", label: "Customer, Asset & Entitement" },
+    { value: "ci_notes", label: "Notes & Information" },
+    { value: "ci_activitas", label: "Activities" },
+    { value: "ci_actions", label: "Customer Interactions" },
+    { value: "ci_wo", label: "Work Order Validation" },
+    { value: "ci_orders", label: "Orders" },
+    { value: "ci_salles", label: "Sales Offer" },
+    { value: "ci_knowledge", label: "Knowledge & Attachments" },
+    { component: <SelectBarRelated /> },
+  ];
+
+  const visibleTabs = open ? tabs.slice(0, -2) : tabs;
+  const hiddenTabs = open
+    ? [
+        { value: "ci_knowledge", label: "Knowledge & Attachments" },
+        { component: <SelectBarRelated /> },
+      ]
+    : [];
+
+
+    const [selected, setSelected] = useState("apple"); // Default to 'apple'
   return (
     <Card className="mt-2 rounded-none p-0 border-0">
       <CardHeader className="p-0">
         <Tabs defaultValue="case_info"> 
-          <CardContent className="flex flex-col gap-3 border-2 w-full p-4">
-            <CardTitle className="text-xl block">
-              {caseDetails.CaseID}
-              <p className="text-sm ">Case . Case</p>
-            </CardTitle>
-           
+          <CardContent className="flex flex-col gap-3 border-2 w-full p-2">
+            <div className="flex justify-between">
+              <CardTitle className="text-xl ">
+                {caseDetails.CaseID}
+                <span className="text-sm flex items-center">Case .
+                  <Select onValueChange={setSelected} defaultValue="case" className="shadow-xl">
+                  <SelectTrigger className="shadow-none border-none">
+                    <SelectValue  />
+                  </SelectTrigger>
+                  <SelectContent >
+                    <SelectGroup>
+                      <SelectItem value="case">Case</SelectItem>
+                      <SelectItem value="??">??</SelectItem>
+                      <SelectItem value="!!">!!</SelectItem>
+                      <SelectItem value="**">**</SelectItem>
+                      <SelectItem value="&&">&&</SelectItem>
+                    </SelectGroup>
+                  </SelectContent>
+                  </Select>
+                </span>
+              </CardTitle>
+              <CardTitle className="flex">
+                <div className="px-2 flex flex-col item-center justify-center border-r-2">
+                  <h1 className='text-blue-500'>Kamisyah Indriani</h1>
+                  <p className="text-sm font-light ">Owner</p>
+                </div>
+                <div className="px-2 flex flex-col item-center justify-center border-r-2">
+                  <h1 className='text-blue-500'>---</h1>
+                  <p className="text-sm font-light ">Queue</p>
+                </div>
+                <div className="px-2 flex flex-col item-center justify-center border-r-2">
+                  <h1 className='text-blue-500'>Harva Anwar</h1>
+                  <p className="text-sm font-light ">Contact</p>
+                </div>
+                <div className="px-2 flex flex-col item-center justify-center border-r-2">
+                <Select onValueChange={setSelected} defaultValue="first" >
+                  <SelectTrigger className="shadow-none border-none text-blue-500 p-0">
+                    <SelectValue  />
+                  </SelectTrigger>
+                  <SelectContent className="p-0">
+                    <SelectGroup className="p-0">
+                    <SelectItem value="first" className="p-0">PT BANK SBI INDONESIA</SelectItem>
+                    <SelectItem value="??">??</SelectItem>
+                      <SelectItem value="!!">!!</SelectItem>
+                      <SelectItem value="**">**</SelectItem>
+                      <SelectItem value="&&">&&</SelectItem>
+                    </SelectGroup>
+                  </SelectContent>
+                  </Select>
+                  <p className="text-sm font-light ">Site Account</p>
+                </div>
+              </CardTitle>
+            </div>
             <TabsList className="bg-white">
-              <TabsTrigger variant="underline" value="case_info" className=" ">Case Information</TabsTrigger>
+            {visibleTabs.map((tab, index) => tab.component ? (
+            <div key={index}>{tab.component}</div> // Ensure SelectBarRelated renders properly
+          ) : (
+            <TabsTrigger key={index} variant="underline" value={tab.value}>
+              {tab.label}
+            </TabsTrigger>
+          )
+        )}
+              {/* <TabsTrigger variant="underline" value="case_info" className=" ">Case Information</TabsTrigger>
               <TabsTrigger variant="underline" value="customer,add,entitement" className="">Customer, Asset & Entitement</TabsTrigger>
               <TabsTrigger variant="underline" value="ci_notes" className="">Notes & Information</TabsTrigger>
               <TabsTrigger variant="underline" value="ci_activitas" className="">Activities</TabsTrigger>
@@ -180,7 +314,25 @@ export const ServiceCase = ({ caseDetails }) => {
               <TabsTrigger variant="underline" value="ci_orders" className="">Orders</TabsTrigger>
               <TabsTrigger variant="underline" value="ci_salles" className="">Sales Offer</TabsTrigger>
               <TabsTrigger variant="underline" value="ci_knowledge" className="">Knowledge & Attachments</TabsTrigger>
-              <SelectBarRelated></SelectBarRelated>
+              <SelectBarRelated></SelectBarRelated> */}
+              {open && (
+          <DropdownMenu>
+            <DropdownMenuTrigger className="px-2 py-1 rounded-md bg-gray-200">...</DropdownMenuTrigger>
+            <DropdownMenuContent>
+              {hiddenTabs.map((tab, index) =>
+                tab.component ? (
+                  <DropdownMenuItem key={index}>{tab.component}</DropdownMenuItem>
+                ) : (
+                  <DropdownMenuItem key={index}>
+                    <TabsTrigger variant="underline" value={tab.value}>
+                      {tab.label}
+                    </TabsTrigger>
+                  </DropdownMenuItem>
+                )
+              )}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        )}
             </TabsList>
           </CardContent>
       

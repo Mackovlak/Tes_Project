@@ -12,8 +12,8 @@ export async function GET(request) {
 
         console.log("Query Params:", { search, page, limit });
         
-        // ✅ Check if table exists
-        // console.log("Prisma Model Names:", Object.keys(prisma)); // 🔥 Debug log
+        //  Check if table exists
+        // console.log("Prisma Model Names:", Object.keys(prisma)); // Debug log
 
         // Hitung jumlah data total
         const totalCount = await prisma.product_information.count({
@@ -89,6 +89,9 @@ export async function POST(request) {
     } = await request.json();
 
     
+    try{
+
+    
       // ✅ Check if ProductNumber already exists
         const existingProduct = await prisma.product_information.findUnique({
             where: { ProductNumber }
@@ -124,5 +127,12 @@ export async function POST(request) {
         { 
             status: 201
         }
-    )
+    );
+    } catch (error) {
+        console.error("Database error:", error);
+        return NextResponse.json(
+            { success: false, message: "Internal Server Error" },
+            { status: 500 }
+        );
+    }
 }
