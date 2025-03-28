@@ -21,8 +21,11 @@ export async function GET(request) {
             ];
         }
         
-        whereCondition.ContactID = { not: null };
-        
+        if (contactID === null) {
+            whereCondition.ContactID = { not: null };
+        }else{
+            whereCondition.ContactID = Number(contactID);
+        }
         console.log("where condition :",whereCondition)
         
         const totalCount = await prisma.asset_information.count({ where: whereCondition });

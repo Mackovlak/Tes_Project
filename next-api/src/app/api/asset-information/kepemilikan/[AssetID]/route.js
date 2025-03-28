@@ -41,7 +41,11 @@ export async function PATCH(request, context) {
         // Update hanya kolom ContactID
         const updatedAsset = await prisma.asset_information.update({
             where: { AssetID: assetID },
-            data: { ContactID: contactID, SiteAccountID: siteAccountID }
+            data: { ContactID: contactID, SiteAccountID: siteAccountID },
+            include: {
+                product_information: true,
+                
+            }
         });
 
         return NextResponse.json({

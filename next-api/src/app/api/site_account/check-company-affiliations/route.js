@@ -14,6 +14,7 @@ export async function GET(request) {
       // Fetch related contacts & assets using SiteAccountID
       const contacts = await prisma.contact_information.findMany({
         where: { SiteAccountID: siteAccountId },
+        // include: {product_information: true }
       });
   
       const assets = await prisma.asset_information.findMany({
@@ -30,6 +31,7 @@ export async function GET(request) {
         data: {
           contacts,
           assets,
+          company : []
         },
       });
     } catch (error) {

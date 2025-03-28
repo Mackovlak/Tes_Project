@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 import prisma from "../../../../../prisma/client";
 
 export async function GET(request, { params }) {
-    const productNumber = parseInt(params.ProductNumber);
+    const productNumber = params.ProductNumber;
 
     if (isNaN(productNumber)) {
         return NextResponse.json({
@@ -34,7 +34,7 @@ export async function GET(request, { params }) {
 
 // update data
 export async function PATCH(request, { params }) {
-    const productNumber = parseInt(params.ProductNumber);
+    const productNumber = params.ProductNumber;
 
     try {
         const body = await request.json();
@@ -46,18 +46,6 @@ export async function PATCH(request, { params }) {
                 success: false,
                 message: "All fields are required!"
             }, { status: 400 });
-        }
-
-        // Cek apakah AssetID ada
-        const existingProductInformation = await prisma.product_information.findUnique({
-            where: { ProductNumber: productNumber }
-        });
-
-        if (!existingProductInformation) {
-            return NextResponse.json({
-                success: false,
-                message: "Product Information not found!"
-            }, { status: 404 });
         }
 
         // Update data
@@ -72,7 +60,7 @@ export async function PATCH(request, { params }) {
         return NextResponse.json({
             success: true,
             message: "Data Asset Information Updated!",
-            data: updatedAsset
+            data: updatedProductInformation
         }, { status: 200 });
 
     } catch (error) {
@@ -87,7 +75,7 @@ export async function PATCH(request, { params }) {
 
 //delete data
 export async function DELETE(request, { params }) {
-    const productNumber = parseInt(params.ProductNumber);
+    const productNumber = params.ProductNumber;
 
     try {
         const deletedProductInformation = await prisma.product_information.delete({

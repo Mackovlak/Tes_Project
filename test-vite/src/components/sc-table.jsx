@@ -48,6 +48,12 @@ import ApiCustomer from "@/api";
     setSelectedCompanyForCase,
     handleCreateCase,
     // handleSelectedAssetForCaseRelated
+
+    searchByEmailPhoneForGlobalSearch,
+    setSearchByEmailPhoneForGlobalSearch,
+    assetBasedOnContactsSearch,
+    contactsBasedOnContactsSearch,
+    companyBasedOnContactsSearch
   }) {
 
     
@@ -63,24 +69,40 @@ import ApiCustomer from "@/api";
   (!selectedCompany || Object.keys(selectedCompany).length === 0);
 
 
-  if (ifEmptyQuerySearch) return <p>No Record Found</p>;
+  if (ifEmptyQuerySearch && searchByEmailPhoneForGlobalSearch !== true) return <p>No Record Found</p>;
 
 
   // console.log("Received asset in TableCompany:", selectedAsset);
 
+  //modify any setSelected type for searchByEmailPhoneForGlobalSearch
+
+
   //refactor any Data to Arry for accepting table
-  const companyData = selectedCompany || selectedAsset?.site_account || null;
+  // const companyData = selectedCompany || selectedAsset?.site_account || [];
+  
+  console.log("Final company in TableCompany:", companyBasedOnContactsSearch); // ✅ Debugging log
+  const companyData = Array.isArray(selectedCompany) && selectedCompany.length > 0
+  ? selectedCompany[0] // Take the first company from array
+  : selectedCompany && Object.keys(selectedCompany).length > 0
+  ? selectedCompany
+  : selectedAsset?.site_account && Object.keys(selectedAsset.site_account).length > 0
+  ? selectedAsset.site_account
+  : Array.isArray(companyBasedOnContactsSearch) && companyBasedOnContactsSearch.length > 0
+  ? companyBasedOnContactsSearch[0] // Take the first company from array
+  : null;
+
+
   console.log("Selected Asset : ", selectedAsset)
 
-  const companies = companyData ? [
-    {
-      key: companyData.SiteAccountID,
-      company: companyData.Company,
-    },
-    {
-      text: `${companyData.AddressLine1} ${companyData.City} ${companyData.StateProvince} ${companyData.Country}-${companyData.ZipPostalCode} | Email: ${companyData.Email} | Phone : ${companyData.PrimaryPhone}`,
-    },
-  ] : null;
+  // const companies = companyData ? [
+  //   {
+  //     key: companyData.SiteAccountID,
+  //     company: companyData.Company,
+  //   },
+  //   {
+  //     text: `${companyData.AddressLine1} ${companyData.City} ${companyData.StateProvince} ${companyData.Country}-${companyData.ZipPostalCode} | Email: ${companyData.Email} | Phone : ${companyData.PrimaryPhone}`,
+  //   },
+  // ] : [];
 
 
   //contacts
@@ -103,7 +125,88 @@ import ApiCustomer from "@/api";
 
 
   console.log("Final contact in TableCompany:", selectedContact); // ✅ Debugging log
+  console.log("Final contact in TableCompany:", contactsBasedOnContactsSearch); // ✅ Debugging log
   
+  // const contactData = contacts.length > 0 ? contacts[0] : contactsBasedOnContactsSearch.length > 0 ? contactsBasedOnContactsSearch : [];
+  const contactData = Array.isArray(contacts) && contacts.length > 0
+  ? contacts
+  : Array.isArray(contactsBasedOnContactsSearch) && contactsBasedOnContactsSearch.length > 0
+  ? contactsBasedOnContactsSearch
+  : [];
+
+  // Create the companies array (use contact as a fallback)
+  // const companies = companyData ? [
+  //   {
+  //     key: companyData.SiteAccountID,
+  //     company: companyData.Company,
+  //   },
+  //   {
+  //     text: `${companyData.AddressLine1} ${companyData.City} ${companyData.StateProvince} ${companyData.Country}-${companyData.ZipPostalCode} | Email: ${companyData.Email} | Phone: ${companyData.PrimaryPhone}`,
+  //   },
+  // ] : contactData ? [
+  //   {
+  //     key: contactData.ContactID,  // Use ContactID as key when no company
+  //     company: `${contactData.FirstName} ${contactData.LastName} (Contact)`, // Placeholder with Contact Name
+  //   },
+  //   {
+  //     text: `Email: ${contactData.Email} | Phone: ${contactData.Phone} | Country: ${contactData.Country}`,
+  //   },
+  // ] : []; // Empty if no company and no contacts
+  // const companies = companyData && Object.keys(companyData).length > 0 
+  // ? [{
+  //     key: companyData.SiteAccountID,
+  //     company: companyData.Company,
+  //     text: `${companyData.AddressLine1} ${companyData.City} ${companyData.StateProvince} ${companyData.Country}-${companyData.ZipPostalCode} | Email: ${companyData.Email} | Phone: ${companyData.PrimaryPhone}`,
+  //   }]
+  // : Array.isArray(contactData) && contactData.length > 0
+  // ? contactData.map(contact => ({
+  //     key: contact.ContactID,
+  //     company: `${contact.FirstName} ${contact.LastName} (Contact)`,
+  //     text: `Email: ${contact.Email} | Phone: ${contact.Phone} | Country: ${contact.Country}`,
+  //   }))
+  // : [];
+  const companies = []
+  if (companyData && Object.keys(companyData).length > 0) {
+    companies.push({
+      key: companyData.SiteAccountID,
+      company: companyData.Company,
+      type: 'siteAccount',
+      text: `${companyData.AddressLine1} ${companyData.City} ${companyData.StateProvince} ${companyData.Country}-${companyData.ZipPostalCode} | Email: ${companyData.Email} | Phone: ${companyData.PrimaryPhone}`,
+    });
+  }
+  
+  if (Array.isArray(contactData) && contactData.length > 0) {
+    contactData.forEach(contact => {
+      const isRelatedToCompany = companyData && contact.SiteAccountID === companyData.SiteAccountID;
+
+      if (isRelatedToCompany) {
+        // If contact is related to the displayed company, mark it but do not push separately
+        companies.forEach(cmp => {
+          if (cmp.key === contact.SiteAccountID) {
+            cmp.type = "individualAndCompany"; // Mark as having a related contact
+          }
+        })
+      } else {
+        // If the contact is NOT related to the displayed company, push it separately
+        companies.push({
+          key: contact.ContactID,
+          company: `${contact.FirstName} ${contact.LastName} (Contact)`,
+          type: 'individual', // Standalone contact
+          text: `Email: ${contact.Email} | Phone: ${contact.Phone} | Country: ${contact.Country}`,
+        });
+      }
+    })
+    // companies.push(...contactData.map(contact => ({
+    //   key: contact.ContactID,
+    //   company: `${contact.FirstName} ${contact.LastName} (Contact)`,
+    //   type: 'contacts',
+    //   text: `Email: ${contact.Email} | Phone: ${contact.Phone} | Country: ${contact.Country}`,
+    // })));
+  }
+  console.log("Company Data : ",companyData)
+  console.log("Contact Data : ",contactData)
+  console.log("Total Companies Checkbox Data : ",companies)
+
 
   //asset
   // const assets = Array.isArray(selectedAsset) ? selectedAsset : [];
@@ -134,10 +237,19 @@ import ApiCustomer from "@/api";
       ...prevChecked,
       [company.key]: newCheckedState,
     }));
-  
+    
+    console.log("company variable checked : ",checkedCompanies)
     if (newCheckedState) {
       try {
-        const response = await ApiCustomer(`/api/site_account/check-company-affiliations?siteAccountId=${company.key}`);
+        //check the type of search checked
+        // console.log("Type after checked company",company.type)
+        // console.log("Key after checked company",company.key)
+        let response = [];
+        if(company.type == 'individual'){
+          response = await ApiCustomer(`/api/contact-information/check-contacts-affiliation?contactID=${company.key}`);
+        }else{
+          response = await ApiCustomer(`/api/site_account/check-company-affiliations?siteAccountId=${company.key}`);
+        }
         const result = response.data; // ✅ Ensure correct data extraction
   
         if (result.success) {
@@ -147,8 +259,8 @@ import ApiCustomer from "@/api";
           }));
   
           // ✅ Ensure correct state updates
+          console.log("Fetched Checking:", result.data);
           if (result.data.assets.length > 0) {
-            console.log("Fetched assets:", result.data.assets);
             setSelectedAsset(result.data.assets);
           } else {
             setSelectedAsset([]);
@@ -159,9 +271,14 @@ import ApiCustomer from "@/api";
           } else {
             setSelectedContact([]);
           }
+          // if (result.data.company.length > 0) {
+          //   setSelectedContact(result.data.company);
+          // } else {
+          //   setSelectedContact([]);
+          // }
   
           console.log(`Company ${company.company} has contact:`, result.data.contacts.length > 0);
-          console.log(result.data.contacts);
+          // console.log(result.data.contacts);
         }
       } catch (err) {
         console.error("Error fetching company affiliations:", err);
@@ -172,13 +289,6 @@ import ApiCustomer from "@/api";
 
     }
   }
-
-   /**
-     * TODO :
-     * Make the select is automatic when it's related
-     * right now is not automated, so i skiped this part
-     * but this is still used rn
-     */
    const handleSelectedAssetForCaseRelated = async (asset) => {
     setSelectedAssetForCase(asset);
     console.log("Asset in Selected Asset For Case Related : ", asset);
@@ -212,26 +322,37 @@ import ApiCustomer from "@/api";
 
   console.log("selectedContactForCase in BtnModalAsset:", selectedContactForCase);
 
+  // Ensure checkbox is checked if a company or at least one contact exists
   
+  const isChecked = checkedCompanies[companies?.[0]?.key] ?? (contacts.length > 0);
+  //checkedCompanies[company.key] || false
+  // const isChecked = checkedCompanies[company.key] ?? false;
+  
+
 
 
   return (
     // Company
-      <Card className="m-0 p-0 gap-0">
+    <>
+    { companies?.map((company, index) => (
+      <Card key={index} className="m-0 p-0 gap-0">
         <CardHeader className="bg-blue-400 p-3 rounded-t-lg">
           <span className="flex items-center gap-2 text-xl">
             <Checkbox 
+        
               className="border-black border-3 w-7.5 h-7 "
-              checked={checkedCompanies[companies?.[0]?.key] ?? false}
-              onCheckedChange={(checked) => handleCheckBoxCompanyChange(companies[0], checked)}
+              checked={isChecked}
+              onCheckedChange={(checked) => handleCheckBoxCompanyChange(company, checked)}
             ></Checkbox>
-            { companies !== null ? companies[0].company : "" }
+            { company !== null ? company.company : "" }
           </span>
         </CardHeader>
         <CardContent className=" p-3">
-        { companies !== null ? (
+        { company !== null ? (
           <div className="text-gray-500"key={selectedAsset?.SerialNumber}>
-              <p>{companies[1].text}</p>
+              <p>{company.key}</p>
+              <p>{company.text}</p>
+              <p>Type : {company.type}</p>
           </div>
           
         ) : (
@@ -241,10 +362,10 @@ import ApiCustomer from "@/api";
         )}
         </CardContent>
 
-        {(checkedCompanies[companies?.[0]?.key] || selectedAsset.length !== 0)  && (
+        {(isChecked || selectedAsset.length !== 0)  && (
         <CardFooter className="p-0 flex flex-col">
           {/* Contact */}
-            <div className=" bg-blue-200 p-3 text-black font-bold text-xl flex w-full justify-between  ">
+            <div className={`bg-blue-200 p-3 text-black font-bold text-xl flex w-full justify-between ${company.type == 'individual' ? 'hidden' : ''}`}>
               <div className="flex items-center gap-2">
                 <User></User>
                 Contact
@@ -259,7 +380,7 @@ import ApiCustomer from "@/api";
                 setSelectedContact={setSelectedContact}
               />
               </div>
-          <Table> 
+          <Table className={`${company.type == 'individual' ? 'hidden' : ''}`}> 
             <TableHeader className="bg-gray-400">
               <TableRow>
                 <TableHead className=" text-black font-bold">First Name</TableHead>
@@ -306,8 +427,9 @@ import ApiCustomer from "@/api";
                 </span>
               </div>
               <BtnModalAsset 
-                contactID={selectedContact.ContactID}
-                siteAccountID={selectedContact.SiteAccountID}
+                typeSearch={company.type}
+                contactID={selectedContact.ContactID || (company.type=='individual' ? company.key : null)}
+                siteAccountID={selectedContact.SiteAccountID || (company.type=='individualAndCompany' || company.type == 'siteAccounts' ? company.key : null) }
                 selectedContactForCase={selectedContactForCase}
                 selectedCompany={companyData}
                 selectedAsset={selectedAsset}
@@ -353,7 +475,9 @@ import ApiCustomer from "@/api";
         </CardFooter>
       )}
       </Card>
-    
+    ))}
+      
+    </>
   );
 }
 

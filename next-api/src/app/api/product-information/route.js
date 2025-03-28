@@ -21,10 +21,10 @@ export async function GET(request) {
                 ? {
                     OR: [
                         { ProductNumber: { contains: search } },
-                        { ProductName: { contains: search } }
+                        { ProductName: { contains: `%${search}%` } }
                     ]
                 }
-                : undefined // Jika search kosong, tidak pakai filter
+                : undefined, // Jika search kosong, tidak pakai filter
         });
 
         console.log("Total Data:", totalCount);
@@ -44,12 +44,13 @@ export async function GET(request) {
                 : undefined,
             skip: skip,
             take: limit,
-            orderBy: { ProductName: "asc" }
+            orderBy: { ProductName: "asc" },
+            include: { product_type: true }
         });
 
         return NextResponse.json({
             success: true,
-            message: "List Data Assets Information",
+            message: "List Data Product ",
             data: product_information,
             totalPages: Math.ceil(totalCount / limit),
             currentPage: page
@@ -84,22 +85,41 @@ export async function POST(request) {
         ProductNumber,
         ProductName,
         ProductLine,
+        ProductTypeID
     } = await request.json();
 
+    
+      // ✅ Check if ProductNumber already exists
+        const existingProduct = await prisma.product_information.findUnique({
+            where: { ProductNumber }
+        });
+
+        if (existingProduct) {
+            // ✅ If Product exists, do nothing and return success
+            return NextResponse.json({
+                success: true,
+                message: "Product already exists. No need to create a new entry.",
+                data: existingProduct
+            }, { status: 200 });
+        }
+
+    
+
     //create data 
-    const asset_information = await prisma.asset_information.create({
+    const product_information = await prisma.product_information.create({
         data:{
             ProductNumber: ProductNumber,
             ProductName: ProductName,
             ProductLine: ProductLine,
+            ProductTypeID: ProductTypeID,
         },
     });
 
     return NextResponse.json(
         {
             success: true,
-            message: "Asset Information Created Successfully!",
-            data: asset_information,
+            message: "Product Information Created Successfully!",
+            data: product_information,
         },
         { 
             status: 201

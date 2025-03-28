@@ -6,21 +6,46 @@ export async function GET(request) {
         // Ambil parameter pencarian & pagination
         const { searchParams } = new URL(request.url);
         const search = searchParams.get("search") || "";
+        
+        const email = searchParams.get("email") || "";
+        const phone = searchParams.get("phone") || "";
+        
         const page = parseInt(searchParams.get("page")) || 1;
         const limit = parseInt(searchParams.get("limit")) || 10;
 
         console.log("Query Params:", { search, page, limit });
 
+         // Initialize search filters
+         let whereCondition = {};
+
+         // Search by Email
+         if (email) {
+             whereCondition.OR = [{ Email: { contains: email } }];
+         }
+ 
+         // Search by Phone
+         if (phone) {
+             whereCondition.OR = [...(whereCondition.OR || []), { PrimaryPhone: { contains: phone } }];
+         }
+         
+         if (search) {
+            whereCondition.OR = [...(whereCondition.OR || []), { Company: { contains: search } }];
+        }
+ 
+         // If both Email and Phone exist, apply the combined filter
+         if (email && phone) {
+             whereCondition = {
+                 OR: [
+                     { Email: { contains: email } },
+                     { PrimaryPhone: { contains: phone } },
+                     { Company: { contains: search } }
+                 ]
+             };
+         }
+
         // Hitung jumlah data total
         const totalCount = await prisma.site_account.count({
-            where: search
-                ? {
-                    OR: [
-                        { Company: { contains: search } },
-                        { Email: { contains: search } }
-                    ]
-                }
-                : undefined // Jika search kosong, tidak pakai filter
+            where: whereCondition
         });
 
         console.log("Total Data:", totalCount);
@@ -30,14 +55,7 @@ export async function GET(request) {
 
         // Ambil data dengan filter & pagination
         const site_accounts = await prisma.site_account.findMany({
-            where: search
-                ? {
-                    OR: [
-                        { Company: { contains: search } },
-                        { Email: { contains: search } }
-                    ]
-                }
-                : undefined,
+            where: whereCondition,
             skip: skip,
             take: limit,
             orderBy: { Company: "asc" }
