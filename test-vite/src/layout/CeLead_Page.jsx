@@ -34,13 +34,18 @@ export default function CeLead_Page() {
     { name: "Open", value: casevaluedata || 0, fill: "#3B82F6" },
     { name: "In Progress", value: inactivecasevaluedata || 0, fill: "#FACC15" },
     { name: "Closed", value: closecasevaluedata || 0, fill: "#10B981" },
+    // { name: "Pending", value: 5, fill: "#F97316" },
   ];
 
+  console.log(radialchartdata, "the data")
+
   useSocket("case:created", (newCase) => {
+    console.log("case Created",newCase);
     setCaseData((prev) => [newCase, ...prev]); // prepend
   });
 
   useSocket("case:updated", (updated) => {
+    console.log("Case Updated",updated);
     setCaseData((prev) =>
       prev.map((c) => (c.CaseID === updated.CaseID ? updated : c))
     );
@@ -55,6 +60,7 @@ export default function CeLead_Page() {
       const response = await ApiCustomer.get('/api/case-information');
       const fecthUserData = await ApiCustomer.get(`/api/user/${user.id}`);
       const resFetchUserData = fecthUserData.data.data;
+      console.log("Fetch user daya : ", user)
       setUserData({
         ...userData,
         Username: resFetchUserData.Username,
@@ -75,6 +81,7 @@ export default function CeLead_Page() {
       const filtercases = response.data.data.filter(c => c?.CaseStatus !== 'Close' && c?.CreatedName == user.name);
       const sortedCases = filtercases.sort((a, b) => new Date(b.CreatedAt) - new Date(a.CreatedAt));
       const recentCases = sortedCases.slice(0, 4);
+      console.log("Length of the arrays", valuefiltercases);
       setCaseData(recentCases);
       setCasevaluedata(valueFilterOpenCase?.length);
       setInactivecasevaluedata(valueFilterInActiveCase?.length)
@@ -99,6 +106,8 @@ export default function CeLead_Page() {
 
   const navigate = useNavigate();
 
+  console.log(caseData)
+  console.log("THe value ", casevaluedata)
   return (
     <div className="max-h-[calc(100vh-64px)] w-full grid grid-cols-4 grid-rows-2 gap-4 p-4 bg-gradient-to-b from-gray-50 to-gray-100">
       {/* Left Column - Profile */}

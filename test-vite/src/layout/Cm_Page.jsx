@@ -139,6 +139,7 @@ export default function CashManagement() {
                 ...payload,
                 userAssign: targetAssignUser,
             };
+            console.log("Sending payload:", apiPayload);
             const endpoint = payload.quotationNo
                 ? `/api/quotation-information/${payload.quotationNo}`
                 : "/api/quotation-information";

@@ -4,10 +4,11 @@ import prisma from "../../../../../prisma/client";
 // ✅ GET data berdasarkan id_csr
 export async function GET(request, { params }) {
   try {
-   
+    // const { searchParams } = new URL(request.url);
+    // const csrId = searchParams.get("id_csr");
     const { id_csr } = await params;
     const csrId = id_csr
- 
+    // console.log("csrId", csrId);
     if (!csrId) {
       return NextResponse.json(
         { success: false, message: "Parameter 'id_csr' tidak ditemukan." },

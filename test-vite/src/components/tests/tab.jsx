@@ -115,10 +115,12 @@ export const TabsService = ({ caseDetails }) => {
   const handleCaseNoteChange = (key, value) => {
     setCaseNoteFormData((prev) => {
       const updated = { ...prev, [key]: value };
+      console.log(" Updated Form:", updated); // Log on every change
       return updated;
     });
   };
   const saveCaseNote = async () => {
+    console.log(" Form Data to Submit:", caseNoteFormData); // Log the form data
     try {
       const response = await ApiCustomer.post(
         "/api/case-information/case-notes",
@@ -127,10 +129,13 @@ export const TabsService = ({ caseDetails }) => {
           CaseID: caseDetails.CaseID,
         }
       );
+      console.log("Saved successfully:", response.data);
       alert("Case Note Saved!");
       setCaseNotes({
         NotesDisplay: response.data.data.Note,
       });
+      console.log("Case Notes Infor after save : ", caseNotes);
+      console.log("Case Notes Display Infor after save : ", response);
 
       let dataUpdated = {
         CaseNote: response.data.data.NoteID,
@@ -202,6 +207,8 @@ export const TabsService = ({ caseDetails }) => {
         `/api/case-information/case-notes/${noteID}`
       );
       const noteDetail = detailRes.data.data;
+
+      console.log(" Case Note Detail:", noteDetail);
       return noteDetail;
     } catch (err) {
       console.error("Error in fetchCaseNotes:", err);
@@ -1104,6 +1111,8 @@ export const ServiceCase = ({
         `/api/case-information/case-notes/${noteID}`
       );
       const noteDetail = detailRes.data.data;
+
+      console.log("Case Note Detail:", noteDetail);
       return noteDetail;
     } catch (err) {
       console.error("Error in fetchCaseNotes:", err);
@@ -1139,6 +1148,12 @@ export const ServiceCase = ({
     } catch (error) {}
   };
 
+  useEffect(() => {
+    console.log("Data Asset Info : ", dataFetchAssetInformation);
+
+    console.log("Fetch Data Customer Success : ", dataFetchCustomerData);
+    console.log("Fetch Data User ", ownerUserData);
+  }, [ownerUserData]);
 
 
   const fetchSymptomCodes = async (term) => {
@@ -1157,6 +1172,11 @@ export const ServiceCase = ({
       console.error("Error fetching symptom codes", err);
     }
   };
+  // console.log("Selected Symptopm ",selectedSymptom)
+
+  // useEffect(() => {
+  // }, selectedSymptom)
+
   //order section
   //workorder
   const [workOrders, setWorkOrders] = useState([]);
@@ -1185,7 +1205,7 @@ export const ServiceCase = ({
   };
 
   useEffect(() => {
-   
+    console.log("Work Orders Fetching L ", workOrders);
     if (workOrders.length > 0) {
       fetchMaterialOrders();
     }

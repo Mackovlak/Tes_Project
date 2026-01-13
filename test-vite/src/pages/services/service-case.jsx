@@ -169,6 +169,7 @@ export const TabsService = ({
   const handleCaseNoteChange = (key, value) => {
     setCaseNoteFormData((prev) => {
       const updated = { ...prev, [key]: value };
+      console.log(" Updated Form:", updated); // Log on every change
       return updated;
     });
   };
@@ -186,6 +187,8 @@ export const TabsService = ({
   };
 
   const handleSave = async (redirect = true) => {
+    console.log("Form Data to Submit:", caseNoteFormData, gtcForm, entitlementStatus);
+
     try {
       Swal.fire({
         title: 'Saving Case...',
@@ -259,6 +262,7 @@ export const TabsService = ({
 
           case 'ENTITLEMENT':
             if (entitlementEdited) {
+              console.log(entitlementStatus);
               Object.assign(dataToUpdate, entitlementStatus); // includes OTCCo
               savedModules.push("Entitlement");
             }
@@ -357,6 +361,7 @@ export const TabsService = ({
   };
 
   const openPopup = () => {
+    console.log("TeSPOP");
     const popup = window.open(
       '/auditwindows',
       'Popup Title',
@@ -427,6 +432,7 @@ export const TabsService = ({
     { icon: StepBack, label: "Add to Queue", },
     { icon: StepBack, label: "Audit", onClick: () => openPopup() },
   ];
+  console.log("TES CASE DETAILS VALUE", caseDetails);
   const visibleButtons = open ? buttons.slice(0, -3) : buttons;
   const hiddenButtons = open ? buttons.slice(-3) : [];
   const [serviceCatalogType, setServiceCatalogType] = useState("null");
@@ -665,7 +671,11 @@ export const TabsServiceWO = ({ workOrders, SLA, setSLA, WOGeneral }) => {
             ? parseInt(SLA.casePriorityIndex, 10)
             : undefined,
       });
+
       const result = response.data;
+      console.log(response);
+
+
       if (!result.success) {
         return Swal.fire({
           icon: "error",
@@ -813,7 +823,7 @@ export const TabsServiceWO = ({ workOrders, SLA, setSLA, WOGeneral }) => {
 
   }
   const saveAndCloseWorkOrder = async (repairFormData) => {
-    
+    // return console.log(repairFormData);
     try {
       Swal.fire({
         title: "Saving...",
@@ -833,6 +843,8 @@ export const TabsServiceWO = ({ workOrders, SLA, setSLA, WOGeneral }) => {
           text: 'Only CE can close a Work Order.',
         });
       }
+
+      // return console.log("Repair PROM KOOJRN ",repairFormData);
 
       const statusTarget = onCancelWo ? "CLOSED_CANCELLED" : "CLOSED_POSTED";
       const res = await ApiCustomer.patch(
@@ -865,6 +877,7 @@ export const TabsServiceWO = ({ workOrders, SLA, setSLA, WOGeneral }) => {
           changedBy: token.user.id,
           logDescription: `Edit : Changed Work Order ${workOrders.WOID} from ${workOrders.SystemStatus} to ${res.data.data.SystemStatus}`
         })
+        // console.log("wololo",workOrders)
         //update log customer
         const statusCaseTarget = onCancelWo ? "CancelRepair" : "FinishRepair";
         const caseLog = await ApiCustomer.post("/api/actionlog",{
@@ -894,7 +907,7 @@ export const TabsServiceWO = ({ workOrders, SLA, setSLA, WOGeneral }) => {
           await ApiCustomer.post("/api/actionlog", {
             CaseId: `${workOrders.CaseID}`,
             ReferenceId: `${workOrders.CaseID}`,
-            model: "Case Owner",
+            model: "CaseOwner",
             dataOld: String(previousOwnerId ?? ""),
             dataNew: String(newOwnerId ?? ""),
             changedBy: token.user.id,
@@ -1037,7 +1050,7 @@ export const TabsServiceMO = ({ materialOrders, updatedLineItems, materialOrderI
       );
       const soNumber = (materialOrderInformation?.SalesOrderNumber ?? materialOrders?.SalesOrderNumber ?? '').toString().trim();
       const rmaNumber = (materialOrderInformation?.RMANumber ?? materialOrders?.RMANumber ?? '').toString().trim();
-     
+      // return console.log(soNumber, moForm, materialOrderInformation);
       if (hasShippingUpdate && (!soNumber || !rmaNumber)) {
         Swal.close();
         return Swal.fire({
@@ -1076,6 +1089,7 @@ export const TabsServiceMO = ({ materialOrders, updatedLineItems, materialOrderI
         const result = await ApiCustomer.patch(`/api/material-order/batch-update`, payload);
         res = result;
       }
+      console.log("RES : ",res);
       if(res.data) {
         Swal.fire({
           icon: "success",
@@ -1091,6 +1105,7 @@ export const TabsServiceMO = ({ materialOrders, updatedLineItems, materialOrderI
           text: res.data.message,
         });
       }
+      console.log("Semua line item berhasil diupdate.");
 
     } catch (error) {
          return Swal.fire({
@@ -1403,6 +1418,7 @@ export const TabsServiceMOLineItems = ({ MOLineDetails, LineItemID, moLineItems 
         }
       );
       if (res.data.success) {
+        console.log("MATERIAL ORDeR IN CLOSED POSTED : ", moLineItems)
         const token = {
           user: getUserFromToken()
         }
@@ -1456,6 +1472,7 @@ export const TabsServiceMOLineItems = ({ MOLineDetails, LineItemID, moLineItems 
             {btn.label && <span className="text-md">{btn.label}</span>}
           </Button>
         ))}
+        {console.log("Mo lIne Details ",MOLineDetails)}
         {/* {open && hiddenButtons.length > 0 && (
           <DropdownMenu>
             <DropdownMenuTrigger className="px-2 py-1 bg-gray-200 rounded-md">
@@ -1645,6 +1662,7 @@ export const ServiceCase = ({
       );
       const noteDetail = detailRes.data.data;
 
+      console.log("Case Note Detail:", noteDetail);
       return noteDetail;
     } catch (err) {
       console.error("Error in fetchCaseNotes:", err);
@@ -1667,6 +1685,7 @@ export const ServiceCase = ({
         `/api/work-order?CaseID=${caseDetails.CaseID}`
       );
       setWorkOrders(res.data.data); // adjust based on API response shape
+      console.log("Fetch Work Order: ", res.data.data);
     } catch (err) {
       console.error("Failed to fetch work orders:", err);
     }
@@ -1762,6 +1781,7 @@ export const ServiceCase = ({
   const fetchCsr = async () => {
     try {
       const csrData = caseDetails.caseresolution;
+      console.log("CSR Data: ", csrData);
 
       if (csrData) {
         setCsrForm({
@@ -1857,10 +1877,23 @@ export const ServiceCase = ({
     }
   }, [otcCode, caseDetails]);
 
+  useEffect(() => {
+    console.log("Data Asset Info : ", dataFetchAssetInformation);
+
+    console.log("Fetch Data Customer Success : ", dataFetchCustomerData);
+    console.log("Fetch Data User ", ownerUserData);
+  }, [ownerUserData]);
+
+  // console.log("Selected Symptopm ",selectedSymptom)
+
+  // useEffect(() => {
+  // }, selectedSymptom)
 
   //order section
   //workorder
+
   useEffect(() => {
+    console.log("Work Orders Fetching L ", workOrders);
     if (workOrders.length > 0) {
       fetchMaterialOrders();
     }
@@ -1880,6 +1913,12 @@ export const ServiceCase = ({
     }
   };
 
+  useEffect(() => {
+    console.log("Data Asset Info : ", dataFetchAssetInformation)
+
+    console.log("Fetch Data Customer Success : ", dataFetchCustomerData)
+    console.log("Fetch Data User ", ownerUserData)
+  }, [ownerUserData])
 
   const fetchSymptomCodes = async (term) => {
     try {
@@ -2426,6 +2465,7 @@ export const ServiceCase = ({
                     readOnly
                   ></DatePicker>{" "}
                 </CaseField>
+                {console.log(entitlementStatus)}
                 <CaseField label="OTC Code" icon span={2}>
                   <SearchCommandBlock
                     options={otcCode}

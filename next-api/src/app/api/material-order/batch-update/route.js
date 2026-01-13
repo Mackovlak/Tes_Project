@@ -39,6 +39,10 @@ export async function PATCH(request) {
       SalesOrderNumber,
       RMANumber,
     } = await request.json();
+
+    // return console.log(moUpdates, updates)
+    
+
     if (!MOID || !WOID) {
       return NextResponse.json(
         {
@@ -73,7 +77,7 @@ export async function PATCH(request) {
       const originalDeliveryRequestedDate = materialOrder.DeliveryRequestedDate ?? null;
 
       const updateEntries = Object.entries(updates ?? {});
-      
+      console.log("Update Entries",updateEntries);
       if (updateEntries.length > 0) {
         for (const [lineItemID, status] of updateEntries) {
           await tx.materialorderlineitems.update({
@@ -152,14 +156,18 @@ export async function PATCH(request) {
       }
       mergeAllowedMoUpdates(moUpdates, materialOrderUpdate, materialOrder);
 
+      // return console.log(materialOrderUpdate);
 
       let updatedOrder = materialOrder;
       if (Object.keys(materialOrderUpdate).length > 0) {
+        // console.log("Material Ordeer Update", materialOrderUpdate);
         updatedOrder = await tx.materialorder.update({
           where: { MOID },
           data: materialOrderUpdate,
         });
+        // console.log("Material Ordeer Update", updatedCaseInfo);
       }
+      // return console.log("Material Ordeer Update", updatedOrder);
 
       const derivedOrderStatus = updatedOrder.OrderStatus;
       const caseId = workOrder.caseinformation?.CaseID ?? null;

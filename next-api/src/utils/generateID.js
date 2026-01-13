@@ -26,10 +26,14 @@ export async function generateID(prefix, modelName, idField, client = prisma, se
   if (lastRecord) {
     const lastNumber = parseInt(lastRecord[idField].replace(prefixStr, "").replace("-", ""), 10);
     nextNumber = lastNumber + 1;
+    console.log("Record : ",lastRecord)
+    console.log("GEN ID : ",lastNumber, nextNumber)
   }
 
   const paddedNumber = String(nextNumber).padStart(7, "0");
   const newID = `${prefixStr}${paddedNumber}`;
- 
+  // return console.log(newID, paddedNumber, prefixStr, prefix)
+
+  console.log(`GeneratedID : ${newID}`);
   return newID;
 }

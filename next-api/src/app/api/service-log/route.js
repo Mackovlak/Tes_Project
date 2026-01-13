@@ -10,12 +10,35 @@ export async function GET(request) {
         const page = parseInt(searchParams.get("page")) || 1;
         const limit = parseInt(searchParams.get("limit")) || 10;
 
+        console.log("Query Params:", { search, page, limit });
+
          // Initialize search filters
          let whereCondition = {};
          
          if (search) {
             whereCondition.OR = [...(whereCondition.OR || []), { ServiceCatalogID: { contains: search } }];
         }
+ 
+        //  // If both Email and Phone exist, apply the combined filter
+        //  if (email && phone) {
+        //      whereCondition = {
+        //          OR: [
+        //              { Email: { contains: email } },
+        //              { PrimaryPhone: { contains: phone } },
+        //              { Company: { contains: search } }
+        //          ]
+        //      };
+        //  }
+
+        // Hitung jumlah data total
+        // const totalCount = await prisma.servicecatalog.count({
+        //     where: whereCondition
+        // });
+
+        // console.log("Total Data:", totalCount);
+
+        // Hitung offset berdasarkan halaman
+        // const skip = (page - 1) * limit;
 
         // Ambil data dengan filter & pagination
         const servicecatalog = await prisma.servicecatalog.findMany({

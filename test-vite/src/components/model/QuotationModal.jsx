@@ -451,7 +451,10 @@ const QuotationDialog = ({
       createdBy: createdBy.id
     };
     
-
+    // console.log("ON PAYLOAD KONT", form)
+    // return console.log("ON PAYLOAD KONT", payload)
+    
+    // if(quoteDecisionValue === 'Rejected') pa
     try {
       await Promise.resolve(onSubmit?.(payload));
       resetForm();

@@ -48,6 +48,7 @@ export function DialogCloseButton({
   const [selectedAsset, setSelectedAsset] = useState(null);
   const handleSelectAsset = (asset) => {
     setSelectedAsset(asset); 
+    console.log("Selected asset in modal:", asset);
   };
 
   const handleConfirmSelection = () => {
@@ -210,6 +211,11 @@ export function DialogCompanyBtn({
         }
         fetchDataSiteAccounts();
       }, [])
+
+      useEffect(() => {
+        console.log("Updated search state:", search);
+      }, [search]); // Logs every time `search` changes
+      
       //filter based on search in search_case
       //TODO : IF THE SEARCH IS EMPTY, set to not found.
       //TODO 2 : filtered the Site Account based on three main component : Company, City, and ZipPostalCode  
@@ -217,10 +223,16 @@ export function DialogCompanyBtn({
           //  Wait for `siteAccounts` to be updated before filtering
       useEffect(() => {
         if (siteAccounts.length > 0 && search.Company?.trim()) { 
+          console.log("Company searched : ", search) 
           const lowerSearch = search.Company.toLowerCase().trim();
-         const filteredResults = siteAccounts.filter(company =>
+          console.log("Lower Company searched : ", lowerSearch) 
+          console.log("SIte Accounr Company searched : ", siteAccounts) 
+          const filteredResults = siteAccounts.filter(company =>
             company.Company?.toLowerCase().includes(lowerSearch)
           );
+          console.log("Filter Company searched : ", filteredResults) 
+
+          
           if (filteredResults.length > 0) {
             setFilteredSiteAccount(filteredResults); //  Set results if matches found
           } else {
@@ -243,14 +255,30 @@ export function DialogCompanyBtn({
               }, 300); // Slight delay to ensure smooth transition            
             })
           }
+
+          console.log("Lower Search: ", lowerSearch);
+          console.log("Site Account Before State Update:", siteAccounts.Company?.toLowerCase().includes(lowerSearch)  ); // ✅ Shows correct data
         } else {
           setFilteredSiteAccount([]); // Reset when search is empty or no data
         }
       }, [search.Company, siteAccounts]); //  Depend on `siteAccounts`
+      useEffect(() => {
+        console.log("Updated search state:", search);
+        console.log("search.Company:", search.Company);
+      }, [search]); // Logs every time `search` changes
+      // New useEffect to check updated `filteredSiteAccount`
+      useEffect(() => {
+        console.log("Filtered Site Account Updated:", filteredSiteAccount);
+      }, [filteredSiteAccount]); // Runs when `filteredSiteAccount` updates
+
       //filter based on search in modal
       const filteredSiteAccountSearched = searchQuery !== "" ? siteAccounts.filter((company) =>
         company.Company?.toLowerCase().includes(searchQuery.toLowerCase())
       ): [];
+
+      console.log(filteredSiteAccount)
+      
+
       //handle selection
       const handleSelectSiteAccount = (company) => {
         setSelectedSiteAccounts(company)
@@ -285,6 +313,7 @@ export function DialogCompanyBtn({
       }
       
       useEffect(() => {
+        console.log("Company Selected (Updated):", selectedSiteAccounts);
       }, [selectedSiteAccounts]); // Runs when `selectedSiteAccounts` updates
   return (
     <Dialog open={isModalCompanyOpen} onOpenChange={setIsModalCompanyOpen}>
@@ -376,6 +405,7 @@ export function DialogContactBtn({
   const fetchDataContacts = async () => {
     try {
       const response = await ApiCustomer.get("/api/search-email-phone");
+      console.log("Fetched Contacts:", response.data.data);
       setContacts(response.data.data);
     } catch (err) {
       console.error("Error fetching contacts:", err);
@@ -387,6 +417,8 @@ export function DialogContactBtn({
     
     
     // useEffect(() => {
+    //   console.log("contacts in useEffect: ", contacts);
+    //   console.log("search in useEffect: ", search);
     
     //   if (contacts.length === 0) {
     //     setFilteredContacts([]); // Reset jika data kontak kosong
@@ -415,6 +447,7 @@ export function DialogContactBtn({
     
     //   setFilteredContacts(filteredResults); // Set hasil pencarian
     
+    //   console.log("Filtered Contacts: ", filteredResults);
     
     // }, [search, contacts]);
 

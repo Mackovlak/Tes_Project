@@ -19,6 +19,7 @@ export async function GET(request) {
 
     const woidList = woidParamRaw.split(",").map((id) => id.trim());
 
+        // console.log("Query Params:", { search, page, limit });
          // Initialize search filters
          const materialOrders = await prisma.materialorder.findMany({
             where: {
@@ -82,6 +83,7 @@ export async function POST(request) {
     const ownerIdNumber = toNumberOrNull(OwnerID);
     const assignApoId = toNumberOrNull(assignApo);
 
+    // return console.log(OwnerID, assignApo)
     if (!WOID || typeof WOID !== "string") {
       return NextResponse.json({
         success: false,
@@ -127,6 +129,7 @@ export async function POST(request) {
         }
       }
     });
+    // return console.log("MO ONLY", workOrder?.caseinformation?.asset_information?.WarrantyOTCCode?.WarrantyCondition)
 
     const includeChangedBy = {
       changedByUser: {
@@ -298,9 +301,11 @@ export async function POST(request) {
       }
 
     
+      console.log("IS OUT WARRANRY ", isOutWarranty)
       const caseUpdateData = { CaseStatus: "PartRequest" };
       if(isOutWarranty) caseUpdateData.CaseStatus = "Quote_Requested"
 
+      console.log("IS OUT WARRANRY ", caseUpdateData)
       if (assignApoId !== null) {
           caseUpdateData.Owner = assignApoId;
       }   

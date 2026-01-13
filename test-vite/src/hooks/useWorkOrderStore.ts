@@ -307,6 +307,7 @@ export const useWorkOrderStore = create<WorkOrderStore>((set, get) => ({
 			ApiCustomer.patch(`/api/material-order/material-order-line-items/${line.LineItemID}`, line)
 		)
 		);
+		console.log("OI",ressMoLine)
 
 
 		// Optionally refresh store with returned WO if backend sends it

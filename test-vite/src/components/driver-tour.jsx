@@ -9,10 +9,11 @@ import { description } from './sc-chart';
 export const ButtonTour = () => {
     const location = useLocation()
     let caseId = null;
+    console.log("location.pathname", location.pathname);
     if (location.pathname.startsWith("/app/case")) {
         // take the case id
          caseId = location.pathname.split("/").pop();
-      
+        console.log("caseId", caseId);
     }
     const {user, loading } = useAuth()
       if (loading || !user) {

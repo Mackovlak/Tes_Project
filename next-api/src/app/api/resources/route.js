@@ -29,6 +29,8 @@ export async function GET(request) {
     // Hitung jumlah total data yang cocok dengan pencarian
     const totalCount = await prisma.resource.count({ where });
 
+    console.log('Total Data:', totalCount);
+
     // Ambil data Resources dengan filter dan pagination
     const resources = await prisma.resource.findMany({
       where,

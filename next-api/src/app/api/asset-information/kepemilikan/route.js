@@ -11,6 +11,8 @@ export async function GET(request) {
         const limit = parseInt(searchParams.get("limit")) || 10;
 
         let whereCondition = {};
+        console.log("search :",search)
+        console.log("contactID :",contactID)
         if (search) {
             whereCondition.OR = [
                 { SerialNumber: { contains: search } },
@@ -24,6 +26,7 @@ export async function GET(request) {
         }else{
             whereCondition.ContactID = Number(contactID);
         }
+        console.log("where condition :",whereCondition)
         
         const totalCount = await prisma.asset_information.count({ where: whereCondition });
         const asset_information = await prisma.asset_information.findMany({
@@ -38,6 +41,7 @@ export async function GET(request) {
             }
         });
 
+        // console.log(asset_information)
 
         return NextResponse.json({
             success: true,

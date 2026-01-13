@@ -84,6 +84,7 @@ export async function POST(request) {
       eowDate: warrantyEowDate = null,
     } = warranty || {};
 
+// return console.log(resources)
     const result = await prisma.$transaction(async (tx) => {
       let productNumber = initialProductNumber ?? null;
       let companyId = initialCompanyId ?? null;
@@ -97,6 +98,7 @@ export async function POST(request) {
           throw new HttpError(400, "Product payload is incomplete.");
         }
 
+        console.log("PRODYCT :: ",product)
         const hasTypeId = product?.ProductTypeID != null && `${product.ProductTypeID}`.trim() !== "";
         const hasTypeName = !!product?.ProductTypeName?.trim();
         if (!hasTypeId && !hasTypeName) {
@@ -421,6 +423,7 @@ export async function POST(request) {
       };
     }, { timeout: 50000 });
     
+    // return console.log("debug", result)
 
     await notifySocket(
       "case:created",
@@ -490,6 +493,8 @@ export async function POST(request) {
             html,
             text: `Case ${result.case.CaseID} created successfully.`,
           });
+
+          console.log(`[Email] Case ${result.case.CaseID} sent to ${to}`);
         } else{
           console.warn(`[Email] No recipient found for case ${result.case.CaseID}`);
         }

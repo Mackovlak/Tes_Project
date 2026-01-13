@@ -250,7 +250,7 @@ export const TabsServiceCaseDetails = ({
   const [notesList, setNotesList] = useState([]);
   const { open } = useSidebar();
   const [refreshFetchPage, setRefreshFetchPage] = useState(false)
-  
+  console.log("CHECK REFRESH STATTUS",refreshFetchPage)
   const [entitlementStatus, setEntitlementStatus] = useState({
     OTCCode: "",
     PurchaseDate: "",
@@ -265,6 +265,8 @@ export const TabsServiceCaseDetails = ({
     WarrantyCard: "",
     PhotoUnit: "",
   })
+
+  entitlementStatus.needWarrantyApproval  ? console.log("THIS IS TRUE") : console.log("NOPE NOT TODAYS");
 
   const [productForm, setProductForm] = useState({
     HWPC: "",
@@ -327,13 +329,14 @@ export const TabsServiceCaseDetails = ({
   }
   
   const handleCaseChange = (field) => (value) => {
-    
+    console.log("caseChange ",field, value)
     setCaseForm((prev) => ({ ...prev, [field]: value }));
   }
 
   const handleCaseNoteChange = (key, value) => {
     setCaseNoteFormData((prev) => {
       const updated = { ...prev, [key]: value };
+      console.log(" Updated Form:", updated); // Log on every change
       return updated;
     });
   };
@@ -355,6 +358,9 @@ export const TabsServiceCaseDetails = ({
   };
 
  const handleSave = async (redirect = true) => {
+  console.log("Form Data to Submit:", caseNoteFormData, gtcForm, entitlementStatus);
+  console.log("CaseForm Data to Submit:", caseForm);
+
   try {
     Swal.fire({
       title: 'Saving Case...',
@@ -406,7 +412,8 @@ export const TabsServiceCaseDetails = ({
     let savedModules = [];
     const dataToUpdate = {};
     for (const target of ['NOTE', 'GTC', 'ENTITLEMENT', 'CSR', 'CASE', 'PRODUCT']) {
-        switch (target) {
+      console.log(target);
+      switch (target) {
 
         case 'NOTE':
          if (noteFilled) {
@@ -442,6 +449,22 @@ export const TabsServiceCaseDetails = ({
 
         case 'ENTITLEMENT':
           if (entitlementEdited) {
+            console.log("OTC CODE EDIT : ",entitlementStatus);
+              //  await ApiCustomer.patch(`/api/asset-information/${caseDetails.AssetID}`, {
+              //   Warranty_Status: entitlementStatus.OTCCode || "",
+              //    EOW_Date: entitlementStatus.EOW_Date || "",
+              //    PurchaseDate: entitlementStatus.PurchaseDate || "",
+              //    WarrantyCardDate: entitlementStatus.WarrantyCardDate || "",
+              //    EndUserName: entitlementStatus.EndUserName || "",
+              //    EndUserPhone: entitlementStatus.EndUserPhone || "",
+              //    EndUserAddress: entitlementStatus.EndUserAddress || "",
+              //    WarrantyApprovalStatus: entitlementStatus.WarrantyApprovalStatus || "",
+              //    needWarrantyApproval: entitlementStatus.needWarrantyApproval || false,
+              //    POPDocument: entitlementStatus.POPDocument || "",
+              //    WarrantyCard: entitlementStatus.WarrantyCard || "",
+              //    PhotoUnit: entitlementStatus.PhotoUnit || "",
+
+              // });
             const formData = new FormData();
             formData.append("Warranty_Status", entitlementStatus.OTCCode || "");
             formData.append("EOW_Date", entitlementStatus.EOW_Date?.toISOString?.() || "");
@@ -514,6 +537,7 @@ export const TabsServiceCaseDetails = ({
         case 'CASE':
           if (caseEdited) {
               try {
+                console.log("CaseForm Data To Update: ", caseForm);
                 const oldStatus = caseDetails.CaseStatus;
                 let newStatus = caseForm.CaseStatus;
                 
@@ -527,6 +551,9 @@ export const TabsServiceCaseDetails = ({
                   nextOwnerId !== null &&
                   String(nextOwnerId).trim() !== "" &&
                   String(nextOwnerId) !== String(originalOwnerId ?? "");
+
+                // console.log(caseFor)
+                // Build updates only for fields provided (avoid blanking with empty strings)
                 const caseUpdates = {};
                 if (caseForm.CaseType && caseForm.CaseType.trim() !== "") {
                   caseUpdates.CaseType = caseForm.CaseType;
@@ -664,7 +691,7 @@ export const TabsServiceCaseDetails = ({
                     await ApiCustomer.post("/api/actionlog", {
                       CaseId: `${caseDetails.CaseID}`,
                       ReferenceId: "",
-                      model: "Case Owner",
+                      model: "CaseOwner",
                       dataOld: String(originalOwnerId ?? ""),
                       dataNew: String(nextOwnerId ?? ""),
                       changedBy: user?.id,
@@ -694,6 +721,16 @@ export const TabsServiceCaseDetails = ({
       }
 
     }
+
+    // After collecting all updates, patch once if needed
+    // console.log("Data To Update: ", dataToUpdate);
+    // if (Object.keys(dataToUpdate).length > 0) {
+    //   console.log("Data To Update: ", dataToUpdate);
+    //   await ApiCustomer.patch(
+    //     `/api/case-information/${caseDetails.CaseID}`,
+    //     dataToUpdate
+    //   );
+    // }
 
     if (savedModules.length > 0) {
       if(redirect){
@@ -728,6 +765,7 @@ export const TabsServiceCaseDetails = ({
 };
 
 const openPopup = () => {
+  console.log("TeSPOP");
   const popup = window.open(
     '/auditwindows',
     'Popup Title',
@@ -774,7 +812,7 @@ const openPopup = () => {
       .then(blob => {
         const reader = new FileReader();
         reader.readAsDataURL(blob);
-       
+        console.log("QR",reader)
         return new Promise((res) => {
           reader.onloadend = () => {
           res(reader.result);
@@ -789,6 +827,8 @@ const openPopup = () => {
 
       }
   }
+  
+  console.log("QRCODEIMAGE",qrCodeImg);
   function downloadQr(){
       try{
           fetch(qrCodeimg).then((response)=>response.blob()).then((blob)=>{
@@ -1153,11 +1193,21 @@ const openPopup = () => {
       hidden: caseDetails.asset_information?.WarrantyOTCCode?.OTCCode === '01T' ? false : true,
     },
      { icon: ClipboardPenLine, label: "Quick Log Note", onClick: () => {setLogNoteOpen(true)}, roles: ['admin','fd']},
+    // { icon: StepBack, label: "Sales Offer", hidden:true},
+    // { icon: StepBack, label: "Close Case", hidden:true },
+    // { icon: StepBack, label: "Pick", hidden:true },
+    // { icon: StepBack, label: "Queue Details", hidden:true},
+    // { icon: UserPen, label: "Assign", hidden:true },
+    // { icon: StepBack, label: "Add to Queue", hidden:true },
+    // { icon: StepBack, label: "Audit", onClick: () => openPopup(), hidden:true },
   ];
 
   // Do not memoize with only user.role; it freezes onClick closures
   // causing handleSave to capture stale state. Compute each render.
   const visibleButtons = buttons.filter(button => button.roles.includes(user.role));
+  // console.log("TES CASE DETAILS VALUE",caseDetails);
+  // const visibleButtons = open ? buttons.slice(0, -3) : buttons;
+  // const hiddenButtons = open ? buttons.slice(-3) : [];
   const [serviceCatalogType, setServiceCatalogType] = useState("null");
   const openServiceCatalog = async (type) => {
     setOpenWorkOrder(true);
@@ -1289,6 +1339,16 @@ const openPopup = () => {
         text: 'Only FD can close a Case.',
       });
     }
+
+  //   if (!csrForm.caseResolutionCode || csrForm.caseResolutionCode.trim() === "") {
+  //   Swal.fire({
+  //     icon: "warning",
+  //     title: "Missing Case Resolution",
+  //     text: "You must select a Case Resolution Code before closing the case.",
+  //   });
+  //   return;
+  // }
+  // return console.log(caseDetails?.asset_information?.WarrantyOTCCode?.WarrantyCondition);
   if(caseDetails?.asset_information?.WarrantyOTCCode?.WarrantyCondition === "OutWarranty"){
 
     const invoiceReady = await ensureInvoiceBeforeClose();
@@ -1408,6 +1468,10 @@ const openPopup = () => {
     }
   };
 
+
+
+  console.log("CHECK DAtA initial quotation",quotationInitialData)
+
   const fieldMO = (caseDetails) => {
     const workorders = caseDetails?.workorder || [];
     const Allitems = [];
@@ -1505,6 +1569,7 @@ const openPopup = () => {
     }
     try {
       setQuotationSubmitting(true);
+      // return console.log("Submit : ",payload)
       const apiPayload = {
         ...payload,
         userAssign:
@@ -1513,6 +1578,8 @@ const openPopup = () => {
       if (apiPayload.quoteDecision === "Rejected") {
         apiPayload.userAssign = caseDetails.workorder[0]?.OwnerID;
       }
+
+      console.log("Sending payload:", apiPayload);
       const endpoint = payload.quotationNo
         ? `/api/quotation-information/${payload.quotationNo}`
         : "/api/quotation-information";
@@ -1870,6 +1937,7 @@ export const ServiceCase = ({
     try {
       const res = await ApiCustomer.get(`/api/case-information/case-notes?caseId=${caseDetails.CaseID}`);
       const list = Array.isArray(res.data?.data) ? res.data.data : [];
+      console.log("Case Nots Available : ",res.data.data)
       setNotesList(list);
       return list;
     } catch (err) {
@@ -1883,6 +1951,7 @@ export const ServiceCase = ({
     try {
       const response = await ApiCustomer.get(`/api/user/${caseDetails.Owner}`)
       setOwnerUserData(response.data.data)
+      console.log("CHECK OWNER FETCH IF ITS WORKS")
     } catch (error) {
       console.error("WRONG THING IN FETCH OWNER")
     }
@@ -1894,6 +1963,7 @@ export const ServiceCase = ({
         `/api/work-order?CaseID=${caseDetails.CaseID}`
       );
       setWorkOrders(res.data.data); // adjust based on API response shape
+      console.log("Fetch Work Order: ", res.data.data);
     } catch (err) {
       console.error("Failed to fetch work orders:", err);
     }
@@ -1998,6 +2068,8 @@ export const ServiceCase = ({
   const fetchCsr = async () => {
   try {
     const csrData = caseDetails.caseresolution;
+    console.log("CSR Data: ", csrData);
+
     if (csrData) {
       setCsrForm({
         caseResolutionCode: csrData.caseResolutionCode || "",
@@ -2107,6 +2179,7 @@ const fetchCase = async () => {
   try {
     const res = await ApiCustomer.get(`/api/case-information/${caseDetails.CaseID}`);
     setCaseForm(res.data.data);
+    console.log("Case Infomation",res.data.data)
   } catch (err) {
     console.error("Error fetching case:", err);
     setCaseForm(caseForm); // fallback jika error
@@ -2136,6 +2209,7 @@ const fetchActionLog = async () => {
     fetchCsr();
     fetchCase();
     fetchActionLog();
+    console.log("CHECK IF THE FETCH IS WORKS ")
   }, [ caseDetails.CaseID, refreshFetchPage]);
   useEffect(() => {
     fetchUserAssign();
@@ -2161,13 +2235,29 @@ const fetchActionLog = async () => {
       handleEntitlementStatus("PhotoUnit")(dataFetchAssetInformation?.AssetInformation?.asset_warranty[0]?.PhotoUnit);
       
     } else {
-      console.error("SEEMS NOT WORK")
+      console.log("SEEMS NOT WORK")
     }
   }, [otcCode, dataFetchAssetInformation]);
 
+  useEffect(() => {
+    // console.log("Data Asset Info : ", dataFetchAssetInformation);
+
+    // console.log("Fetch Data Customer Success : ", dataFetchCustomerData);
+    // console.log("Fetch Data User ", ownerUserData);
+  }, [ownerUserData]);
+
+
+
+  // console.log("Selected Symptopm ",selectedSymptom)
+
+  // useEffect(() => {
+  // }, selectedSymptom)
+
   //order section
   //workorder
+
   useEffect(() => {
+    console.log("Work Orders Fetching L ", workOrders);
     if (workOrders.length > 0) {
       fetchMaterialOrders();
     }
@@ -2176,10 +2266,19 @@ const fetchActionLog = async () => {
   const navigate = useNavigate();
 
   const handleClick = async (work) => {
+    console.log(work.WOID); // ✅ Ini sekarang valid
+
     navigate(`/app/work/${work.WOID}`, {
+      // state: { ownerUserData, dataFetchCustomerData }
     });
   };
 
+useEffect(() =>{
+  // console.log("Data Asset Info : ",dataFetchAssetInformation)
+  
+  // console.log("Fetch Data Customer Success : ",dataFetchCustomerData)
+  // console.log("Fetch Data User ", ownerUserData)
+}, [ownerUserData])
 
 const fetchSymptomCodes = async (term) => {
   try {
@@ -2433,7 +2532,7 @@ if (caseDetails.CaseStatus !== "Close") {
 
                 {/* detail owner */}
                 <CaseField label="Created By" className={"mt-2"} childClass={'col-span-2'} span={2} lock >  
-           
+                {/* {console.log("Bool to check wo owner aaliabe : ", caseDetails?.workorder[0]?.owner?.IDUser)} */}
                     <Input variant="invisible" placeholder="---" value={caseDetails.createdByUser.Name} readOnly/>                    
                 </CaseField>
                 {caseDetails?.workorder[0]?.owner?.IDUser && (
@@ -2462,14 +2561,19 @@ if (caseDetails.CaseStatus !== "Close") {
 
                         const enumValue = labelToStatusEnum[label];
                         onChangeCase("CaseStatus")(enumValue);
-                       
+                        console.log("Selected label:", label);
+                        console.log("Mapped enum:", enumValue);
                         setHideAsignTo(enumValue?.startsWith("NEW_Assign"))
                         
                         if(enumValue.startsWith("NEW_Assign")) {
                           const role = extractRoleFromStatus(enumValue);
+                          
+                          console.log("Mapped enum:", role);
+                          
                           if(role) {
                             try {
                               fetchUserAssign(role);
+                              console.log("Mapped enum:", roleAssign);
                             } catch (err) {
                               console.error("Error fetching role: ", err);
                             }
@@ -3101,6 +3205,7 @@ if (caseDetails.CaseStatus !== "Close") {
                         handleEntitlementStatus('needWarrantyApproval')(isNeed);
                           if (isNeed) {
                             const CmbineOTC = otcCode.find(otc => otc.OTCCode === '01T' && otc.Description === 'Trade (OOW)');
+                            console.log("CmbineOTC:", CmbineOTC);
                             if (CmbineOTC) {
                               handleEntitlementStatus("OTCCode")(CmbineOTC.OTCCode);
                             }

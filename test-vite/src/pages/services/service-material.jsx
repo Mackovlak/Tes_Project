@@ -125,6 +125,8 @@ export const ServiceMaterial = () => {
         eotOrderNumber: data.EOTOrderNumber || '',
       });
 
+      console.log('Fetched Material Order:', data);
+
       // Update the draft with the fetched material order details
       updateDraft('moid', data.MOID); // Save the entire material order to the draft
 

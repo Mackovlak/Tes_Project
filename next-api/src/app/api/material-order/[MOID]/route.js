@@ -108,6 +108,8 @@ export async function PATCH(request, { params }) {
     } = moUpdates;
     const ChangeOrderStatus = OrderStatus ?? body.OrderStatus
 
+    // return console.log("MOUPDATES : ",OrderStatus,"\n")
+
     const existingMaterialOrder = await prisma.materialorder.findUnique({
       where: { MOID: moid },
     });
@@ -118,6 +120,8 @@ export async function PATCH(request, { params }) {
         message: "Material Order not found!",
       }, { status: 404 });
     }
+    console.log(body)
+    console.log("MOBODY : ",moUpdates)
 
     const updatedMaterialOrder = await prisma.materialorder.update({
       where: { MOID: moid },

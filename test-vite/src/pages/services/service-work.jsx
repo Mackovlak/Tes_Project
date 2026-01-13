@@ -82,11 +82,11 @@ export const ServiceWork = () => {
   const [openWorkOrder, setOpenWorkOrder] = useState(false);
   const [serviceCatalogType, setServiceCatalogType] = useState("");
   const [caseDetails, setCaseDetails] = useState([])
- 
+  console.log("TESwoWI", workOrders);
 
   //state for open service order 
   const openServiceCatalog = async (type) => {
-   
+    console.log(caseInformation)
     setCaseDetails(caseInformation)
     setOpenAddMO(true);
     setServiceCatalogType(type)
@@ -95,7 +95,7 @@ export const ServiceWork = () => {
     try {
       const res = await ApiCustomer.get(`/api/work-order/${woid}`);
       setWorkOrders(res.data.data); // adjust based on API response shape
-   
+      console.log("Fetch Work Order: ", res);
     } catch (err) {
       console.error("Failed to fetch work orders:", err);
     }
@@ -105,7 +105,7 @@ export const ServiceWork = () => {
   const fetchMaterialOrders = async () => {
     try {
       const res = await ApiCustomer.get(`/api/material-order?WOID=${woid}`);
-      
+      console.log("Material Order in WO Detail : ", res);
       setMaterialOrders(res.data.data);
     } catch (err) {
       console.error("Failed to fetch Material orders:", err);
@@ -157,7 +157,7 @@ export const ServiceWork = () => {
     ShipmentState: ""
   })
   const handleSLAChange = (field) => (value) => {
-    
+    console.log("Changed:", field, value);
     setSLA((prev) => ({
       ...prev,
       [field]: value,
@@ -179,7 +179,7 @@ export const ServiceWork = () => {
 
   const handleWOGeneral = (field) => (eOrValue) => {
     const value = eOrValue?.target ? eOrValue.target.value : eOrValue;
-    
+    console.log("Changed:", field, value);
     setWOGeneral((prev) => ({
       ...prev,
       [field]: value,
@@ -303,6 +303,7 @@ export const ServiceWork = () => {
   }, [woid]);
 
   useEffect(() => {
+    console.log("Data Fetch Customer Data in WO : ", dataFetchCustomerData);
   }, [dataFetchCustomerData]);
 
   // const fetchBookings = async () => {

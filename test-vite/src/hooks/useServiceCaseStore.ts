@@ -1088,7 +1088,7 @@ const hasIntentToSave = isDirty;
                     await ApiCustomer.post("/api/actionlog", {
                       CaseId: `${caseDetails.CaseID}`,
                       ReferenceId: "",
-                      model: "Case Owner",
+                      model: "CaseOwner",
                       dataOld: String(originalOwnerId ?? ""),
                       dataNew: String(nextOwnerId ?? ""),
                       changedBy: user?.id,

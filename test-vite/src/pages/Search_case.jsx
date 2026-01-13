@@ -207,6 +207,7 @@ const Search_case = () => {
       }
     });
     let queryParams = [];
+    console.log("BeforeChange" + activeTab);
     // this for switching tab
     if (search.SerialNumber !== "") {
       setIsModalAssetOpen(true);     
@@ -238,6 +239,9 @@ const Search_case = () => {
     }
 
     const queryString = queryParams.length ? `?${queryParams.join("&")}` : "";
+    console.log("Query Parameter Search Contact : ",queryParams)
+    console.log("Query String Search Contact : ",queryString)
+
     if (search.Email || search.Phone) {
       setActiveTab("ci");
       //set state to true 
@@ -259,6 +263,7 @@ const Search_case = () => {
     }
   };
   useEffect(() => {
+    console.log("Contacts Searched trhough Phone:", contacts);
     Swal.close()
   }, [contacts]); // This runs every time activeTab changes
   
@@ -348,7 +353,17 @@ const Search_case = () => {
       });
     }
   }, [isModalCompanyOpen]); // Runs whenever modal state changes
-  
+  //filter item
+
+  // const filteredAssets = assets.filter((asset) =>
+  //   asset.SerialNumber?.toLowerCase().includes(search.toLowerCase()) ||
+  //   asset.ProductName?.toLowerCase().includes(search.toLowerCase())
+  // );
+  // console.log("filtered Asset")
+  // console.log(filteredAssets);
+
+  //form section
+  // section account
   //set Form Data
   const [formDataSiteAccount, setFormDataSiteAccount] = useState({
     Company: "",
@@ -406,6 +421,9 @@ const Search_case = () => {
     })
   }
 
+  //handler submit
+  // console.log(formData)
+
   const handlerSiteAccountSubmit = async () => {
 
     if (
@@ -436,6 +454,7 @@ const Search_case = () => {
         "/api/site_account",
         formDataSiteAccount
       );
+      console.log("Success:", response.data);
   
       Swal.fire({
         icon: 'success',
@@ -525,6 +544,7 @@ const Search_case = () => {
     }
   }, [formDataContact.StateProvince]);
   const handlerContactSubmit = async () => {
+  console.log(formDataContact);
 
   // ✅ Validasi sederhana
   if (
@@ -556,6 +576,7 @@ const Search_case = () => {
       "/api/contact-information",
       formDataContact
     );
+    console.log("Success:", response.data);
 
     Swal.fire({
       icon: 'success',
@@ -603,6 +624,7 @@ const Search_case = () => {
 
   const handleSelectedSiteAccount = (company) => {
     setSelectedSiteAccounts(company);
+    console.log("Company Selected:", selectedSiteAccounts);
   };
 
   //todo : handler selected contact
@@ -667,6 +689,8 @@ const Search_case = () => {
       const data = {
         user: getUserFromToken()
       }
+      console.log("Data From New Create Case : ", data)
+
       // Filter out empty accessories
       const filteredAccessories = accessories.filter(acc => 
         acc.name.trim() || acc.note.trim() || acc.code.trim()
@@ -693,6 +717,8 @@ const Search_case = () => {
         CaseNoteProduct: CaseNoteProduct,
         ...(filteredAccessories.length > 0 && { accessories: filteredAccessories })
       };
+      console.log("Create Case Data : ", newCase)
+      
       const res = await ApiCustomer.post("/api/case-information", newCase);
       const caseid = res.data.data.CaseID 
       await ApiCustomer.post("/api/actionlog",{
@@ -753,8 +779,19 @@ const Search_case = () => {
   };
 
   const handleInputChange = (e) => {
+    // if (search.trim() !== "") {
     const { id, value } = e.target; // Get input field ID and value
+    // setSearch((prev) => ({
+    //   ...prev,
+    //   [id]: value, // Update the corresponding field
+    // }));
     updateFormFieldsInSearch({ [id]: value });
+    console.log(`Updated searchData:`, search);
+    // }
+    // console.log(search)
+
+    // }
+    console.log(search);
   };
 
 

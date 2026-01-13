@@ -9,6 +9,7 @@ export async function GET(request) {
 
         const caseID = searchParams.get("caseID");
 
+        console.log("Query Params:", { caseID });
 
         let whereCondition = {}        
           // If `search` is provided, add OR conditions but ensure SiteAccountID/ContactID are required if present
@@ -23,12 +24,14 @@ export async function GET(request) {
             ];
         }
 
+        console.log("Final WHERE Condition:", JSON.stringify(whereCondition));
 
         // Hitung jumlah data total
         const totalCount = await prisma.caseinformation.count({
             where: whereCondition
         });
 
+        console.log("Total Data:", totalCount);
 
         // Ambil data dengan filter & pagination
         const caseinformation = await prisma.caseinformation.findMany({

@@ -5061,6 +5061,7 @@ const sortedData = useMemo(() => {
                       ) :("-")}
                       </TableCell>
                   <TableCell className="p-2 border">
+                    {/* {console.log(preview?.ProfilePhoto)} */}
                     {UserItem?.ProfilePhoto ? (
                       <img src={`${import.meta.env.VITE_API_BASE_URL}${UserItem.ProfilePhoto}`} alt="Profile" className="w-10 h-10 object-cover rounded-full mx-auto" />
                     ) : (
@@ -7068,7 +7069,7 @@ export const BookingsTable = () => {
     try {
       const response = await ApiCustomer.get("/api/booking");
       if (response.data.success) {
-       
+        console.log("Data Response Booking", response.data.data);
         setBookingData(response.data.data);
       } else {
         setError("Failed to fetch booking data");
@@ -7484,6 +7485,7 @@ export const BookingDetailsTable = () => {
     try {
       const response = await ApiCustomer.get("/api/bookingDetails");
       if (response.data.success) {
+        console.log("Data Response BookingDetails", response.data.data);
         setBookingDetailsData(response.data.data);
       } else {
         setError("Failed to fetch booking details data");
@@ -7550,6 +7552,9 @@ export const BookingDetailsTable = () => {
     [uniqueStatus]
   );
 
+  console.log("bookingDetailsData :", bookingDetailsData);
+  console.log("Unique Status:", uniqueStatus);
+
   const changedByOptions = useMemo(() => 
     users.map((u) => ({
       id: u.IDUser,
@@ -7557,6 +7562,9 @@ export const BookingDetailsTable = () => {
     })),
     [users]
   );
+
+  console.log("Unique ChangedBy:", changedByOptions);
+
 
   // filter + search
   const filteredData = bookingDetailsData.filter((item) => {
@@ -7802,6 +7810,7 @@ export const BookingDetailsTable = () => {
                     </div>
                   </TableCell>
                   <TableCell className="p-2 border">
+                    {/* {console.log("users :", users)} */}
                     {
                     users.find((u) => u.IDUser === item.ChangedBy)?.Username || "-"
                     }</TableCell>

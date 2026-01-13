@@ -21,6 +21,7 @@ export async function GET(request) {
         const page = parseInt(searchParams.get("page")) || 1;
         const limit = parseInt(searchParams.get("limit")) || 100;
 
+        console.log("Query Params:", { search, page, limit });
 
         const cacheKey = `asset:list:${searchParams.toString() || "all"}`;
         const cached = await redis.get(cacheKey);
@@ -56,12 +57,15 @@ export async function GET(request) {
 
         const whereCondition = baseConditions.length > 0 ? { AND: baseConditions } : {};
 
+        console.log("Final WHERE Condition:", whereCondition);
+        // console.log("Final WHERE Condition:", whereCondition);
 
         // Hitung jumlah data total
         const totalCount = await prisma.asset_information.count({
             where: whereCondition,
         });
 
+        console.log("Total Data:", totalCount);
 
         // Hitung offset berdasarkan halaman
         const skip = (page - 1) * limit;

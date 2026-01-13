@@ -32,12 +32,12 @@ export default function ApoLanding() {
     
     
       useSocket("case:created", (newCase) => {
-       
+        console.log("case Created",newCase);
         setCaseData((prev) => [newCase, ...prev]); // prepend
       });
     
       useSocket("case:updated", (updated) => {
-       
+        console.log("Case Updated",updated);
         setCaseData((prev) =>
           prev.map((c) => (c.CaseID === updated.CaseID ? updated : c))
         );
@@ -49,6 +49,7 @@ export default function ApoLanding() {
             const response = await ApiCustomer.get('/api/case-information');
             const fecthUserData = await ApiCustomer.get(`/api/user/${user.id}`)
             const resFetchUserData = fecthUserData.data.data;
+            console.log("Fetch user data : ", user)
             setUserData({
                 ...userData,
                 Username: resFetchUserData.Username,
@@ -67,6 +68,15 @@ export default function ApoLanding() {
       const valueFilterInActiveCase = response.data.data.filter(c => c?.CaseStatus == 'InActive' && c?.caseinformation?.CreatedBy == user.id)
       const valueFilterCloseCase = response.data.data.filter(c => c?.CaseStatus == 'Close' && c?.caseinformation?.CreatedBy == user.id)
       const filtercases = response.data.data.filter(c => c?.CaseStatus !== 'Close' && c?.caseinformation?.Owner == user.id);
+      // const rawDate = filtercases[0]?.caseinformation?.ActionLog[0]?.ChangeAt;
+      // let newdate;
+      // if (rawDate) {
+      //   const dateObj = rawDate instanceof Date ? rawDate : new Date(rawDate);
+      //   console.log("Readable:", dateObj.toLocaleString("id-ID"));
+      //   newdate = dateObj.toLocaleString("id-ID");
+      // } else {
+      //   console.log("No date available");
+      // }
       const sortedCases = filtercases.sort((a, b) => {
           const dateAraw = a.UpdateOn;
         const dateBraw = b.UpdateOn;

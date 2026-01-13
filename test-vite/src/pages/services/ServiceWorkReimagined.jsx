@@ -343,7 +343,7 @@ export const ServiceWork = () => {
     ? "wo-deadline-past"
     : "wo-deadline-not-past";
 } else {
-  status = now > targetTime ? "lewat" : "belum";
+  status = now > targetTime ? "belum" : "lewat";
 }
 
   return (

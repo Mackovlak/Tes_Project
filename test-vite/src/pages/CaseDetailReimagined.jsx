@@ -736,7 +736,7 @@ export const TabsServiceCaseDetails = () => {
           dataOld: caseDetails.CaseStatus,
           dataNew: res.data.data.CaseStatus,
           changedBy: token.user.id,
-          logDescription: `Edit : Change Case ${caseDetails.CaseID} Status from ${STATUS_ENUM_TO_LABEL[caseDetails.CaseStatus]} to ${STATUS_ENUM_TO_LABEL[res.data.data.CaseStatus]}`
+          logDescription: `Edit : Change Case ${caseDetails.CaseID} Status from ${caseDetails.CaseStatus} to ${res.data.data.CaseStatus}`
         })
         Swal.fire({
           icon: "success",

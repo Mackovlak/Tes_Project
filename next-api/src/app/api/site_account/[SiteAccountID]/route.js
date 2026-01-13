@@ -6,6 +6,7 @@ export async function GET(request, { params }) {
         const { SiteAccountID } = await params
         const siteAccountID = parseInt(SiteAccountID);
 
+        console.log("Site Account ID Defined : ", siteAccountID)
         if (isNaN(siteAccountID)) {
             return NextResponse.json(
                 { success: false, message: "Invalid SiteAccountID" },
@@ -16,6 +17,7 @@ export async function GET(request, { params }) {
         const site_account = await prisma.site_account.findUnique({
             where: { SiteAccountID: siteAccountID },
         });
+        console.log("Site Account GET : ", site_account)
 
         if (!site_account) {
             return NextResponse.json(

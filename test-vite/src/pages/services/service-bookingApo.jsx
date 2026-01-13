@@ -1049,6 +1049,15 @@ export function NewBookableResourceBooking({ CaseID, WOID, CreatedBy, RequestedD
         user: getUserFromToken()
       }
       const response = await ApiCustomer.post('/api/bookings', data);
+      const updateWorkLog = await ApiCustomer.post("/api/actionlog",{
+        CaseId: `${CaseID}`,
+        ReferenceId: `${data.WOID}`,
+        model: "Work",
+        dataOld: "OPEN_UNSCHEDULED",
+        dataNew: "OPEN_SCHEDULED",
+        changedBy: data.user.id,
+        logDescription: `Edit : change status from OPEN_UNSCHEDULED to OPEN_SCHEDULED`
+      })
       if (response.status === 201) {
         const { BookingId } = response.data;
         navigate(`/app/bookings/${BookingId}`);

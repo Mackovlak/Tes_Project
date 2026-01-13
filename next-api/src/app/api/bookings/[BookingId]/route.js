@@ -174,6 +174,14 @@ export async function PATCH(request, { params }) {
         data: dataToUpdate,
       });
 
+      // Jika BookingStatus = Completed, update SystemStatus menjadi OPEN_COMPLETED
+      if (BookingStatusId === 2) {
+        await tx.workorder.update({
+          where: { WOID: existingBooking.WOID },
+          data: { SystemStatus: 'OPEN_COMPLETED' },
+        });
+      }
+
       return NextResponse.json(
         {
           message: 'Booking dan BookingDetails berhasil diperbarui.',

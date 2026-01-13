@@ -35,6 +35,7 @@ import { useServiceCaseStore } from '@/hooks/useServiceCaseStore';
 //     try {
 //       const response = await ApiCustomer.get(`/api/case-information/${caseId}`);
 //       setCaseDetails(response.data.data);
+//       // console.log("Case Details:", response.data.data);
 
 //       // const res = await ApiCustomer.get(`/api/case-information/case-notes`);
 //       // const notes = res.data.data;
