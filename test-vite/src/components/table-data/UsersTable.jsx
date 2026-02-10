@@ -13,6 +13,7 @@ import { Button } from "../ui/button"
 import { formatDate } from "@/lib/utils"
 import { Link } from "react-router"
 import { UserAdd, UserDelete, UserEdit } from "../model/sc-modal"
+import { UserImport, UserTemplateButton } from "../importFileComponent/UserImport"
 
 function usersColums(opts) {
     return [
@@ -189,6 +190,8 @@ export function UsersTable() {
                             column={table.getColumn("Resource")}
                         />
                       <UserAdd/>
+                      <UserImport/>
+                      <UserTemplateButton/>
                     </DataTableToolbar>
                 )}
             />
