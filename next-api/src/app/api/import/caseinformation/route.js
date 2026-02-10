@@ -221,6 +221,7 @@ export async function POST(req) {
       "IDY_SB Kokas" : "KKS",
       "IDY_SB Mangga Dua" : "M2",
       "IDY_21 Salatiga" : "STG",
+      "IDY_SB Gubeng" : "SBY"
     }
 
     const resource = await prisma.resource.findFirst({
@@ -244,16 +245,24 @@ export async function POST(req) {
     const createdByNames = Array.from(
       new Set(sheet.map((r) => normalize(r.CreatedBy)).filter(Boolean))
     );
+
     
     const users = createdByNames.length
       ? await prisma.user.findMany({
         where: { Name: { in: createdByNames}},
-        select: {IDUser: true, Name: true}
+        select: {IDUser: true, Name: true, ResourceId: true, resource:{
+          select: {
+            ResourceId: true,
+            ResourceCode: true,
+            ServiceCenterName: true,
+            Name: true,
+          }
+        }}
       })
     : [];
     
     const userByName = new Map(users.map((u) => [u.Name, u]));
-
+    // return console.log("User By Name",userByName);
     const successes = [];
     const errors = [];
 
@@ -559,7 +568,8 @@ export async function POST(req) {
             // 5) build CaseSubject (same spirit as preview)
             const caseRegion = "ID";
             const initialFD = getInitials(CreatedByName);
-            const companyCode = companyCodeMapping[resource.ResourceId]; // safer than hard-mapping ResourceId
+            const resourceTarget = userByName.get(CreatedByName);
+            const companyCode = companyCodeMapping[resourceTarget.resource?.ResourceId]; // safer than hard-mapping ResourceId
             const caseProductName = product?.ProductName ?? "-";
             const caseProblemDescription = ProblemDescription || "-";
 
@@ -567,7 +577,7 @@ export async function POST(req) {
 
             // 6) create Case
             const CaseID = await generateID(
-              resource.ResourceCode,
+              resourceTarget.resource?.ResourceCode,
               "caseinformation",
               "CaseID",
               tx

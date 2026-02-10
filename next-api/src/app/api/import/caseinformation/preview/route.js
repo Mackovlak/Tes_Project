@@ -207,12 +207,12 @@ export async function POST(req) {
       where: {IDUser: toIntOrNull(userId)},
       select: {Name: true, Username: true, Email: true, Role: true}
     })
-    const [userLookups, companyByPrimaryPhone, companyByEmail, companyByName, contactByMobile, contactByEmail, contactByNames, assetBySerial, assetByProduct, isCaseRerepair] =
+    const [userLookups, companyByPrimaryPhone, companyByEmail, companyByName, contactByMobile, contactByEmail, contactByNames, assetBySerial, assetByProduct, isCaseRerepair, resourceByName] =
       await Promise.all([
         UserID.length 
           ? prisma.user.findMany({
             where: {Name: { in: UserID }},
-            select: {Name: true, Username: true, Email: true}
+            select: {Name: true, Username: true, Email: true, ResourceId: true}
           })
           : Promise.resolve([]),
         companyPrimaryPhones.length
@@ -320,7 +320,20 @@ export async function POST(req) {
             ]
           })
           : Promise.resolve([]),
-        
+        UserID.length 
+          ? prisma.user.findMany({
+            where: {Name: { in: UserID }},
+            include:{resource: {
+              select: {
+                ResourceId: true,
+                ResourceCode: true,
+                ServiceCenterName: true,
+                Name: true,
+              }
+            }}
+            
+          })
+          : Promise.resolve([]),
       ])
     
 
@@ -336,6 +349,9 @@ export async function POST(req) {
     const assetSerialMap = new Map(assetBySerial.map((x) => [x.SerialNumber, x]));
     const assetProductMap = new Map(assetByProduct.map((x) => [x.ProductNumber, x]));
 
+    const resourceMap = new Map(resourceByName.map((x)=> [x.ResourceId, x]))
+    console.log("Re source",resourceMap);
+
     
     const caseRerepairMap = new Map();
 
@@ -350,7 +366,7 @@ export async function POST(req) {
       caseRerepairMap.get(sn).push(c);
     }
     
-    console.log("REREPAIR ", caseRerepairMap)
+    // console.log("REREPAIR ", caseRerepairMap)
 
 
 
@@ -521,8 +537,10 @@ export async function POST(req) {
         "IDY_SB Kokas" : "KKS",
         "IDY_SB Mangga Dua" : "M2",
         "IDY_21 Salatiga" : "STG",
+        "IDY_SB Gubeng": "SBY"
       }
-      const companyCode = companyCodeMapping[resource.ResourceId]
+
+      const companyCode = companyCodeMapping[userMatch.ResourceId]
       if(!companyCode){
         blocked = true;
         reasons.push("Resource not found")
@@ -544,11 +562,13 @@ export async function POST(req) {
       
       const CaseSubject = `${caseRegion}/${caseType}/${caseWarrantyStatus}/${companyCode}/${initialFD}/${caseProductName}/${caseProblemDescription}`
 
+      const resourceTarget = resourceMap.get(userMatch.ResourceId);
+
       return {
         index: r.index,
         inputs: inp,
         user: userImported,
-        resource: resource,
+        resource: resourceTarget.resource,
         caseSubject: CaseSubject,
         ISDReferenceCase: inp.ISDReferenceCase,
         matches: {
