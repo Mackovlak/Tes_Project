@@ -18,9 +18,9 @@ model asset_information {
   EOW_Date        DateTime?     @db.DateTime(0)
   WarrantyOTCCode OTCCodeTable? @relation(fields: [Warranty_Status], references: [OTCCode])
 
-  site_account        site_account?        @relation(fields: [SiteAccountID], references: [SiteAccountID], onDelete: Restrict, onUpdate: Restrict, map: "asset_information_ibfk_1")
-  contact_information contact_information? @relation(fields: [ContactID], references: [ContactID], onDelete: Restrict, onUpdate: Restrict, map: "asset_information_ibfk_2")
-  product_information product_information  @relation(fields: [ProductNumber], references: [ProductNumber], onUpdate: Restrict, map: "asset_information_ibfk_3")
+  site_account        site_account?        @relation(fields: [SiteAccountID], references: [SiteAccountID], onDelete: Restrict, onUpdate: Cascade, map: "asset_information_ibfk_1")
+  contact_information contact_information? @relation(fields: [ContactID], references: [ContactID], onDelete: Restrict, onUpdate: Cascade, map: "asset_information_ibfk_2")
+  product_information product_information  @relation(fields: [ProductNumber], references: [ProductNumber], onUpdate: Cascade, map: "asset_information_ibfk_3")
   asset_warranty      asset_warranty[]
   caseinformation     caseinformation[]
   servicecatalog      servicecatalog[]
@@ -74,20 +74,20 @@ model caseinformation {
   CreatedBy                                     Int?
   Owner                                         Int?
   WorkGround                                    Int?
-  site_account                                  site_account?        @relation(fields: [SiteAccountID], references: [SiteAccountID], onDelete: Restrict, onUpdate: Restrict, map: "caseinformation_ibfk_1")
-  contact_information                           contact_information? @relation(fields: [ContactID], references: [ContactID], onDelete: Restrict, onUpdate: Restrict, map: "caseinformation_ibfk_2")
-  asset_information                             asset_information?   @relation(fields: [AssetID], references: [AssetID], onDelete: Restrict, onUpdate: Restrict, map: "caseinformation_ibfk_3")
-  casenotes_caseinformation_CaseNoteTocasenotes casenotes?           @relation("caseinformation_CaseNoteTocasenotes", fields: [CaseNote], references: [NoteID], onDelete: Restrict, onUpdate: Restrict, map: "caseinformation_ibfk_4")
-  symptom_codes                                 symptom_codes?       @relation(fields: [SymptomCode], references: [SymptomCodeID], onDelete: Restrict, onUpdate: Restrict, map: "caseinformation_ibfk_5")
+  site_account                                  site_account?        @relation(fields: [SiteAccountID], references: [SiteAccountID], onDelete: Restrict, onUpdate: Cascade, map: "caseinformation_ibfk_1")
+  contact_information                           contact_information? @relation(fields: [ContactID], references: [ContactID], onDelete: Restrict, onUpdate: Cascade, map: "caseinformation_ibfk_2")
+  asset_information                             asset_information?   @relation(fields: [AssetID], references: [AssetID], onDelete: Restrict, onUpdate: Cascade, map: "caseinformation_ibfk_3")
+  casenotes_caseinformation_CaseNoteTocasenotes casenotes?           @relation("caseinformation_CaseNoteTocasenotes", fields: [CaseNote], references: [NoteID], onDelete: Restrict, onUpdate: Cascade, map: "caseinformation_ibfk_4")
+  symptom_codes                                 symptom_codes?       @relation(fields: [SymptomCode], references: [SymptomCodeID], onDelete: Restrict, onUpdate: Cascade, map: "caseinformation_ibfk_5")
   casenotes_casenotes_CaseIDTocaseinformation   casenotes[]          @relation("casenotes_CaseIDTocaseinformation")
   workorder                                     workorder[]
   createdByUser                                 User?                @relation("UserCreatedCases", fields: [CreatedBy], references: [IDUser], onDelete: Restrict, onUpdate: Cascade)
   ownerUser                                     User?                @relation("UserOwnedCases", fields: [Owner], references: [IDUser], onDelete: Restrict, onUpdate: Cascade)
   ServiceCatalogID                              Int?
   StorageLocationStore                          String?              @db.VarChar(50)
-  servicecatalog                                servicecatalog?      @relation(fields: [ServiceCatalogID], references: [ServiceCatalogID], onDelete: Restrict)
-  global_trade_check                            global_trade_check?  @relation(fields: [id_gtc], references: [id_gtc], onDelete: Restrict)
-  caseresolution                                caseresolution?      @relation(fields: [id_csr], references: [id_csr], onDelete: Restrict)
+  servicecatalog                                servicecatalog?      @relation(fields: [ServiceCatalogID], references: [ServiceCatalogID], onDelete: Restrict, onUpdate: Cascade)
+  global_trade_check                            global_trade_check?  @relation(fields: [id_gtc], references: [id_gtc], onDelete: Restrict, onUpdate: Cascade)
+  caseresolution                                caseresolution?      @relation(fields: [id_csr], references: [id_csr], onDelete: Restrict, onUpdate: Cascade)
   OTCCode                                       String?              @db.VarChar(5) // Scalar field
   otcCodeTable                                  OTCCodeTable?        @relation(fields: [OTCCode], references: [OTCCode])
   ProblemDescription                            String?              @db.Text
@@ -165,7 +165,7 @@ model casenotes {
   createdByUser User? @relation("UserCreatedCaseNotes", fields: [CreatedBy], references: [IDUser])
 
   caseinformation_caseinformation_CaseNoteTocasenotes caseinformation[] @relation("caseinformation_CaseNoteTocasenotes")
-  caseinformation_casenotes_CaseIDTocaseinformation   caseinformation?  @relation("casenotes_CaseIDTocaseinformation", fields: [CaseID], references: [CaseID], onDelete: Restrict, onUpdate: Restrict, map: "casenotes_ibfk_1")
+  caseinformation_casenotes_CaseIDTocaseinformation   caseinformation?  @relation("casenotes_CaseIDTocaseinformation", fields: [CaseID], references: [CaseID], onDelete: Restrict, onUpdate: Cascade, map: "casenotes_ibfk_1")
 
   @@index([CaseID], map: "CaseID")
   @@index([CreatedBy])
@@ -224,7 +224,7 @@ model contact_information {
   PIC_Phone         String?             @db.VarChar(100)
   asset_information asset_information[]
   caseinformation   caseinformation[]
-  site_account      site_account?       @relation(fields: [SiteAccountID], references: [SiteAccountID], onDelete: Restrict, onUpdate: Restrict, map: "contact_information_ibfk_1")
+  site_account      site_account?       @relation(fields: [SiteAccountID], references: [SiteAccountID], onDelete: Restrict, onUpdate: Cascade, map: "contact_information_ibfk_1")
 
   @@index([SiteAccountID], map: "SiteAccountID")
 }
@@ -457,7 +457,7 @@ model product_information {
   end_of_support_date DateTime?           @db.Date
   vendor              String?             @db.VarChar(50)
   asset_information   asset_information[]
-  product_type        product_type        @relation(fields: [ProductTypeID], references: [ProductTypeID], onUpdate: Restrict, map: "product_information_ibfk_1")
+  product_type        product_type        @relation(fields: [ProductTypeID], references: [ProductTypeID], onUpdate: Cascade, onDelete: Restrict, map: "product_information_ibfk_1")
 
   @@index([ProductTypeID], map: "ProductTypeID")
 }
