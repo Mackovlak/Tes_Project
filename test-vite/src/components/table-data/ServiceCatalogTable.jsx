@@ -12,7 +12,10 @@ import { DataTable } from "./config/data-table"
 import { Button } from "../ui/button"
 import { formatDate } from "@/lib/utils"
 import { Link } from "react-router"
-import { ServiceCatalogAdd, ServiceCatalogDelete, ServiceCatalogEdit } from "../model/sc-modal"
+import { ServiceCatalogAdd,} from "../model/sc-modal"
+import { Trash } from "lucide-react"
+import { ServiceCatalogEdit } from "../model/MastertabelEdit/ServiceCatalogEdit"
+import { ConfirmDialog } from "../model/config/ConfirmDialog"
 
 function serviceCatalogColums(opts) {
     return [
@@ -114,6 +117,9 @@ export function ServiceCatalogTable() {
     const [data, setData] = React.useState([])
     const [loading, setLoading] = React.useState(false)
     const [error, setError] = React.useState(null)
+    const [selectedId, setSelectedId] = React.useState(null)
+    const [isDeleting, setIsDeleting] = React.useState(false)
+    const [isDialogOpen, setIsDialogOpen] = React.useState(false)
     const [sorting, setSorting] = React.useState([])
     const [refresh, setRefresh] = React.useState(false) 
 
@@ -139,11 +145,32 @@ export function ServiceCatalogTable() {
         fetchServiceCatalog()
     }, [fetchServiceCatalog, refresh])
 
+    const HandleServiceCatalogDelete = React.useCallback(async () => {
+        if (!selectedId) return
+        setIsDeleting(true)
+        try {
+            await ApiCustomer.delete(`/api/service-type/${selectedId}`)
+            toast.success("Delete Service Catalog Success")
+            fetchServiceCatalog()
+            selectedId(null)
+            setIsDialogOpen(false)
+        } catch (error) {
+            toast.error("Failed Delete Service Catalog")
+        }finally{
+           setIsDeleting(false) 
+        }
+    }, [selectedId, fetchServiceCatalog])
+
     const columns = React.useMemo(
         () => 
             serviceCatalogColums({
                 onEdit: (id) => <ServiceCatalogEdit ServiceCatalogID={id}  onUpdate={fetchServiceCatalog}/>,
-                onDelete: (id) => <ServiceCatalogDelete ServiceCatalogID={id}/>
+                onDelete: (id) => <Button variant={"outline"} className={"text-red-500 hover:text-red-700"} onClick={() => {
+                    setSelectedId(id)
+                    setIsDialogOpen(true)
+                }}>
+                    <Trash/>
+                </Button>
             }),
         [fetchServiceCatalog]
     )
@@ -160,13 +187,24 @@ export function ServiceCatalogTable() {
                 error={error}
                 toolbar={(table) => (
                     <DataTableToolbar table={table} searchPlaceholder="🔍 Search service catalog..." loading={loading} handleRefresh={handleRefresh}>
+                        {/* <ServiceCatalogAdd/> */}
                         <DataTableFacetedFilter
                             title={"All Service offer ID"}
                             column={table.getColumn("Service_offerID")}
                         />
-                        <ServiceCatalogAdd/>
                     </DataTableToolbar>
                 )}
+            />
+            <ConfirmDialog
+                onConfirm={HandleServiceCatalogDelete}
+                confirming={isDeleting}
+                onOpenChange={(open) => {
+                    setIsDialogOpen(open)
+                    if (!open) return setSelectedId(null)
+                }}
+                open={isDialogOpen}
+                title={"Delete Service Catalog"}
+                description={"Are you sure want to delete this Service Catalog ?"}
             />
         </div>
     )

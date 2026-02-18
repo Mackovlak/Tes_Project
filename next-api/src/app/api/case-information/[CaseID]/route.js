@@ -155,6 +155,7 @@ export async function PATCH(request, { params }) {
             'id_csr',
             'ProblemDescription',
             'CaseID_Manual',
+            'ReferenceCase',
             'CaseID_Manual_Date',
             'CaseProductNote',
             'StorageLocationStore',

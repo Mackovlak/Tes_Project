@@ -267,7 +267,7 @@ export function QuickWOInput ({
                 <CardTitle className='text-lg'>Service Delivery Address</CardTitle>
                 <hr className="dark:border-gray-400"/>
               </CardHeader>
-              <CardContent className="grid grid-cols-6 gap-5 m-1">
+              <CardContent className="grid grid-cols-1 lg:grid-cols-6 gap-5 m-1">
                 <CaseField label="Choose Address" className={''} lock ><Input className="dark:text-white dark:border-b-gray-400 dark:rounded-none dark:hover:border-transparent dark:focus:border-transparent dark:focus:rounded-lg dark:p-2" value="Site Account address"/></CaseField>
                 <CaseField label="Address Line1" className={''}  lock> <Input className="dark:text-white dark:border-b-gray-400 dark:rounded-none dark:hover:border-transparent dark:focus:border-transparent dark:focus:rounded-lg dark:p-2"  value={ServiceDeliveryAddress.addressLine1} readOnly/> </CaseField>
                 <CaseField label="Postal Code" className={''}  lock> <Input className="dark:text-white dark:border-b-gray-400 dark:rounded-none dark:hover:border-transparent dark:focus:border-transparent dark:focus:rounded-lg dark:p-2"   value={ServiceDeliveryAddress.postalCode} readOnly/> </CaseField>
@@ -336,7 +336,7 @@ export function QuickWOInput ({
                 <CardTitle className={"text-lg"}>Repair Action</CardTitle>
                 <hr className="dark:border-gray-400"/>
               </CardHeader>
-              <CardContent className={"grid grid-cols-4 gap-2"}>
+              <CardContent className={"grid grid-cols-1 lg:grid-cols-4 gap-2"}>
                 <CaseField label={"Problem category"} lock>
                   <Input className="dark:text-white dark:border-b-gray-400 dark:rounded-none dark:hover:border-transparent dark:focus:border-transparent dark:focus:rounded-lg dark:p-2" value={workOrderData?.ServiceType?.ProblemCategory || ""}/>
                 </CaseField>

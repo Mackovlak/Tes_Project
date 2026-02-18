@@ -1339,7 +1339,7 @@ export default function NewCaseForm() {
           <CardContent className="flex w-full gap-6 flex-col lg:flex-row">
             {/* Serial Number Search */}
             <div className="space-y-2 flex-1">
-            <Label className={'text-lg'}>Serial Number</Label>
+            <Label className={'text-md lg:text-lg'}>Serial Number</Label>
               <div className="flex gap-2">
                 <Input
                   placeholder="Type serial number..."
@@ -1402,7 +1402,7 @@ export default function NewCaseForm() {
 
             {/* Customer Search */}
             <div className="space-y-2 flex-1">
-              <Label className={'text-lg'}>Customer (name/email/phone/company)</Label>
+              <Label className={'text-md lg:text-lg'}>Customer (name/email/phone/company)</Label>
               <div className="flex gap-2">
                 <Input
                   placeholder="Search customer or company..."
@@ -1559,10 +1559,11 @@ export default function NewCaseForm() {
               )}
             </div>
 
+            <div className=" space-y-2 col-span-2 lg:col-span-3">
               <CaseField
                 label="Assign To"
                 hide={!hideAssignTo}
-                span={2}
+                indent
               >
                 <SearchCommandBlock
                   value={caseAssign || null}
@@ -1588,18 +1589,18 @@ export default function NewCaseForm() {
                   className="dark:bg-transparent dark:ring-1 dark:ring-gray-400 ring-1"
                 />
               </CaseField>
-            
-            <div className=" space-y-2">
+           </div> 
+            <div className=" space-y-2 col-span-2 lg:col-span-1">
               <Label>Case Subject <Label className="text-red-600 dark:text-[#FF8A80]">*</Label></Label>
               <Textarea type="text" rows={3} value={caseSubject} onChange={(e) => setCaseSubject(e.target.value)} className={"ring-1 ring-gray-400  dark:bg-gray-500/10 dark:border-gray-400"}/>
             </div>
 
-            <div className="space-y-2 col-span-2">
+            <div className="space-y-2 col-span-2 lg:col-span-1">
               <Label>Problem Description <Label className="text-red-600 dark:text-[#FF8A80]">*</Label></Label>
               <Textarea rows={3} value={problemDesc} onChange={(e) => setProblemDesc(e.target.value)} className={"ring-1 ring-gray-400  dark:bg-gray-500/10 dark:border-gray-400"}/>
             </div>
 
-            <div className="md:col-span-3 space-y-2">
+            <div className="md:col-span-3 col-span-2 space-y-2">
               <Label>Case Note <Label className="text-red-600 dark:text-[#FF8A80]">*</Label></Label>
               <Textarea rows={3} value={caseNote} onChange={(e) => setCaseNote(e.target.value)} className={"ring-1 ring-gray-400  dark:bg-gray-500/10 dark:border-gray-400"}/>
             </div>
@@ -1758,7 +1759,7 @@ export default function NewCaseForm() {
 
                 {/* PIC Information */}
                 <div className="space-y-2 border-2 p-2 rounded dark:border-gray-400 dark:rounded-sm">
-                  <div className="flex justify-between items-center">
+                  <div className="flex justify-between items-center gap-2">
                     <div className="flex items-center gap-2">
                       <Checkbox
                         id="usePIC"
@@ -1766,9 +1767,9 @@ export default function NewCaseForm() {
                         onCheckedChange={(v) => setUsePIC(Boolean(v))}
                         className={"ring-2 bg-gray-100 dark:bg-transparent dark:data-[state=checked]:bg-white"}  
                       />
-                      <Label htmlFor="usePIC">Tambahkan PIC</Label>
+                      <Label htmlFor="usePIC" className={'text-[10px] lg:text-sm'}>Tambahkan PIC</Label>
                     </div>
-                    <Button type="button" variant="outline" size="sm" onClick={copyPICFromContact} disabled={!usePIC} className={'cursor-pointer dark:bg-gradient-to-bl dark:from-slate-800 dark:via-slate-600 dark:to-slate-700 dark:border-b-slate-600 dark:to-60% dark:via-100% dark:from-50%'}>
+                    <Button type="button" variant="outline" size="sm" onClick={copyPICFromContact} disabled={!usePIC} className={'cursor-pointer dark:bg-gradient-to-bl dark:from-slate-800 dark:via-slate-600 dark:to-slate-700 dark:border-b-slate-600 dark:to-60% dark:via-100% dark:from-50% text-[10px] lg:text-sm'}>
                       Same as Contact Information
                     </Button>
                   </div>
@@ -2101,9 +2102,9 @@ export default function NewCaseForm() {
             <CardContent className="space-y-3">
               {accessories.map((row, idx) => (
                   <React.Fragment key={row.id || idx}>
-                <div  className="grid grid-cols-2 gap-2 items-center ring-1 p-3 rounded-2xl">
-                  <div className="col-span-4">
-                    <Label className="text-xs">Accessory Name</Label>
+                <div  className="grid grid-cols-10 gap-2 items-center ring-1 p-3 rounded-2xl">
+                  <div className="col-span-5 lg:col-span-4">
+                    <Label className="text-xs flex-1">Accessory Name</Label>
                     <SearchCommandBlock
                       value={row.name}
                       onChange={(v) => updateAccessory(row.id, "name", v)}
@@ -2131,7 +2132,7 @@ export default function NewCaseForm() {
                       className={"dark:bg-transparent ring-gray-400 ring-1 mt-2"}
                     />
                   </div>
-                  <div className="col-span-6">
+                  <div className="col-span-5 lg:col-span-6">
                     <Label className="text-xs">Note</Label>
                     <Input
                       className={"ring-gray-400 ring-1 mt-2 dark:text-white dark:p-2"}

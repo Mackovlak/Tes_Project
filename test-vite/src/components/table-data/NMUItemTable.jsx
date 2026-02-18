@@ -12,7 +12,10 @@ import { DataTable } from "./config/data-table"
 import { Button } from "../ui/button"
 import { formatDate } from "@/lib/utils"
 import { Link } from "react-router"
-import { NmuItemAdd, NmuItemDelete, NmuItemEdit } from "../model/sc-modal"
+import { NmuItemAdd } from "../model/MastertabelAdd/NMUItemAdd"
+import { Trash } from "lucide-react"
+import { NmuItemEdit } from "../model/MastertabelEdit/NMUItemEdit"
+import { ConfirmDialog } from "../model/config/ConfirmDialog"
 
 function nmuItemColums(opts) {
     return [
@@ -80,6 +83,9 @@ export function NMUItemTable() {
     const [data, setData] = React.useState([])
     const [loading, setLoading] = React.useState(false)
     const [error, setError] = React.useState(null)
+    const [selectedId, setSelectedId] = React.useState(null)
+    const [isDialogOpen, setIsDialogOpen] = React.useState(false)
+    const [isDeleting, setIsDeleteing] = React.useState(false)
     const [sorting, setSorting] = React.useState([])
     const [refresh, setRefresh] = React.useState(false) 
 
@@ -105,11 +111,32 @@ export function NMUItemTable() {
         fetchNMUItem()
     }, [fetchNMUItem, refresh])
 
+    const HandleDeleteNMUItem = React.useCallback(async () => {
+        if (!selectedId) return
+        setIsDeleteing(true)
+        try {
+            await ApiCustomer.delete(`/api/nmu/nmuitem/${selectedId}`)
+            toast.success("Delete NMU Item Success")
+            fetchNMUItem()
+            setSelectedId(null)
+            setIsDialogOpen(false)
+        } catch (error) {
+            toast.error("Delete Failed")
+        }finally {
+            setIsDeleteing(false)
+        }
+    },[selectedId, fetchNMUItem])
+
     const columns = React.useMemo(
         () => 
             nmuItemColums({
-                onEdit: (id) => <NmuItemEdit id={id}  onUpdate={fetchNMUItem}/>,
-                onDelete: (id) => <NmuItemDelete id={id}/>
+                onEdit: (id) => <NmuItemEdit NmuItemId={id}  onUpdate={fetchNMUItem}/>,
+                onDelete: (id) => <Button variant={"outline"} className={"text-red-500 hover:text-red-700"} onClick={() => {
+                    setSelectedId(id)
+                    setIsDialogOpen(true)
+                }}>
+                    <Trash/>
+                </Button>
             }),
         [fetchNMUItem]
     )
@@ -127,8 +154,24 @@ export function NMUItemTable() {
                 toolbar={(table) => (
                     <DataTableToolbar table={table} searchPlaceholder="🔍 Search nmu item..." loading={loading} handleRefresh={handleRefresh}>
                         <NmuItemAdd/>
+                        <DataTableFacetedFilter
+                            title={"All Item Name"}
+                            column={table.getColumn("itemName")}
+                        />
                     </DataTableToolbar>
                 )}
+            />
+            <ConfirmDialog
+            open={isDialogOpen}
+            onOpenChange={(open) => {
+                setIsDialogOpen(open)
+                if (!open) setSelectedId(null)
+            }}
+            confirming={isDeleting}
+            onConfirm={HandleDeleteNMUItem}
+            confirmLabel="Delete NMU Item"
+            title={"Delete NMU Item"}
+            description={"Are you sure want to delete NMU Item ?"}
             />
         </div>
     )

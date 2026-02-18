@@ -10,7 +10,10 @@ import { DataTablePagination } from "./config/data-table-pagination"
 import { DataTableFacetedFilter } from "./config/data-table-faceted-filter"
 import { DataTable } from "./config/data-table"
 import { Button } from "../ui/button"
-import { ProductTypeAdd, ProductTypeDelete, ProductTypeEdit } from "../model/sc-modal"
+import { ProductTypeEdit } from "../model/MastertabelEdit/ProductTypeEdit"
+import { ProductTypeAdd } from "../model/MastertabelAdd/ProductTypeAdd"
+import { Trash } from "lucide-react"
+import { ConfirmDialog } from "../model/config/ConfirmDialog"
 
 function productTypeColums(opts) {
     return [
@@ -65,6 +68,9 @@ export function ProductTypeTable() {
     const [data, setData] = React.useState([])
     const [loading, setLoading] = React.useState(false)
     const [error, setError] = React.useState(null)
+    const [selectedId, setSeletectedId] = React.useState(null)
+    const [isDeleting, setIsDeleting] = React.useState(false)
+    const [isDialogOpen, setIsDialogOpen] = React.useState(false)
     const [sorting, setSorting] = React.useState([])
     const [refresh, setRefresh] = React.useState(false) 
 
@@ -90,11 +96,32 @@ export function ProductTypeTable() {
         fetchProductType()
     }, [fetchProductType, refresh])
 
+    const handleDeleteProductType = React.useCallback(async () => { 
+        if (!selectedId) return
+        setIsDeleting(true)
+        try {
+             const res = await ApiCustomer.delete(`/api/product-type/${selectedId}`)
+             toast.success("Product Type deleted successfully")
+             fetchProductType()
+             setIsDialogOpen(false)
+             setSeletectedId(null)
+        } catch (error) {
+            toast.error("Failed to delete Product Type")
+        } finally {
+            setIsDeleting(false)
+        }
+    })   
+
     const columns = React.useMemo(
         () => 
             productTypeColums({
-                onEdit: (id) => <ProductTypeEdit ProductTypeID={id} onUpdate={fetchProductType}/>,
-                onDelete: (id) => <ProductTypeDelete ProductTypeID={id}/>
+                onEdit: (id) => <ProductTypeEdit productTypeID={id} onUpdate={fetchProductType}/>,
+                onDelete: (id) => <Button variant={"outline"} className={"text-red-500 hover:text-red-700"} onClick={() => {
+                    setSeletectedId(id)
+                    setIsDialogOpen(true)
+                }}>    
+                <Trash/>
+                </Button>
             }),
         [fetchProductType]
     )
@@ -111,6 +138,7 @@ export function ProductTypeTable() {
                 error={error}
                 toolbar={(table) => (
                     <DataTableToolbar table={table} searchPlaceholder="🔍 Search product..." loading={loading} handleRefresh={handleRefresh}>
+                        <ProductTypeAdd/>
                         <DataTableFacetedFilter
                             title={"All Product Tower"}
                             column={table.getColumn("ProductTower")}
@@ -119,9 +147,16 @@ export function ProductTypeTable() {
                             title={"All Product Group"}
                             column={table.getColumn("ProductGroup")}
                         />
-                       <ProductTypeAdd/>
                     </DataTableToolbar>
                 )}
+            />
+            <ConfirmDialog
+                open={isDialogOpen}
+                onOpenChange={setIsDialogOpen}
+                title="Delete Product Type"
+                description="Are you sure you want to delete this product type?"
+                onConfirm={handleDeleteProductType}
+                isPending={isDeleting}
             />
         </div>
     )

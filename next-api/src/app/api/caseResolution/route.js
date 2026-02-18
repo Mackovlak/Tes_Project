@@ -9,8 +9,7 @@ export async function GET(request) {
         const search = searchParams.get("search") || "";
 
         const page = parseInt(searchParams.get("page")) || 1;
-        const limit = parseInt(searchParams.get("limit")) || 10;
-
+        const limit = parseInt(searchParams.get("limit")) || 1000;
 
         let whereCondition = {}
         

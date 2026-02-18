@@ -171,6 +171,7 @@ export const useServiceCaseStore = create<ServiceCaseState>((set, get) => ({
     ProblemDescription: "",
     CaseID_Manual: "",
     CaseID_Manual_Date: null,
+    ReferenceCase: "",
     CaseProductNote: "",
     StorageLocationStore: "",
     VoidReason:"",
@@ -345,6 +346,7 @@ setQuickLogOpen: (open) => set({ quickLogOpen: open }),
         ProblemDescription: caseDetails.ProblemDescription,
         CaseID_Manual: caseDetails.CaseID_Manual,
         CaseID_Manual_Date: caseDetails.CaseID_Manual_Date,
+        ReferenceCase: caseDetails.ReferenceCase,
         CaseProductNote: caseDetails.CaseProductNote,
         StorageLocationStore: caseDetails.StorageLocationStore,
         VoidReason: caseDetails.VoidReason,
@@ -764,6 +766,7 @@ setQuickLogOpen: (open) => set({ quickLogOpen: open }),
         ProblemDescription: caseForm.ProblemDescription,
         CaseID_Manual: caseForm.CaseID_Manual,
         CaseID_Manual_Date: caseForm.CaseID_Manual_Date,
+        ReferenceCase: caseForm.ReferenceCase,
         StorageLocationStore: caseForm.StorageLocationStore,
         VoidReason: caseForm.VoidReason,
       });
@@ -1052,6 +1055,9 @@ setQuickLogOpen: (open) => set({ quickLogOpen: open }),
                   if (!isNaN(dateVal.getTime())) {
                     caseUpdates.CaseID_Manual_Date = dateVal.toISOString();
                   }
+                }
+                if (caseForm.ReferenceCase?.trim()) {
+                  caseUpdates.ReferenceCase = caseForm.ReferenceCase;
                 }
                 if (caseForm.StorageLocationStore?.trim()) {
                   caseUpdates.StorageLocationStore =

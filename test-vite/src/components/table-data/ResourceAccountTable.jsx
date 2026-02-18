@@ -10,7 +10,10 @@ import { DataTablePagination } from "./config/data-table-pagination"
 import { DataTableFacetedFilter } from "./config/data-table-faceted-filter"
 import { DataTable } from "./config/data-table"
 import { Button } from "../ui/button"
-import { ResourceAccountDelete, ResourceAccountEdit } from "../model/sc-modal"
+import { ResourceAccountEdit } from "../model/MastertabelEdit/ResourceAccountEdit"
+import { ConfirmDialog } from "../model/config/ConfirmDialog"
+import { Trash } from "lucide-react"
+import { ResourceAccountAdd } from "../model/MastertabelAdd/ResourceAccountAdd"
 
 
 function ResourceAccountColums(opts) {
@@ -67,6 +70,9 @@ export function ResourceAccountTable() {
     const [resource, setResource] = React.useState([])
     const [loading, setLoading] = React.useState(false)
     const [error, setError] = React.useState(null)
+    const [selected, setSelected] = React.useState(null)
+    const [isDeleting, setIsDeleting] = React.useState(false)
+    const [isDialogOpen, setIsDialogOpen] = React.useState(false)
 
     const fetchAll = React.useCallback(async () => {
         setLoading(true)
@@ -90,13 +96,35 @@ export function ResourceAccountTable() {
         fetchAll()
     }, [fetchAll])
 
+    const HandleDeleteResourceAccount = React.useCallback(async () => {
+        if (!selected) return;
+        setIsDeleting(true);
+        try {
+            await ApiCustomer.delete(`/api/resource-account/${selected}`);
+            toast.success("Resource Account deleted successfully");
+            fetchAll();
+            setIsDialogOpen(false);
+            setSelected(null);
+        } catch (error) {
+            toast.error("Failed to delete Resource Account");
+        }finally {
+            setIsDeleting(false);
+        }
+    }, [selected, fetchAll]);
+
     const columns = React.useMemo(
         () => 
             ResourceAccountColums({
-                onEdit: (id) => <ResourceAccountEdit ResourceAccountId={id} resources={resource} onUpdate={fetchAll}/>,
-                onDelete: (id) => <ResourceAccountDelete ResourceAccountId={id}/>
+                onEdit: (id) => <ResourceAccountEdit resourceAccountID={id} resources={resource} onUpdate={fetchAll}/>,
+                onDelete: (id) => <Button variant={"outline"} className={"text-red-500 hover:text-red-700"} onClick={() => {
+                    setSelected(id);
+                    setIsDialogOpen(true);
+                }}>
+
+                    <Trash/>
+                </Button>
             }),
-        [fetchAll]
+        [fetchAll, resource]
     )
     return (
         <div className="p-4 grid grid-cols-1 w-full rounded-2xl">
@@ -108,12 +136,25 @@ export function ResourceAccountTable() {
                 error={error}
                 toolbar={(table) => (
                     <DataTableToolbar table={table} searchPlaceholder="🔍 Search resource account...">
+                        <ResourceAccountAdd/>
                        <DataTableFacetedFilter
                         title={"All Resource"}
                         column={table.getColumn("ResourceId")}
                        />
                     </DataTableToolbar>
                 )}
+            />
+            <ConfirmDialog
+                open={isDialogOpen}
+                title="Delete Resource Account"
+                description="Are you sure want to delete this Resource Account? This action cannot be undone."
+                onConfirm={HandleDeleteResourceAccount}
+                onOpenChange={(open) => {
+                    setIsDialogOpen(open)
+                    if (!open) setSelected(null)
+                }} 
+                confirming={isDeleting}
+                confirmLabel="Delete Resource Account"
             />
         </div>
     )

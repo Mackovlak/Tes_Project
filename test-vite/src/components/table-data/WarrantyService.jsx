@@ -10,7 +10,10 @@ import { DataTablePagination } from "./config/data-table-pagination"
 import { DataTableFacetedFilter } from "./config/data-table-faceted-filter"
 import { DataTable } from "./config/data-table"
 import { Button } from "../ui/button"
-import { WarrantyServiceAdd, WarrantyServiceDelete, WarrantyServiceEdit } from "../model/sc-modal"
+import { WarrantyServiceEdit } from "../model/MastertabelEdit/WarrantyServiceEdit"
+import { WarrantyServiceAdd } from "../model/MastertabelAdd/WarrantyServiceAdd"
+import { Trash } from "lucide-react"
+import { ConfirmDialog } from "../model/config/ConfirmDialog"
 
 function warrantyServiceColums(opts) {
     return [
@@ -31,6 +34,12 @@ function warrantyServiceColums(opts) {
             accessorKey: "Service_offerID",
             header: ({ column }) => (
                 <DataTableColumnHeader column={column} title={"Service Offer ID"}/>
+            ),
+        },
+        {
+            accessorKey: "Service_description",
+            header: ({ column }) => (
+                <DataTableColumnHeader column={column} title={"Service Description"}/>
             ),
         },
         {
@@ -74,6 +83,12 @@ function warrantyServiceColums(opts) {
             header: ({ column }) => (
                 <DataTableColumnHeader column={column} title={"Warranty Condition"}/>
             ),
+            cell: ({ getValue}) => {
+                const val = getValue()
+                return (
+                    <span>{val === "InWarranty" ? "In Warranty" : val === "OutWarranty" ? "Out of Warranty" : ""}</span>
+                )
+            }
         },
         {
             accessorKey: "CaseTypeServices",
@@ -101,6 +116,9 @@ export function WarrantyServiceTable() {
     const [data, setData] = React.useState([])
     const [loading, setLoading] = React.useState(false)
     const [error, setError] = React.useState(null)
+    const [selectedId, setSeletectedId] = React.useState(null)
+    const [isDeleting, setIsDeleting] = React.useState(false)
+    const [isDialogOpen, setIsDialogOpen] = React.useState(false)
     const [sorting, setSorting] = React.useState([])
     const [refresh, setRefresh] = React.useState(false) 
 
@@ -125,11 +143,32 @@ export function WarrantyServiceTable() {
         fetchWarrantyService()
     }, [fetchWarrantyService, refresh])
 
+    const HandleDeleteWarrantyCondition = React.useCallback(async () => {
+        if (!selectedId) return
+        setIsDeleting(true)
+        try {
+            await ApiCustomer.delete(`/api/warranty-services/${selectedId}`)
+            toast.success("Warranty Service deleted successfully")
+            fetchWarrantyService()
+            setIsDialogOpen(false)
+            setSeletectedId(null)
+        } catch (error) {
+             toast.error("Failed to delete Warranty Service")   
+        }finally {
+            setIsDeleting(false)
+        }
+    }, [selectedId, fetchWarrantyService])
+
     const columns = React.useMemo(
         () => 
             warrantyServiceColums({
                 onEdit: (id) => <WarrantyServiceEdit Service_offerID={id} onUpdate={fetchWarrantyService}/>,
-                onDelete: (id) => <WarrantyServiceDelete Service_offerID={id}/>
+                onDelete: (id) => <Button variant={"outline"} className={"text-red-500 hover:text-red-700"} onClick={() => {
+                    setSeletectedId(id)
+                    setIsDialogOpen(true)
+                }}>
+                    <Trash/>
+                </Button>
             }),
         [fetchWarrantyService]
     )
@@ -146,6 +185,7 @@ export function WarrantyServiceTable() {
                 error={error}
                 toolbar={(table) => (
                     <DataTableToolbar table={table} searchPlaceholder="🔍 Search product..." loading={loading} handleRefresh={handleRefresh}>
+                        <WarrantyServiceAdd/>
                        <DataTableFacetedFilter
                         title={"All Case Type"}
                         column={table.getColumn("CaseTypeServices")}
@@ -154,9 +194,16 @@ export function WarrantyServiceTable() {
                         title={"All Warranty Condition"}
                         column={table.getColumn("WarrantyCondition")}
                        />
-                       <WarrantyServiceAdd/>
                     </DataTableToolbar>
                 )}
+            />
+            <ConfirmDialog 
+                open={isDialogOpen}
+                onOpenChange={setIsDialogOpen}
+                title="Delete Warranty Service"
+                description="Are you sure you want to delete this warranty service?"
+                onConfirm={HandleDeleteWarrantyCondition}
+                confirming={isDeleting}
             />
         </div>
     )

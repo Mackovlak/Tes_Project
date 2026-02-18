@@ -23,6 +23,7 @@ import { twMerge } from "tailwind-merge"
 
 import { DataTableToolbar } from "./data-table-toolbar"
 import { DataTablePagination } from "./data-table-pagination"
+import { cn } from "@/lib/utils"
 
 
 export function DataTable({
@@ -38,6 +39,8 @@ export function DataTable({
   setSorting,
   handleRefresh,
   contact,
+  potraitName,
+  paginationDisabled = false,
 }) {
   const [columnFilters, setColumnFilters] = React.useState([])
   const [globalFilter, setGlobalFilter] = React.useState("")
@@ -70,7 +73,7 @@ const filterChange = contact ? tokenGlobalFilter : "includesString"
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
+    getPaginationRowModel: paginationDisabled ? undefined : getPaginationRowModel(),
 
     // for faceted filters (unique values)
     getFacetedRowModel: getFacetedRowModel(),
@@ -80,11 +83,11 @@ const filterChange = contact ? tokenGlobalFilter : "includesString"
     <div className={className}>
       {title ? <div className="mb-3">{title}</div> : null}
 
-      {toolbar ? toolbar(table) : <DataTableToolbar table={table} loading={loading} handleRefresh={handleRefresh}/>}
+      {toolbar ? toolbar(table) : "" }
 
       {error ? <p className="mt-3 text-sm text-red-500">{error}</p> : null}
 
-        <Table className=" text-[11px] leading-tight " potrait={"mt-3 rounded-xl border-2 max-h-105 2xl:max-h-195"}>
+        <Table className=" text-[11px] leading-tight " potrait={cn( "mt-3 rounded-xl border-2 max-h-105 2xl:max-h-195", potraitName)}>
           <TableHeader className="sticky top-0 z-10 bg-muted/70">
             {table.getHeaderGroups().map((hg) => (
               <TableRow key={hg.id}>
@@ -132,10 +135,11 @@ const filterChange = contact ? tokenGlobalFilter : "includesString"
             )}
           </TableBody>
         </Table>
-
+     { !paginationDisabled &&
       <div className="mt-4">
         <DataTablePagination table={table} />
       </div>
+     }
     </div>
   )
 }

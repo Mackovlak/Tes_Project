@@ -12,7 +12,10 @@ import { DataTable } from "./config/data-table"
 import { Button } from "../ui/button"
 import { formatDate } from "@/lib/utils"
 import { Link } from "react-router"
-import { OTCAdd, OTCDelete, OTCEdit } from "../model/sc-modal"
+import { OTCCodeAdd } from "../model/MastertabelAdd/OTCCodeAdd"
+import { OTCCodeEdit } from "../model/MastertabelEdit/OTCCodeEdit"
+import { Trash } from "lucide-react"
+import { ConfirmDialog } from "../model/config/ConfirmDialog"
 
 function otcCodeColums(opts) {
     return [
@@ -74,6 +77,9 @@ export function OTCCodeTable() {
     const [data, setData] = React.useState([])
     const [loading, setLoading] = React.useState(false)
     const [error, setError] = React.useState(null)
+    const [selecterdId, setSelectedId] = React.useState(null)
+    const [isDialogOpen, setIsDialogOpen] = React.useState(false)
+    const [isDeleting, setIsDeleting] = React.useState(false)
     const [sorting, setSorting] = React.useState([])
     const [refresh, setRefresh] = React.useState(false) 
 
@@ -99,11 +105,32 @@ export function OTCCodeTable() {
         fetchOTCCode()
     }, [fetchOTCCode, refresh])
 
+    const HandleDeleteOTCCode = React.useCallback(async () => {
+        if (!selecterdId) return
+        setIsDeleting(true)
+        try {
+            await ApiCustomer.delete(`/api/otc-code/${selecterdId}`)
+            toast.success("Delete OTC Code Success")
+            fetchOTCCode()
+            setSelectedId(null)
+            setIsDialogOpen(false)
+        } catch (error) {
+            toast.error("Delete Failed OTC code")
+        }finally {
+            setIsDeleting(false)
+        }
+    },[selecterdId, fetchOTCCode])
+
     const columns = React.useMemo(
         () => 
             otcCodeColums({
-                onEdit: (id) => <OTCEdit OTCCode={id}  onUpdate={fetchOTCCode}/>,
-                onDelete: (id) => <OTCDelete OTCCode={id}/>
+                onEdit: (id) => <OTCCodeEdit OTCCode={id}  onUpdate={fetchOTCCode}/>,
+                onDelete: (id) => <Button variant={"outline"} className={"text-red-500 hover:text-red-700"} onClick={() => {
+                    setIsDialogOpen(true)
+                    setSelectedId(id)
+                }}>
+                    <Trash/>
+                </Button>
             }),
         [fetchOTCCode]
     )
@@ -120,13 +147,25 @@ export function OTCCodeTable() {
                 error={error}
                 toolbar={(table) => (
                     <DataTableToolbar table={table} searchPlaceholder="🔍 Search otc code..." loading={loading} handleRefresh={handleRefresh}>
+                        <OTCCodeAdd/>
                         <DataTableFacetedFilter
                             title={"All Warranty"}
                             column={table.getColumn("WarrantyCondition")}
                         />
-                        <OTCAdd/>
                     </DataTableToolbar>
                 )}
+            />
+            <ConfirmDialog
+                onConfirm={HandleDeleteOTCCode}
+                confirming={isDeleting}
+                onOpenChange={(open) => {
+                    setIsDialogOpen(open)
+                    if (!open) return setSelectedId(null)
+                }}
+                open={isDialogOpen}
+                title={"Delete OTC Code"}
+                description={"Are you sure want to delete OTC code ? "}
+                confirmLabel="Delete OTC Code"
             />
         </div>
     )

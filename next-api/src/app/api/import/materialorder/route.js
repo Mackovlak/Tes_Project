@@ -391,7 +391,7 @@ export async function POST(req) {
     }
     return NextResponse.json({
       success: errors.length === 0,
-      message: `Upload ${sheet.length} rows SO/RMA NO Successes.`,
+      message: `Upload ${sheet.length} rows No SO/RMA Successes.`,
       updated: successes,
       errors: errors,
     });

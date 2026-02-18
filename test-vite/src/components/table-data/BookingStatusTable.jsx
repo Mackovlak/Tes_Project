@@ -12,7 +12,7 @@ import { DataTable } from "./config/data-table"
 import { Button } from "../ui/button"
 import { formatDate } from "@/lib/utils"
 import { Link } from "react-router"
-import { BookingDetailsAdd, BookingStatusDelete, BookingStatusEdit } from "../model/sc-modal"
+import { BookingStatusAdd, BookingStatusDelete, BookingStatusEdit } from "../model/sc-modal"
 
 function bookingStatusColums(opts) {
     return [
@@ -49,19 +49,19 @@ function bookingStatusColums(opts) {
             cell: ({ getValue }) => formatDate(getValue())
         },
         
-        {
-            id: "actions",
-            header: () => <div className="text-center">Actions</div>,
-            cell: ({ row }) => {
-                const id = row.original.BookingStatusId
-            return (
-                <div className="flex justify-center gap-2">
-                    {opts.onEdit(id)}
-                    {opts.onDelete(id)}
-                </div>
-            )
-            },
-        },
+        // {
+        //     id: "actions",
+        //     header: () => <div className="text-center">Actions</div>,
+        //     cell: ({ row }) => {
+        //         const id = row.original.BookingStatusId
+        //     return (
+        //         <div className="flex justify-center gap-2">
+        //             {opts.onEdit(id)}
+        //             {opts.onDelete(id)}
+        //         </div>
+        //     )
+        //     },
+        // },
     ]
 }
 
@@ -109,12 +109,17 @@ export function BookingStatusTable() {
                 columns={columns}
                 sorting={sorting}
                 setSorting={setSorting}
+                cellName={"h-9"}
                 handleRefresh={handleRefresh}
                 loading={loading}
                 error={error}
                 toolbar={(table) => (
                     <DataTableToolbar table={table} searchPlaceholder="🔍 Search booking status..." loading={loading} handleRefresh={handleRefresh}>
-                      <BookingDetailsAdd/>
+                      {/* <BookingStatusAdd/> */}
+                      <DataTableFacetedFilter
+                        title={"All Description"}
+                        column={table.getColumn("Description")}
+                      />
                     </DataTableToolbar>
                 )}
             />

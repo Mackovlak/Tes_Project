@@ -429,19 +429,19 @@ export const ServiceWork = () => {
                   )}
                 </span>
               </CardTitle>
-              <CardTitle className="flex flex-row gap-4 items-center">
+              <CardTitle className="flex flex-row flex-wrap gap-2 lg:gap-4 items-center">
                 <div className="flex flex-col dark:text-gray-300">
-                  <h1 className="text-blue-500 dark:text-white">
+                  <h1 className="text-blue-500 dark:text-white font-medium">
                     {ownerWorkOrder?.Name || "---"}
                   </h1>
                   <p className="text-sm font-light ">Owner Ce</p>
                 </div>
                 <div className="flex flex-col dark:text-gray-300">
-                  <h1 className="text-blue-500 dark:text-white">{statusEnumToLabelWO[WOGeneral?.SystemStatus]}</h1>
+                  <h1 className="text-blue-500 dark:text-white font-medium">{statusEnumToLabelWO[WOGeneral?.SystemStatus]}</h1>
                   <p className="text-sm font-light ">Status</p>
                 </div>
                 <div className="flex flex-col dark:text-gray-300">
-                  <h1 className="text-blue-500 dark:text-white">
+                  <h1 className="text-blue-500 dark:text-white font-medium">
                     {customerData.MainAccount?.Salutation}{" "}
                     {customerData.MainAccount?.FirstName}{" "}
                     {customerData.MainAccount?.LastName}
@@ -453,7 +453,7 @@ export const ServiceWork = () => {
                     onValueChange={setSelectedSiteOption}
                     defaultValue="first"
                   >
-                    <SelectTrigger className="p-0 text-blue-500 border-none shadow-none">
+                    <SelectTrigger className="p-0 text-blue-500 border-none shadow-none font-medium">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent className="p-0">
@@ -469,33 +469,29 @@ export const ServiceWork = () => {
               </CardTitle>
             </div>
             
-            <div>
-
-            <TabsList className="border-t bg-gray-100 w-full flex gap-4 dark:bg-gradient-to-r dark:from-slate-800 dark:via-slate-700 dark:to-slate-800  dark:border-b-slate-600 dark:rounded-none">
-              {tabs.map((tab) => (
-                <TabsTrigger
-                  key={tab.value}
-                  variant={"modernUnderline"}
-                  value={tab.value}
-                  className="text-sm font-medium dark:border-b-slate-500 dark:text-gray-300"
-                >
-                  {tab.label}
-                </TabsTrigger>
-              ))}
-            </TabsList>
-            </div>
+            <div className="  w-full overflow-x-auto h-fit no-scrollbar p-0">
+              <TabsList className="border-t bg-gray-100 sm:w-full flex gap-4 dark:bg-gradient-to-r dark:from-slate-800 dark:via-slate-700 dark:to-slate-800  dark:border-b-slate-600 dark:rounded-none h-full p-0">
+                {tabs.map((tab) => (
+                  <TabsTrigger
+                    key={tab.value}
+                    variant={"modernUnderline"}
+                    value={tab.value}
+                    className="text-sm font-medium dark:border-b-slate-500 dark:text-gray-300"
+                  >
+                    {tab.label}
+                  </TabsTrigger>
+                ))}
+              </TabsList>
+             </div>
           </CardHeader>
 
           {/* ========= TAB: WO SUMMARY ========= */}
           <TabsContent value="wo_summary" className="p-2 ">
-            {/* ... your existing JSX (unchanged) ... */}
-            {/* General + Entitlement + Material Orders + Modal */}
-            {/* only change was openServiceCatalog and the handlers we already edited */}
             <div className="flex flex-col md:flex-row gap-4">
               <Card className="rounded-md flex-1/3 dark:bg-gradient-to-tl dark:from-slate-600 dark:via-slate-800 dark:to-slate-800  dark:border-slate-700 dark:border-4">
                 <CardHeader>
-                  <div className="flex justify-between">
-                  <CardTitle className="text-lg ">General</CardTitle>
+                  <div className="flex flex-col lg:flex-row justify-between">
+                    <CardTitle className="text-lg ">General</CardTitle>
                     <TATDuration WOData={workOrder}/>
                   </div>
                   <hr className="dark:bg-gray-400"/>
@@ -905,7 +901,7 @@ export const ServiceWork = () => {
               </CardHeader>
               <CardContent
                 className={
-                  "grid items-center grid-cols-2 lg:grid-cols-6 gap-10"
+                  "grid items-center grid-cols-1 lg:grid-cols-6 gap-2 lg:gap-10"
                 }
               >
                 <CaseField
@@ -1143,7 +1139,7 @@ export const ServiceWork = () => {
                     return (
                     <div key={mo.moid}>
                     <span className="italic font-semibold">Sparepart {index + 1} - {mo.Description} / {mo.PartNumber}</span>
-                    <div className="grid grid-cols-4 gap-4 border-2 mt-2 rounded-sm p-4">
+                    <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 border-2 mt-2 rounded-sm p-4">
 
                     <CaseField label="CT Validation" star={editRoles} lock={!editRoles}>
                       <SearchCommandBlock
@@ -1262,14 +1258,14 @@ export const ServiceWork = () => {
                     />
                   </CaseField>
                    
-                  <div className="col-span-4 flex flex-col gap-2 pl-10">
+                  <div className="lg:col-span-4 flex flex-col gap-2 pl-10">
                      {photoUploadLoading && (
                       <span className="text-sm text-muted-foreground">Uploading photo...</span>
                     )}
 
                     {/* Thumbnail */}
                     {reviewPhoto && (
-                      <div className="flex items-start gap-3">
+                      <div className="flex flex-wrap items-start gap-3">
                         <img
                           src={reviewPhoto}
                           alt="Unit photo preview"

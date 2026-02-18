@@ -53,7 +53,7 @@ export function AsyncComboboxField({
   const selectedLabel = value ? String(value[labelKey]) : ""
 
   return (
-    <Popover open={open} onOpenChange={setOpen}>
+    <Popover open={open} onOpenChange={setOpen} modal={true}>
       <PopoverTrigger asChild>
         <Button
           type="button"

@@ -150,7 +150,7 @@ export default function Landing() {
   }, [chartData]);
 
     return (
-      <div className="max-h-159 2xl:max-h-full w-full overflow-hidden">
+      <div className="max-h-full w-full overflow-hidden">
       <div className="mx-auto flex h-full   flex-col px-4 py-1 md:px-6 bg-sky-50 dark:bg-slate-600 ">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div className="min-w-0">

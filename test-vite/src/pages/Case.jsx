@@ -127,6 +127,7 @@ import { useServiceCaseStore } from '@/hooks/useServiceCaseStore';
 import { TabsServiceCaseDetails } from './CaseDetailReimagined';
 import { useUnsavedChangesGuard } from '../hooks/useUnsavedChangesGuard';
 import { useCaseNotesStore } from '@/hooks/useCaseNoteStore';
+import { useMediaQuery } from 'react-responsive';
 
 export const Case = () => {
   const { user } = useAuth();
@@ -216,17 +217,18 @@ export const Case = () => {
 
   loadCaseData();
 
-// 👇 only depend on caseId
-// eslint-disable-next-line react-hooks/exhaustive-deps
+
+
 }, [caseId, refreshFetchPage]);
 
 
+  const  isLarge  = useMediaQuery({query: '(max-width: 1024px)'})
   if (!loading) {
     return (
       <div className="p-2 space-y-6 dark:bg-gradient-to-r dark:from-slate-800 dark:via-slate-700 dark:to-slate-800 dark:border-b-slate-600">
-        <Skeleton className="h-6 w-1/4" />
+        <Skeleton className="h-6 w-full" />
         <Skeleton className="w-full h-30" />
-        <div className="grid grid-cols-2 gap-4 ">
+        <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
           <Skeleton className="h-116 w-full rounded-lg" />
           <Skeleton className="h-116 w-full rounded-lg" />
         </div>

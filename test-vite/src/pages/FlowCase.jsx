@@ -20,6 +20,7 @@ import { Label } from '@/components/ui/label'
 import { format } from 'date-fns'
 import { toast } from 'sonner'
 import { STATUS_ENUM_TO_LABEL } from '@/hooks/useCaseStatus'
+import { useMediaQuery } from 'react-responsive'
 
 
 export const FlowCase = () => {
@@ -319,6 +320,8 @@ export const FlowCaseData = (user) => {
   };
   const allowedRoles = ["fd", "admin"];
   const navigate = useNavigate();
+
+  const  isLarge  = useMediaQuery({query: '(max-width: 1024px)'})
   return (
     <>
       <SidebarProvider defaultOpen className={"h-full dark:bg-gradient-to-t  dark:from-slate-800 dark:via-slate-600 dark:to-slate-800 dark:to-70% dark:via-6% dark:from-1% min-h-0"} id='your-case'>
@@ -368,10 +371,10 @@ export const FlowCaseData = (user) => {
             <div className="space-y-3 p-5" >
               {renderer ? (
                 Array.from({ length: 5 }).map((_, i) => (
-                  <Card key={i} className="flex-row p-4 shadow-sm dark:bg-gradient-to-r dark:from-slate-800 dark:via-slate-700 dark:to-slate-800 w-(screen-64)  dark:border-b-slate-600">
+                  <Card key={i} className="flex-col lg:flex-row p-4 shadow-sm dark:bg-gradient-to-r dark:from-slate-800 dark:via-slate-700 dark:to-slate-800 w-(screen-64)  dark:border-b-slate-600">
                     <div>
-                    <Skeleton className="h-6 w-122" />
-                    <Skeleton className="h-6 w-122" />
+                    <Skeleton className="h-6 w-70 lg:w-122" />
+                    <Skeleton className="h-6 w-70 lg:w-122" />
                     </div>
                     <div className="flex flex-col items-center gap-2 align-middle" id='case-badge'>  
                         <div className="space-x-2 justify-center inline-flex">
@@ -389,7 +392,7 @@ export const FlowCaseData = (user) => {
                   <Link to={`/app/case/${c.CaseID}`}>
                   <Card
                     key={c.CaseID}
-                    className={cn("flex-row justify-between items-center p-4 shadow-md hover:shadow-md hover:border-amber-200 transition cursor-pointer border-l-4 dark:bg-gradient-to-r dark:from-slate-800 dark:via-slate-700 dark:to-slate-800 w-(screen-64)  dark:border-b-slate-600 dark:hover:border-purple-700 mt-3",
+                    className={cn("flex-col lg:flex-row justify-between items-center p-4 shadow-md hover:shadow-md hover:border-amber-200 transition cursor-pointer border-l-4 dark:bg-gradient-to-r dark:from-slate-800 dark:via-slate-700 dark:to-slate-800 w-(screen-64)  dark:border-b-slate-600 dark:hover:border-purple-700 mt-3 gap-1",
                       c.CaseStatus === "FinishRepair" ? "border-green-300 dark:border-green-600 bg-gradient-to-r from-white via-emerald-100 to-emerald-300 " : 
                       (c.CaseStatus === "Close" || c.CaseStatus === "Cancel") ? "border-red-300 bg-fuchsia-100 dark:border-red-600" :
                         c?.caseinformation.Owner !== user.user.id ? "border-blue-300 dark:border-blue-600" : 'dark:border-slate-600'
@@ -405,24 +408,26 @@ export const FlowCaseData = (user) => {
                           {c?.caseinformation?.asset_information
                             ?.WarrantyOTCCode?.WarrantyCondition ===
                           "InWarranty" ? (
-                            <Badge className="bg-green-500">IW</Badge>
+                            <Badge className="bg-green-500 text-[10px]">IW</Badge>
                           ) : c?.caseinformation?.asset_information
                               ?.WarrantyOTCCode?.WarrantyCondition ===
                             "OutWarranty" ? (
-                            <Badge className="bg-red-500">OOW</Badge>
+                            <Badge className="bg-red-500 text-[10px]">OOW</Badge>
                           ) : (
-                            <Badge className="bg-gray-500">?</Badge>
+                            <Badge className="bg-gray-500 text-[10px]">?</Badge>
                           )}
 
-                          <Badge className="bg-cyan-600">
+                          <Badge className="bg-cyan-600 text-[10px]">
                             {STATUS_ENUM_TO_LABEL[c.CaseStatus]}
                           </Badge>
                           <Badge>{c.caseinformation.CaseType}</Badge>
-                          {c?.caseinformation.Owner === user.user.id ? (
-                            <Badge className="bg-purple-500">Owner</Badge>
+                           {!isLarge &&
+                          (c?.caseinformation.Owner === user.user.id ? (
+                            <Badge className="bg-purple-500 text-[10px]">Owner</Badge>
                           ) : (
-                            <Badge className="bg-sky-500">CreatedBy</Badge>
-                          )}
+                            <Badge className="bg-sky-500 text-[10px]">CreatedBy</Badge>
+                          ))
+                           }
                         </div>
                         {c.EstimedTimeFromUpdate}
                     </div>
@@ -431,7 +436,7 @@ export const FlowCaseData = (user) => {
                 ))
               )
             }
-              <Pagination className="flex justify-start" id='case-pagination'>
+              <Pagination className="flex justify-center items-center flex-col lg:flex-row " id='case-pagination'>
                 <PaginationContent>
                   <PaginationItem>
                     <PaginationPrevious
@@ -492,14 +497,14 @@ export const FlowCaseData = (user) => {
                       }}
                     />
                   </PaginationItem>
+		
+                </PaginationContent>
                   <div className="flex gap-3 p-1 items-center">
                     Total Page
                     <span className='border-2 p-1 rounded-md shadow-2xl dark:border-slate-500 text-center'>
                       {totalPages} For {caseData.length} Cases
                     </span>
                   </div>
-		
-                </PaginationContent>
                 <div className="flex items-center ml-4 gap-2">
                   <span className="text-sm">Page Size:</span>
                   <select

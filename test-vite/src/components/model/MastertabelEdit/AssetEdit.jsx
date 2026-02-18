@@ -9,9 +9,9 @@ import { Input } from "@/components/ui/input"
 import { DialogTrigger } from "@/components/ui/dialog"
 import { Pencil } from "lucide-react"
 
-import { FormDialog } from "./config/form-dialog"
-import { TField } from "./config/tfield"
-import { AsyncComboboxField } from "./config/async-combobox-field"
+import { FormDialog } from "../config/form-dialog"
+import { TField } from "../config/tfield"
+import { AsyncComboboxField } from "../config/async-combobox-field"
 import ApiCustomer from "@/api"
 
 const AssetSchema = z.object({
@@ -35,7 +35,6 @@ export function AssetEdit({ assetId, onUpdate }) {
     },
   })
   const updateMutation = useMutation({
-
     mutationFn: async (values) => {
       const payload = {
         SerialNumber: values.SerialNumber,

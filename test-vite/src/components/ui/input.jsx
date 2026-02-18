@@ -8,11 +8,11 @@ const inputVariants = cva(
     variants: {
       variant: {
         default:
-          "border border-transparent bg-transparent text-neutral-800 placeholder:text-neutral-400 hover:border-neutral-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500",
+          "border border-neutral-300 bg-transparent text-neutral-800 placeholder:text-neutral-400 hover:border-neutral-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500",
         destructive:
           "bg-red-500 text-white placeholder:text-red-300 hover:bg-red-400 focus:ring-red-500 focus:border-red-500",
         outline:
-          "border border-neutral-300 bg-transparent text-neutral-800 hover:border-neutral-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500",
+          "border border-neutral-400 bg-transparent text-neutral-800 hover:border-neutral-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500",
         invisible:
           "border-0 bg-transparent text-neutral-800 focus:ring-2 focus:ring-blue-500",
       },

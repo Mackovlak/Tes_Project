@@ -6,15 +6,15 @@ export async function GET(request) {
     const { searchParams } = new URL(request.url);
 
     const search = (searchParams.get("search") || "").trim();
-    const page = parseInt(searchParams.get("page") || "1", 10);
-    const limit = parseInt(searchParams.get("limit") || "10", 10);
+    // const page = parseInt(searchParams.get("page") || "1", 10);
+    // const limit = parseInt(searchParams.get("limit") || "100", 10);
 
     const line = (searchParams.get("line") || "").trim();
     const type = (searchParams.get("type") || "").trim();
     const group = (searchParams.get("group") || "").trim();
     const tower = (searchParams.get("tower") || "").trim();
 
-    const skip = (page - 1) * limit;
+    // const skip = (page - 1) * limit;
 
     // Filter spesifik (line, type, group, tower)
     const andFilters = [];
@@ -79,21 +79,21 @@ export async function GET(request) {
     // Ambil data per page
     const product_information = await prisma.product_information.findMany({
       where: whereClause,
-      skip,
-      take: limit,
+      // skip,
+      // take: limit,
       orderBy: { ProductName: "asc" },
       include: { product_type: true },
     });
 
-    const totalPages = Math.max(1, Math.ceil(totalCount / limit));
+    // const totalPages = Math.max(1, Math.ceil(totalCount / limit));
 
     return NextResponse.json(
       {
         success: true,
         message: "List Data Product",
         data: product_information,
-        totalPages,
-        currentPage: page,
+        // totalPages,
+        // currentPage: page,
         totalCount,
       },
       {
@@ -142,7 +142,7 @@ export async function POST(request) {
     if (!ProductNumber) missingFields.push("ProductNumber");
     if (!ProductName) missingFields.push("ProductName");
     if (!ProductLine) missingFields.push("ProductLine");
-    if (!HWPC) missingFields.push("HWPC");
+    // if (!HWPC) missingFields.push("HWPC");
 
     const parsedTypeId = Number(ProductTypeID);
     if (!parsedTypeId || Number.isNaN(parsedTypeId)) {

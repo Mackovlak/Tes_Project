@@ -17,7 +17,7 @@ function caseIdFromFilename(name) {
   return name.replace(/\.[^.]+$/, "");
 }
 
-export function ErfUploader({ caseData, onUploaded, files, setFiles, user }) {
+export function ErfUploader({ caseData, onUploaded, files, setFiles, user, userName }) {
   const inputRef = useRef(null);
   const [loading, setLoading] = useState(false);
   const CASE_IDS = useMemo(() => new Set(caseData.map((e) => String(e.CaseID))), [caseData]);
@@ -70,6 +70,7 @@ export function ErfUploader({ caseData, onUploaded, files, setFiles, user }) {
     for (const f of files) formData.append("files", f);
 
     formData.append("user", user?.id)
+    formData.append("userName", user?.name)
 
     try {
       const res = await ApiCustomer.post("/api/case-information/erf", formData, {

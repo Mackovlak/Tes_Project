@@ -10,8 +10,9 @@ import { DataTablePagination } from "./config/data-table-pagination"
 import { DataTableFacetedFilter } from "./config/data-table-faceted-filter"
 import { DataTable } from "./config/data-table"
 import { Button } from "../ui/button"
-import { CompanyEdit,CompanyDelete } from "../model/sc-modal"
-
+import { CompanyEdit } from "../model/MastertabelEdit/CompanyEdit"
+import { ConfirmDialog } from "../model/config/ConfirmDialog"
+import { Trash } from "lucide-react"
 
 function companyColums(opts) {
     return [
@@ -125,6 +126,9 @@ export function CompanyTable() {
     const [data, setData] = React.useState([])
     const [loading, setLoading] = React.useState(false)
     const [error, setError] = React.useState(null)
+    const [isDialogOpen, setIsDialogOpen] = React.useState(false)
+    const [isDeleting, setIsDeleting] = React.useState(false)
+    const [selectedId, setSeletectedId] = React.useState()
     const [sorting, setSorting] = React.useState([])
     const [refresh, setRefresh] = React.useState(false) 
 
@@ -150,11 +154,32 @@ export function CompanyTable() {
         fetchCompany()
     }, [fetchCompany, refresh])
 
+    const handleDeleteCompany = React.useCallback(async () => {
+        if (!selectedId) return
+        setIsDeleting(true)
+        try {
+            const res = await ApiCustomer.delete(`/api/site_account/${selectedId}`)
+            toast.success("Company deleted successfully")
+            fetchCompany()
+            setIsDialogOpen(false)
+            setSeletectedId(null)
+        } catch (error) {
+            toast.error("Failed to delete Company")
+        } finally {
+            setIsDeleting(false)
+        }
+    }, [selectedId, fetchCompany])
+
     const columns = React.useMemo(
         () => 
             companyColums({
                 onEdit: (id) => <CompanyEdit  siteAccountId={id} onUpdate={fetchCompany}/>,
-                onDelete: (id) => <CompanyDelete siteAccountId={id}/>
+                onDelete: (id) => <Button variant="outline" className="text-red-500 hover:text-red-700" onClick={() => {
+                  setIsDialogOpen(true)
+                  setSeletectedId(id)
+                }}>
+                <Trash/>
+                </Button>
             }),
         [fetchCompany]
     )
@@ -189,6 +214,17 @@ export function CompanyTable() {
                         />
                     </DataTableToolbar>
                 )}
+            />
+            <ConfirmDialog
+                open={isDialogOpen}
+                confirming={isDeleting}
+                onOpenChange={(open) => {
+                    setIsDialogOpen(open)
+                    if (!open) setSeletectedId(null)
+                }}
+                onConfirm={handleDeleteCompany}
+                title="Delete Company"
+                description="Are you sure want to delete this company?"
             />
         </div>
     )

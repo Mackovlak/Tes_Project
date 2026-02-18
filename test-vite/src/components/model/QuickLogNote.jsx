@@ -22,6 +22,7 @@ import { useCaseNotesStore,
   EMPTY_DRAFT,
   EMPTY_NOTES,
 } from '@/hooks/useCaseNoteStore'
+import { CaseNotetable } from '../table-data/CaseNotetable'
 
 
 // export const QuickLogNote = ({ open, onOpenChange }) => {
@@ -263,13 +264,13 @@ export const QuickLogNote = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className={"min-w-5xl dark:bg-gray-800"}>
+      <DialogContent className={"lg:min-w-5xl dark:bg-gray-800  max-h-180 sm:max-h-full transition-all overflow-auto"}>
         <DialogHeader className={"px-2 border-b-2 font-bold italic"}>
           <DialogTitle>Modal Quick Log Note</DialogTitle>
         </DialogHeader>
 
         <div className="flex flex-col gap-2">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid lg:grid-cols-2 gap-4">
             <CaseField label="Log Type">
               <SearchCommandBlock
                 value={draft.LogType}
@@ -302,7 +303,7 @@ export const QuickLogNote = ({
 
             <CaseField label="Notes" star>
               <textarea
-                className="w-full h-full min-h-[100px] resize-none border rounded-md p-3 text-sm ring-1 ring-gray-300 shadow-sm"
+                className="w-full h-full lg:min-h-[100px] resize-none border rounded-md p-3 text-sm ring-1 ring-gray-300 shadow-sm"
                 value={draft.Note}
                 onChange={(e) =>
                   caseId && setDraftField(caseId, "Note", e.target.value)
@@ -313,71 +314,12 @@ export const QuickLogNote = ({
             </CaseField>
           </div>
 
-          <div className="rounded-2xl shadow-xl">
-            <Table>
-              <TableHeader className={"bg-slate-300 dark:bg-slate-600"}>
-                <TableRow>
-                  <TableHead className={"dark:text-white"}>Created On</TableHead>
-                  <TableHead className={"dark:text-white"}>Created By</TableHead>
-                  <TableHead className={"dark:text-white"}>Log Type</TableHead>
-                  <TableHead className={"dark:text-white"}>Action Type</TableHead>
-                  <TableHead className={"dark:text-white"}>Role</TableHead>
-                  <TableHead className={"dark:text-white"}>Note</TableHead>
-                </TableRow>
-              </TableHeader>
-
-              <TableBody>
-                {currentData.length > 0 ? (
-                  currentData.map((n) => (
-                    <TableRow key={n.NoteID} className={"dark:text-gray-400"}>
-                      <TableCell>
-                        {n.CreatedOn
-                          ? format(new Date(n.CreatedOn), "yyyy-MM-dd HH:mm")
-                          : "-"}
-                      </TableCell>
-                      <TableCell>
-                        {n.createdByUser?.Name || n.CreatedBy || "-"}
-                      </TableCell>
-                      <TableCell>{n.LogType || "-"}</TableCell>
-                      <TableCell>{n.ActionType || "-"}</TableCell>
-                      <TableCell>{n.createdByUser?.Role || "-"}</TableCell>
-                      <TableCell className="whitespace-pre-wrap max-w-xl">
-                        {parseNoteText(n.Note)}
-                      </TableCell>
-                    </TableRow>
-                  ))
-                ) : (
-                  <TableRow>
-                    <TableCell colSpan={6} className="text-center text-sm text-gray-500">
-                      No notes yet
-                    </TableCell>
-                  </TableRow>
-                )}
-              </TableBody>
-            </Table>
+    <div className="grid grid-cols-1">
+       <CaseNotetable notesList={notesList}/>
           </div>
         </div>
 
-        <div className="flex justify-between">
-          <div className="flex gap-2 items-center">
-            <Button
-              variant={"outline"}
-              onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
-              disabled={currentPage === 1}
-            >
-              Previous
-            </Button>
-            <span>
-              Page {currentPage} of {totalPage}
-            </span>
-            <Button
-              variant={"outline"}
-              onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPage))}
-              disabled={currentPage === totalPage}
-            >
-              Next
-            </Button>
-          </div>
+        <div className="flex justify-end">
 
           <div className="flex items-center gap-2">
             {!askConfirm ? (

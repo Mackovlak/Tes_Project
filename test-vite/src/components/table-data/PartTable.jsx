@@ -12,7 +12,10 @@ import { DataTable } from "./config/data-table"
 import { Button } from "../ui/button"
 import { formatDate } from "@/lib/utils"
 import { Link } from "react-router"
-import { PartAdd, PartDelete, PartEdit } from "../model/sc-modal"
+import { PartAdd } from "../model/MastertabelAdd/PartAdd"
+import { PartEdit } from "../model/MastertabelEdit/PartEdit"
+import { Trash } from "lucide-react"
+import { ConfirmDialog } from "../model/config/ConfirmDialog"
 
 function partColums(opts) {
     return [
@@ -187,6 +190,9 @@ export function PartTable() {
     const [data, setData] = React.useState([])
     const [loading, setLoading] = React.useState(false)
     const [error, setError] = React.useState(null)
+    const [selectedId, setSelectedId] = React.useState(null)
+    const [isDialogOpen, setIsDialogOpen] = React.useState(false)
+    const [isDeleting, setIsDeleting] = React.useState(false)
     const [sorting, setSorting] = React.useState([])
     const [refresh, setRefresh] = React.useState(false) 
 
@@ -212,11 +218,30 @@ export function PartTable() {
         fetchPart()
     }, [fetchPart, refresh])
 
+    const HandleDeletePart = React.useCallback(async () => {
+        try {
+            await ApiCustomer.delete(`/api/service-log/parts-catalog/${selectedId}`)
+            toast.success("Delete part success")
+            fetchPart()
+            setIsDialogOpen(false)
+            setSelectedId(null)
+        } catch (error) {
+            toast.error("Failed to delete Part")
+        }finally {
+            setIsDeleting(false)
+        }
+    },[selectedId, fetchPart])
+
     const columns = React.useMemo(
         () => 
             partColums({
-                onEdit: (id) => <PartEdit PartNumber={id}  onUpdate={fetchPart}/>,
-                onDelete: (id) => <PartDelete PartNumber={id}/>
+                onEdit: (id) => <PartEdit PartId={id}  onUpdate={fetchPart}/>,
+                onDelete: (id) => <Button variant={"outline"} className={"text-red-500 hover:text-red-700"} onClick={() => {
+                    setIsDialogOpen(true)
+                    setSelectedId(id)
+                }}>
+                    <Trash/>
+                </Button>
             }),
         [fetchPart]
     )
@@ -233,13 +258,25 @@ export function PartTable() {
                 error={error}
                 toolbar={(table) => (
                     <DataTableToolbar table={table} searchPlaceholder="🔍 Search part..." loading={loading} handleRefresh={handleRefresh}>
+                        <PartAdd/>
                         <DataTableFacetedFilter
                             title={"All Category"}
                             column={table.getColumn("Keyword")}
                         />
-                        <PartAdd/>
                     </DataTableToolbar>
                 )}
+            />
+            <ConfirmDialog
+                open={isDialogOpen}
+                confirming={isDeleting}
+                onConfirm={HandleDeletePart}
+                onOpenChange={(open) => {
+                    setIsDialogOpen(open)
+                    if (!open) return setSelectedId(null)
+                }}
+                title={"Delete Part"}
+                description="Are you sure you want to delete this part?"
+                confirmLabel="Delete Part"
             />
         </div>
     )

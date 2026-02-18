@@ -12,7 +12,10 @@ import { DataTable } from "./config/data-table"
 import { Button } from "../ui/button"
 import { formatDate } from "@/lib/utils"
 import { Link } from "react-router"
-import { RepairClassCodeAdd, RepairClassCodeDelete, RepairClassCodeEdit } from "../model/sc-modal"
+import { RepairClassCodeAdd,} from "../model/MastertabelAdd/RepairClassCodeAdd"
+import { RepairClassCodeEdit } from "../model/MastertabelEdit/RepairClassCodeEdit"
+import { Trash } from "lucide-react"
+import { ConfirmDialog } from "../model/config/ConfirmDialog"
 
 function repairClassCodeColums(opts) {
     return [
@@ -60,6 +63,14 @@ function repairClassCodeColums(opts) {
             header: ({ column }) => (
                 <DataTableColumnHeader column={column} title={"Payment Eligibility"}/>
             ),
+            cell: ({ getValue }) => {
+                const LabelPayment = {
+                    Eligible: "Eligible",
+                    Not_Eligible: "Not Eligible"
+                }
+                const valuePayment = getValue()
+                return LabelPayment[valuePayment]
+            }
         },
         {
             accessorKey: "CreatedOn",
@@ -88,6 +99,9 @@ export function RepairClassCodeTable() {
     const [data, setData] = React.useState([])
     const [loading, setLoading] = React.useState(false)
     const [error, setError] = React.useState(null)
+    const [selectedId, setSelectedId] = React.useState(null)
+    const [isDeleting, setIsDeleting] = React.useState(false)
+    const [isDialogOpen, setIsDialogOpen] = React.useState(false)
     const [sorting, setSorting] = React.useState([])
     const [refresh, setRefresh] = React.useState(false) 
 
@@ -113,11 +127,30 @@ export function RepairClassCodeTable() {
         fetchRepairClassCode()
     }, [fetchRepairClassCode, refresh])
 
+    const HandleRepairClassCodeDelete = React.useCallback(async () => {
+        try {
+            await ApiCustomer.delete(`/api/repairClassCode/${selectedId}`)
+            toast.success("Delete Repair Class Code Success")
+            fetchRepairClassCode()
+            setIsDialogOpen(false)
+            setSelectedId(null)
+        } catch (error) {
+            toast.error("Delete Failed")
+        }finally {
+            setIsDeleting(false)
+        }
+    },[selectedId, fetchRepairClassCode])
+
     const columns = React.useMemo(
         () => 
             repairClassCodeColums({
                 onEdit: (id) => <RepairClassCodeEdit Code={id}  onUpdate={fetchRepairClassCode}/>,
-                onDelete: (id) => <RepairClassCodeDelete Code={id}/>
+                onDelete: (id) => <Button variant={"outline"} className={"text-red-500 hover:text-red-700"} onClick={() => {
+                    setIsDialogOpen(true)
+                    setSelectedId(id)
+                }}>
+                    <Trash/>
+                </Button>
             }),
         [fetchRepairClassCode]
     )
@@ -134,13 +167,25 @@ export function RepairClassCodeTable() {
                 error={error}
                 toolbar={(table) => (
                     <DataTableToolbar table={table} searchPlaceholder="🔍 Search repair class code..." loading={loading} handleRefresh={handleRefresh}>
+                        <RepairClassCodeAdd/>
                         <DataTableFacetedFilter
                             title={"All Code"}
                             column={table.getColumn("Code")}
                         />
-                        <RepairClassCodeAdd/>
                     </DataTableToolbar>
                 )}
+            />
+            <ConfirmDialog
+            open={isDialogOpen}
+            onOpenChange={(open) => {
+                setIsDialogOpen(open)
+                if (!open) return setSelectedId(null)
+            }}
+            confirming={isDeleting}
+            onConfirm={HandleRepairClassCodeDelete}
+            title={"Delete Repair Class Code"}
+            description={"Are you sure want to delete this part?"}
+            confirmLabel="Delete Repair Class Code"
             />
         </div>
     )

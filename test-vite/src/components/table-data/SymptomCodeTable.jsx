@@ -10,7 +10,10 @@ import { DataTablePagination } from "./config/data-table-pagination"
 import { DataTableFacetedFilter } from "./config/data-table-faceted-filter"
 import { DataTable } from "./config/data-table"
 import { Button } from "../ui/button"
-import { SymptomCodeAdd, SymptomCodeDelete, SymptomCodeEdit } from "../model/sc-modal"
+import { SymptomCodeAdd} from "../model/MastertabelAdd/SymptomCodeAdd"
+import { SymptomCodeEdit } from "../model/MastertabelEdit/SympytomCodeEdit"
+import { Trash } from "lucide-react"
+import { ConfirmDialog } from "../model/config/ConfirmDialog"
 import { formatDate } from "@/lib/utils"
 
 function symptomCodeColums(opts) {
@@ -28,6 +31,12 @@ function symptomCodeColums(opts) {
                 )
             },
         }, 
+        {
+            accessorKey: "SymptomCode",
+            header: ({ column }) => (
+                <DataTableColumnHeader column={column} title={"Symptom Code"}/>
+            ),
+        },
         {
             accessorKey: "TopCategory",
             header: ({ column }) => (
@@ -73,6 +82,9 @@ export function SymptomCodeTable() {
     const [data, setData] = React.useState([])
     const [loading, setLoading] = React.useState(false)
     const [error, setError] = React.useState(null)
+    const [selectedId, setSelectedId] = React.useState(null)
+    const [isDeleting, setIsDeleting] = React.useState(false)
+    const [isDialogOpen, setIsDialogOpen] = React.useState(false)
     const [sorting, setSorting] = React.useState([])
     const [refresh, setRefresh] = React.useState(false) 
 
@@ -97,11 +109,31 @@ export function SymptomCodeTable() {
         fetchSymptomCode()
     }, [fetchSymptomCode, refresh])
 
+    const HandleDeleteSymptomCode = React.useCallback(async () => {
+        if (!selectedId) return;
+        setIsDeleting(true);
+        try {
+            const res = await ApiCustomer.delete(`/api/symptom-codes/${selectedId}`)
+            toast.success("Symptom Code deleted successfully");
+            fetchSymptomCode();
+        } catch (error) {
+            toast.error("Failed to delete Symptom Code");
+        } finally {
+            setIsDeleting(false);
+            setIsDialogOpen(false);
+        }
+    }, [selectedId, fetchSymptomCode]);
+
     const columns = React.useMemo(
         () => 
             symptomCodeColums({
                 onEdit: (id) => <SymptomCodeEdit SymptomCodeID={id}  onUpdate={fetchSymptomCode}/>,
-                onDelete: (id) => <SymptomCodeDelete SymptomCodeID={id}/>
+                onDelete: (id) => <Button variant={"outline"} className={"text-red-500 hover:text-red-700"} onClick={() => {
+                    setSelectedId(id);
+                    setIsDialogOpen(true);
+                }}>
+                    <Trash/>
+                </Button>
             }),
         [fetchSymptomCode]
     )
@@ -118,6 +150,7 @@ export function SymptomCodeTable() {
                 error={error}
                 toolbar={(table) => (
                     <DataTableToolbar table={table} searchPlaceholder="🔍 Search symptomcode..." loading={loading} handleRefresh={handleRefresh}>
+                        <SymptomCodeAdd/>
                        <DataTableFacetedFilter
                         title={"All Top Category"}
                         column={table.getColumn("TopCategory")}
@@ -130,9 +163,20 @@ export function SymptomCodeTable() {
                         title={"All Quality Codes"}
                         column={table.getColumn("QualityCodes")}
                        />
-                       <SymptomCodeAdd/>
                     </DataTableToolbar>
                 )}
+            />
+            <ConfirmDialog
+                open={isDialogOpen}
+                onConfirm={HandleDeleteSymptomCode}
+                confirming={isDeleting}
+                title="Delete Symptom Code"
+                description="Are you sure you want to delete this symptom code?"
+                onOpenChange={(open) => {
+                    setIsDialogOpen(open)
+                    if (!open) selectedId(null)
+                }}
+                confirmLabel="Delete Symptom Code"
             />
         </div>
     )

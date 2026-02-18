@@ -11,7 +11,7 @@ export function ProductTemplateButton() {
   };
 
   return (
-    <Button onClick={handleDownload}>
+    <Button variant={"outline"} onClick={handleDownload}>
       Download Product Template
     </Button>
   );
@@ -51,7 +51,7 @@ export function ProductImport() {
     return (
         <div className="flex items-center gap-3">
             <input type="file" accept=".xlsx, .xls" onChange={handleFileUpload} className="border-2 rounded-sm p-1"/>
-            <Button onClick={handleImport}>Import Product Data</Button>
+            <Button variant={"outline"} onClick={handleImport}>Import Product Data</Button>
         </div>
     );
 }

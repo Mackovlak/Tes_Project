@@ -10,7 +10,10 @@ import { DataTablePagination } from "./config/data-table-pagination"
 import { DataTableFacetedFilter } from "./config/data-table-faceted-filter"
 import { DataTable } from "./config/data-table"
 import { Button } from "../ui/button"
-import { SubkTechnicianAdd, SubkTechnicianDelete, SubkTechnicianEdit } from "../model/sc-modal"
+import { SubkTechnicianAdd,} from "../model/MastertabelAdd/SubkTechnicianAdd"
+import { SubkTechnicianEdit } from "../model/MastertabelEdit/SubkTechnicianEdit"
+import { Trash } from "lucide-react"
+import { ConfirmDialog } from "../model/config/ConfirmDialog"
 
 
 function subkTechnicianColums(opts) {
@@ -66,6 +69,9 @@ export function SubkTechnicianTable() {
     const [data, setData] = React.useState([])
     const [loading, setLoading] = React.useState(false)
     const [error, setError] = React.useState(null)
+    const [selectedId, setSelectedId] = React.useState(null)
+    const [isDeleting, setIsDeleting] = React.useState(false)
+    const [isDialogOpen, setIsDialogOpen] = React.useState(false)
     const [sorting, setSorting] = React.useState([])
     const [refresh, setRefresh] = React.useState(false) 
 
@@ -91,11 +97,32 @@ export function SubkTechnicianTable() {
         fetchSubkTechinician()
     }, [fetchSubkTechinician, refresh])
 
+    const HandleDeleteSubkTechnician = React.useCallback(async () => {
+        if (!selectedId) return
+        setIsDeleting(true)
+        try {
+            await ApiCustomer.delete(`/api/subk-technician/${selectedId}`)
+            toast.success("SubkTechnician deleted successfully")
+            fetchSubkTechinician()
+            setIsDialogOpen(false)
+            setSelectedId(null)
+        } catch (error) {
+            toast.error("Failed to delete SubkTechnician")
+        }finally {
+            setIsDeleting(false)
+        }
+    },[selectedId, fetchSubkTechinician])
+
     const columns = React.useMemo(
         () => 
             subkTechnicianColums({
-                onEdit: (id) => <SubkTechnicianEdit SubkTechnicianId={id}  onUpdate={fetchSubkTechinician}/>,
-                onDelete: (id) => <SubkTechnicianDelete SubkTechnicianId={id}/>
+                onEdit: (id) => <SubkTechnicianEdit subkTechnicianId={id}  onUpdate={fetchSubkTechinician}/>,
+                onDelete: (id) => <Button variant={"outline"} className={"text-red-500 hover:text-red-700"} onClick={() => {
+                    setSelectedId(id)
+                    setIsDialogOpen(true)
+                }}>
+                    <Trash/>
+                </Button>
             }),
         [fetchSubkTechinician]
     )
@@ -112,6 +139,7 @@ export function SubkTechnicianTable() {
                 error={error}
                 toolbar={(table) => (
                     <DataTableToolbar table={table} searchPlaceholder="🔍 Search subktechnician..." loading={loading} handleRefresh={handleRefresh}>
+                        <SubkTechnicianAdd/>
                        <DataTableFacetedFilter
                         title={"All Subktechnician"}
                         column={table.getColumn("SubkTechnicianId")}
@@ -120,9 +148,20 @@ export function SubkTechnicianTable() {
                         title={"All Name"}
                         column={table.getColumn("Name")}
                        />
-                       <SubkTechnicianAdd/>
                     </DataTableToolbar>
                 )}
+            />
+            <ConfirmDialog
+                open={isDialogOpen}
+                title="Delete Subk Technician"
+                description="Are you sure you want to delete this Subk Technician?"
+                onConfirm={HandleDeleteSubkTechnician}
+                confirming={isDeleting}
+                onOpenChange={(open) => {
+                    setIsDialogOpen(open)
+                    if (!open) setSelectedId(null)
+                }} 
+                confirmLabel="Delete Subk Technician"
             />
         </div>
     )

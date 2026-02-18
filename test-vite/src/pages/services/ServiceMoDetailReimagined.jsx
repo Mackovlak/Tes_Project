@@ -127,7 +127,7 @@ export const ServiceMaterialApo = () => {
         <CardContent className="p-0">
           <Tabs defaultValue="mo_info">
             {/* Header card */}
-            <Card className="flex  p-4 h-25 rounded-none dark:bg-gradient-to-r dark:from-slate-800 dark:via-slate-700 dark:to-slate-800  dark:border-b-slate-600">
+            <Card className="flex  p-4 h-fit rounded-none dark:bg-gradient-to-r dark:from-slate-800 dark:via-slate-700 dark:to-slate-800  dark:border-b-slate-600">
               <CardHeader>
                 <CardTitle className="text-xl">
                   {materialOrder?.MOID} for {materialOrder?.WOID}
@@ -199,7 +199,7 @@ export const ServiceMaterialApo = () => {
                   <CardTitle className="text-lg">Order Information</CardTitle>
                   <hr className="dark:border-gray-400"/>
                 </CardHeader>
-                <CardContent className="grid items-center grid-cols-2 md:grid-cols-4 gap-5">
+                <CardContent className="grid items-center grid-cols-1 md:grid-cols-4 gap-5">
                   <CaseField label={"Case ID"} lock>
                     <Input
                       className={"dark:text-white cursor-pointer hover:text-blue-400 dark:hover:text-blue-400 dark:border-b-gray-400 dark:rounded-none dark:hover:border-transparent dark:focus:border-transparent dark:focus:rounded-lg dark:p-2"}
@@ -405,7 +405,7 @@ export const ServiceMaterialApo = () => {
 
                   {/* Accordion more detail */}
                   <Accordion
-                    className="col-span-2 md:col-span-4"
+                    className="col-span-1 md:col-span-4"
                     type="single"
                     collapsible
                   >

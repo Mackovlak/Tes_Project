@@ -127,19 +127,19 @@ function bookingDetailsColums(opts) {
             ),
             cell: ({ getValue }) => formatDate(getValue())
         },
-        {
-            id: "actions",
-            header: () => <div className="text-center">Actions</div>,
-            cell: ({ row }) => {
-                const id = row.original.BookingId
-            return (
-                <div className="flex justify-center gap-2">
-                    {opts.onEdit(id)}
-                    {opts.onDelete(id)}
-                </div>
-            )
-            },
-        },
+        // {
+        //     id: "actions",
+        //     header: () => <div className="text-center">Actions</div>,
+        //     cell: ({ row }) => {
+        //         const id = row.original.BookingId
+        //     return (
+        //         <div className="flex justify-center gap-2">
+        //             {opts.onEdit(id)}
+        //             {opts.onDelete(id)}
+        //         </div>
+        //     )
+        //     },
+        // },
     ]
 }
 
@@ -209,7 +209,7 @@ export function BookingDetailsTable() {
                         title={"All Changed By"}
                         column={table.getColumn("IDUser")}
                        />
-                       <BookingDetailsAdd/>
+                       {/* <BookingDetailsAdd/> */}
                     </DataTableToolbar>
                 )}
             />

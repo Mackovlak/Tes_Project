@@ -258,16 +258,16 @@ const delaytime = createdOninsec + TimeDelay();
         {/* FORM VIEW */}
         {step === "form" && (
           <Card className="mt-2">
-            <CardContent className="grid grid-cols-4 gap-3">
+            <CardContent className="grid grid-cols-1 md:grid-cols-4 gap-3 overflow-auto h-100 md:h-fit">
               {isCancelRepair && (
-                <CaseField label="Cancel Reason" lock={!canEdit} span={3} star={isCancelRepair}>
+                <CaseField label="Cancel Reason" lock={!canEdit} span={3} star={isCancelRepair} indent>
                   <Textarea
                     onChange={(e) => handleChange("cancelReason", e.target.value)}
                   />
                 </CaseField>
               )}
 
-              <CaseField label="Problem category" lock={!canEdit}>
+              <CaseField label="Problem category" lock={!canEdit} indent>
                 <SearchCommandBlock
                   value={problemCategory}
                   onChange={(selectedValue)=>{
@@ -282,7 +282,7 @@ const delaytime = createdOninsec + TimeDelay();
                 />
               </CaseField>
 
-              <CaseField label="Service type" lock={!canEdit}>
+              <CaseField label="Service type" lock={!canEdit} indent>
                 <SearchCommandBlock
                   value={formData.serviceType}
                   onChange={(selectedValue)=>{
@@ -296,25 +296,25 @@ const delaytime = createdOninsec + TimeDelay();
                   readOnly={!canEdit}
                 />
               </CaseField>
-              <CaseField label="Defect desc" star={canEdit} lock={!canEdit}>
+              <CaseField label="Defect desc" star={canEdit} lock={!canEdit} indent>
                 <Textarea
                   onChange={(e) => handleChange("defectDesc", e.target.value)}
                 />
               </CaseField>
 
-              <CaseField label="CE analysis" star={canEdit} lock={!canEdit}>
+              <CaseField label="CE analysis" star={canEdit} lock={!canEdit} indent>
                 <Textarea
                   onChange={(e) => handleChange("ceAnalysis", e.target.value)}
                 />
               </CaseField>
 
-              <CaseField label="Repair Action" star={canEdit} lock={!canEdit}>
+              <CaseField label="Repair Action" star={canEdit} lock={!canEdit} indent>
                 <Textarea
                   onChange={(e) => handleChange("repairAction", e.target.value)}
                 />
               </CaseField>
 
-              <CaseField label="NMU" lock={!canEdit}>
+              <CaseField label="NMU" lock={!canEdit} indent>
                   <SearchCommandBlock
                     value={formData.nmu}
                     onChange={(selectedValue)=>{
@@ -332,6 +332,7 @@ const delaytime = createdOninsec + TimeDelay();
 
               <CaseField label="NMU Item" lock={!canEdit} 
               hide={!NMUItemNeed}
+              indent
               >
                 <SearchCommandBlock
                   value={formData.nmuItem}
@@ -349,6 +350,7 @@ const delaytime = createdOninsec + TimeDelay();
 
               <CaseField label="Version" lock={!canEdit} 
               hide={!NMUVersionNeed}
+              indent
               >
                 <Input
                   id="Version"
@@ -357,7 +359,7 @@ const delaytime = createdOninsec + TimeDelay();
                 />
               </CaseField>
                 
-              <CaseField label="Delay code" star={canEdit} lock={!canEdit}  hide={!delayToggle}>
+              <CaseField label="Delay code" star={canEdit} lock={!canEdit}  hide={!delayToggle} indent>
                 <SearchCommandBlock
                   value={delayCodeEnumToLabel[formData.delayCode] || "Search Delay Code"}
                   onChange={(selectedValue)=>{

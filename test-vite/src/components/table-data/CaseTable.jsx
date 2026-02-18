@@ -17,6 +17,7 @@ import { get } from "react-hook-form"
 import { File } from "lucide-react"
 import { Link } from "react-router"
 import { CaseImport, CaseTemplateButton } from "../importFileComponent/CaseImport"
+import { ExportExcel } from "../Export-Excel"
 
 function caseColums() {
     return [
@@ -62,7 +63,7 @@ function caseColums() {
             header: ({ column }) => (
                 <DataTableColumnHeader column={column} title={"ERF"}/>
             ),
-            cell: ({ getValue }) => getValue() && <Button onClick={() => window.open(`${import.meta.env.VITE_API_BASE_URL}${getValue()}`)}><File/></Button>
+            cell: ({ getValue }) => getValue() && <Button variant={"outline"} className={"border-none"} onClick={() => window.open(`${import.meta.env.VITE_API_BASE_URL}${getValue()}`)}><File/></Button>
         },
         {
             accessorKey: "CaseSubject",
@@ -246,6 +247,9 @@ export function CaseTable() {
                 error={error}
                 toolbar={(table) => (
                     <DataTableToolbar table={table} searchPlaceholder="🔍 Search case..." loading={loading} handleRefresh={handleRefresh}>
+                         {user?.role === 'admin' || user?.role === 'fd' ||  user?.role === 'celead' ||  user?.role === 'spv' ? 
+                            <ExportExcel caseData={data} resource={user?.resource} isAdmin={user?.role === 'admin' || user?.role === 'spv'}/>
+                        : null}
                         <DataTableFacetedFilter
                             title="All Product Name"
                             column={table.getColumn("SerialNumber")}

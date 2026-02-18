@@ -1109,6 +1109,7 @@ import Approvel from "../layout/Apv_page";
 import { DatePickertoDateOrNull, formatDateForInput } from "../lib/utils";
 import { EMPTY_DRAFT, EMPTY_NOTES, useCaseNotesStore } from "@/hooks/useCaseNoteStore";
 import { BASE_STATUS_KEYS, extractRoleFromStatus, ROLE_STATUS_EXTRAS, STATUS_ENUM_TO_LABEL, STATUS_ENUM_TO_LABEL_WO, STATUS_LABELS } from "@/hooks/useCaseStatus";
+import { CaseNotetable } from "@/components/table-data/CaseNotetable";
 const suffixToRoleMap = {
   CE: "ce",
   APO: "apo",
@@ -1299,10 +1300,8 @@ useEffect(() => {
   }, {});
 
   const ownerRole = (
-    ownerUserData?.Role ??
-    ownerUserData?.role ??
-    caseDetails?.owner?.Role ??
-    user?.role ??
+    caseDetails?.owner?.Role ||
+    user?.role ||
     ""
   )
     .toString()
@@ -1418,6 +1417,7 @@ useEffect(() => {
   ];
 
   let totalquoLineItemPrice = 0;
+  const permissionModal = ["fd","admin","spv","cm"]
 
   return (
     <>
@@ -1431,17 +1431,17 @@ useEffect(() => {
       <Card className="border-0 dark:rounded-none bg-gradient-to-t  dark:from-slate-800 dark:via-slate-600 dark:to-slate-800 dark:to-70% dark:via-6% dark:from-1%">
         <Tabs defaultValue="case_info" onValueChange={(value) => {window.location.hash = value.toLowerCase()}}>
           <CardHeader className="sticky top-24 z-5 w-full border-b bg-white shadow-sm flex flex-col dark:bg-gradient-to-r dark:from-slate-800 dark:via-slate-700 dark:to-slate-800 dark:border-b-slate-600">
-            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 p-4">
+            <div className="flex flex-col sm:flex-row md:items-center md:justify-between gap-2 p-2 lg:gap-4 lg:p-4">
               {/* LEFT SIDE - Case Info */}
               <div>
-                <h1 className="text-2xl font-semibold">{caseDetails.CaseID}</h1>
-                <p className="text-lg text-muted-foreground">
+                <h1 className="text-lg lg:text-2xl font-semibold">{caseDetails.CaseID}</h1>
+                <p className="text-md lg:text-lg text-muted-foreground">
                   {caseDetails.CaseSubject}
                 </p>
               </div>
 
               {/* RIGHT SIDE - Quick Info */}
-              <div className="flex flex-wrap items-center gap-4 text-sm">
+              <div className="flex flex-wrap items-center gap-2 lg:gap-4 text-sm">
                 {/* Owner */}
                 <div className="flex flex-col">
                   <span className="text-blue-600 font-medium dark:text-white">
@@ -1510,8 +1510,8 @@ useEffect(() => {
             </div>
 
             {/* TABS */}
-            <div className=" border-t bg-gray-50 w-full overflow-x-auto h-fit no-scrollbar">
-              <TabsList className="sm:w-full w-fit flex gap-4 h-fit p-0  dark:bg-gradient-to-r dark:from-slate-800 dark:via-slate-700 dark:to-slate-800  dark:border-b-slate-600 dark:rounded-none">
+            <div className="  w-full overflow-x-auto h-fit no-scrollbar">
+              <TabsList className="sm:w-full w-fit flex gap-4 h-fit p-0  dark:bg-gradient-to-r dark:from-slate-800 dark:via-slate-700 dark:to-slate-800  dark:border-b-slate-600 dark:rounded-none rounded-sm">
                 {tabs.map((tab, index) =>
                   tab.component ? (
                     <div key={index}>{tab.component}</div>
@@ -1531,16 +1531,9 @@ useEffect(() => {
               </TabsList>
             </div>
           </CardHeader>
-          {/* Example of changed bindings in Case Info tab: */}
           <TabsContent value="case_info" className="p-2 flex flex-col gap-5">
-            {/* ... your existing JSX, but:
-                - value={caseForm.CaseSubject}
-                - onChange={e => onChangeCase("CaseSubject")(e.target.value)}
-                - customer fields from customerData instead of dataFetchCustomerData
-                - etc.
-            */}
             <div className={" grid lg:grid-cols-2 md:grid-cols-1 gap-4"}>
-              <Card className="flex-col dark:bg-gradient-to-tl dark:from-slate-600 dark:via-slate-800 dark:to-slate-800  dark:border-slate-700 dark:border-4">
+              <Card className="flex-col dark:bg-gradient-to-tl dark:from-slate-600 dark:via-slate-800 dark:to-slate-800  dark:border-slate-700 dark:border-2">
                 <CardHeader>
                   <CardTitle className={"text-lg  flex gap-3"}>
                     <Briefcase />
@@ -1548,14 +1541,13 @@ useEffect(() => {
                   </CardTitle>
                   <hr className="dark:border-gray-500"/>
                 </CardHeader>
-                <CardContent className="grid grid-cols-3 gap-3 ">
+                <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-3 ">
                   <CaseField
                     label="Case Subject"
-                    span={3}
-                    childClass={"col-span-3"}
+                    span={2}
                     lock={!canEditFd}
                   >
-                    <div className="ml-8 w-full" id="case-subject">
+                    <div className="lg:ml-8 w-full" id="case-subject">
                       <Textarea
                         value={caseForm?.CaseSubject}
                         onChange={(e) =>
@@ -1567,22 +1559,24 @@ useEffect(() => {
                     </div>
                   </CaseField>
                   
-                  {caseForm.CaseStatus === "Void" && (
-                    <CaseField label={"Void Reason"} span={2} star>
+                  {caseDetails.CaseStatus === "Void" && (
+                    <CaseField
+                      label={"Void Reason"} 
+                      star 
+                      lock={!canEditFd}>
                       <Input
                         value={caseForm?.VoidReason}
+                        variant={'outline'}
                         onChange={(e) =>
                           onChangeCase("VoidReason")(e.target.value)
                         }
+                        className={"dark:text-white dark:border-b-gray-400 dark:rounded-none dark:hover:border-transparent dark:focus:border-transparent dark:focus:rounded-lg dark:p-2"}
                       />
                     </CaseField>
                   )}
 
                   <CaseField
                     label="Case ID manual"
-                    className={"mt-2"}
-                    childClass={"col-span-2"}
-                    span={2}
                     lock={!canEditApo}
                   >
                     <Input
@@ -1597,9 +1591,6 @@ useEffect(() => {
 
                   <CaseField
                     label="Case ID manual Date"
-                    className={"mt-2"}
-                    childClass={"col-span-2"}
-                    span={2}
                     lock={!canEditApo}
                   >
                     <DatePicker
@@ -1612,10 +1603,13 @@ useEffect(() => {
                     />
                   </CaseField>
 
-                  <CaseField label={"Reference Case"} lock span={2}>
+                  <CaseField
+                    label={"Reference Case"} 
+                    lock={user?.role !== 'admin' && user?.role !== 'spv'}
+                  >
                     <Input
-                      value={caseDetails.ReferenceCase}
-                      readOnly
+                      value={caseForm?.ReferenceCase}
+                      onChange={(e) => onChangeCase("ReferenceCase")(e.target.value)}
                       className={"dark:text-white dark:border-b-gray-400 dark:rounded-none dark:hover:border-transparent dark:focus:border-transparent dark:focus:rounded-lg dark:p-2"}
                     />
                   </CaseField>
@@ -1623,9 +1617,6 @@ useEffect(() => {
                   {/* detail owner */}
                   <CaseField
                     label="Created By"
-                    className={"mt-2"}
-                    childClass={"col-span-2"}
-                    span={2}
                     lock
                   >
                     <Input
@@ -1638,9 +1629,6 @@ useEffect(() => {
                   {caseDetails?.workorder[0]?.owner?.IDUser && (
                     <CaseField
                       label="Engineer name"
-                      className={"mt-2"}
-                      childClass={"col-span-2"}
-                      span={2}
                       lock
                     >
                       <Input
@@ -1656,9 +1644,6 @@ useEffect(() => {
                     ?.quotation?.User?.IDUser && (
                     <CaseField
                       label="CM name"
-                      className={"mt-2"}
-                      childClass={"col-span-2"}
-                      span={2}
                       lock
                     >
                       <Input
@@ -1676,9 +1661,6 @@ useEffect(() => {
                   {caseDetails?.workorder[0]?.materialorder[0]?.owner?.IDUser && (
                     <CaseField
                       label="APO name"
-                      className={"mt-2"}
-                      childClass={"col-span-2"}
-                      span={2}
                       lock
                     >
                       <Input
@@ -1694,9 +1676,6 @@ useEffect(() => {
 
                   <CaseField
                     label="Case Status"
-                    className={"mt-2"}
-                    childClass={"col-span-2"}
-                    span={2}
                     lock={!canEdit}
                   >
                     <SearchCommandBlock
@@ -1730,14 +1709,11 @@ useEffect(() => {
                       }}
                       placeholder="--Select--"
                       options={statusOptions}
-                      className={"dark:bg-transparent dark:ring-1 dark:ring-gray-400"}
+                      className={"dark:bg-transparent dark:ring-1 dark:ring-gray-400 border-b-2 border-b-neutral-400 shadow-md hover:shadow-lg "}
                     />
                   </CaseField>
                   <CaseField
                     label="Assign To"
-                    className={"mt-2"}
-                    childClass={"col-span-2"}
-                    span={2}
                     hide={!hideAssignTo}
                   >
                     <SearchCommandBlock
@@ -1761,16 +1737,13 @@ useEffect(() => {
                       }))}
                       renderLabel={(opt) => opt.label}
                       getValue={(opt) => opt.value}
-                      className={"dark:bg-transparent dark:ring-1 dark:ring-gray-400 "}
+                      className={"dark:bg-transparent dark:ring-1 dark:ring-gray-400 border-b-2 border-b-neutral-400 shadow-md hover:shadow-lg"}
                     />
                   </CaseField>
 
                   <CaseField
                     label="Case Type"
                     open
-                    className={"mt-2"}
-                    childClass={"col-span-2"}
-                    span={2}
                     lock={!canEditFd}
                   >
                     <SearchCommandBlock
@@ -1779,17 +1752,16 @@ useEffect(() => {
                       onChange={onChangeCase("CaseType")}
                       placeholder="--Select--"
                       options={["Depot Repair", "Onsite", "Bench", "DOA", "Express"]}
-                      className={"dark:bg-transparent dark:ring-1 dark:ring-gray-400 "}
+                      className={"dark:bg-transparent dark:ring-1 dark:ring-gray-400 border-b-2 border-b-neutral-400 shadow-md hover:shadow-lg"}
                     />
                   </CaseField>
 
                   <CaseField
                     label="Problem Description"
-                    span={3}
                     lock={!canEditFd}
-                    childClass={" col-span-3"}
+                    span={2}
                   >
-                    <div className="ml-8 w-full" id="problem-desc">
+                    <div className="lg:ml-8 w-full" id="problem-desc">
                       <Textarea
                         value={caseForm?.ProblemDescription}
                         onChange={(e) =>
@@ -1803,10 +1775,8 @@ useEffect(() => {
 
                   <CaseField
                     label="Case Priority"
-                    className={"mt-2"}
-                    childClass={"col-span-2"}
-                    span={2}
                     lock={!canEditFd}
+                    star
                   >
 
                     <SearchCommandBlock
@@ -1819,14 +1789,12 @@ useEffect(() => {
                         "3 Businnes Days (3BD)",
                       ]}
 
-                      className={"dark:bg-transparent dark:ring-1 dark:ring-gray-400 "}
+                      className={"dark:bg-transparent dark:ring-1 dark:ring-gray-400 border-b-2 border-b-neutral-400 shadow-md hover:shadow-lg"}
                     />
                   </CaseField>
 
                   <CaseField
                     label="KCI For Case?"
-                    childClass={"col-span-2"}
-                    span={2}
                     lock
                   >
                     <Input
@@ -1836,8 +1804,6 @@ useEffect(() => {
                   </CaseField>
                   <CaseField
                     label="Created ON"
-                    childClass={"col-span-2"}
-                    span={2}
                     lock
                   >
                     <DatePicker
@@ -1848,8 +1814,6 @@ useEffect(() => {
 
                   <CaseField
                     label="Case Closed Date"
-                    childClass={"col-span-2"}
-                    span={2}
                     lock
                   >
                     <DatePicker
@@ -1858,7 +1822,7 @@ useEffect(() => {
                     ></DatePicker>
                   </CaseField>
 
-                  <Accordion type="single" collapsible className=" col-span-3">
+                  <Accordion type="single" collapsible className=" md:col-span-2">
                     <AccordionItem value="more-details" className="pl-5">
                       <AccordionTrigger
                         className={
@@ -1939,7 +1903,7 @@ useEffect(() => {
                 </CardContent>
               </Card>
 
-              <Card className="flex-col dark:bg-gradient-to-tr dark:from-slate-600 dark:via-slate-800 dark:to-slate-800  dark:border-slate-700 dark:border-4">
+              <Card className="flex-col dark:bg-gradient-to-tr dark:from-slate-600 dark:via-slate-800 dark:to-slate-800  dark:border-slate-700 dark:border-2">
                 <CardHeader>
                   <CardTitle className="text-lg flex gap-3">
                     <Contact />
@@ -1947,8 +1911,9 @@ useEffect(() => {
                   </CardTitle>
                   <hr className="dark:border-gray-500"/>
                 </CardHeader>
-                <CardContent className="grid items-center grid-cols-2 gap-3">
-                  <CaseField label="Customer Account" lock>
+                <CardContent className="grid items-center grid-cols-1 md:grid-cols-2 gap-3">
+                  <CaseField label="Customer Account" lock
+                  >
                     <Input
                       value={
                         customerData?.Type == "SiteAccount"
@@ -1964,7 +1929,8 @@ useEffect(() => {
                       className={"dark:text-white dark:border-b-gray-400 dark:rounded-none dark:hover:border-transparent dark:focus:border-transparent dark:focus:rounded-lg dark:p-2"}
                     />
                   </CaseField>
-                  <CaseField label="Primary Contact" lock>
+                  <CaseField label="Primary Contact" lock
+                  >
                     <Input
                       value={
                         customerData.MainAccount?.Salutation &&
@@ -1980,10 +1946,12 @@ useEffect(() => {
                       className={"dark:text-white dark:border-b-gray-400 dark:rounded-none dark:hover:border-transparent dark:focus:border-transparent dark:focus:rounded-lg dark:p-2"}
                     />
                   </CaseField>
-                  <CaseField label="Secondary Contact" lock>
+                  <CaseField label="Secondary Contact" lock
+                  >
                     <Input  placeholder="---" className={"dark:text-white dark:border-b-gray-400 dark:rounded-none dark:hover:border-transparent dark:focus:border-transparent dark:focus:rounded-lg dark:p-2"}/>
                   </CaseField>
-                  <CaseField label=" Primary Email" lock>
+                  <CaseField label=" Primary Email" lock
+                  >
                     <Input
                       value={
                         customerData.MainAccount?.Email
@@ -1995,7 +1963,8 @@ useEffect(() => {
                       className={"dark:text-white dark:border-b-gray-400 dark:rounded-none dark:hover:border-transparent dark:focus:border-transparent dark:focus:rounded-lg dark:p-2"}
                     />
                   </CaseField>
-                  <CaseField label="Country" lock>
+                  <CaseField label="Country" lock
+                  >
                     <Input
                       value={
                         customerData?.Type == "SiteAccount"
@@ -2008,7 +1977,8 @@ useEffect(() => {
                       className={"dark:text-white dark:border-b-gray-400 dark:rounded-none dark:hover:border-transparent dark:focus:border-transparent dark:focus:rounded-lg dark:p-2"}
                     />
                   </CaseField>
-                  <CaseField label="Phone" lock>
+                  <CaseField label="Phone" lock
+                  >
                     <Input
                       value={customerData?.Type == "SiteAccount"
                         ? customerData?.SiteAccount?.PrimaryPhone
@@ -2019,7 +1989,8 @@ useEffect(() => {
                         className={"dark:text-white dark:border-b-gray-400 dark:rounded-none dark:hover:border-transparent dark:focus:border-transparent dark:focus:rounded-lg dark:p-2"}
                     />
                   </CaseField>
-                  <CaseField label="Region" lock>
+                  <CaseField label="Region" lock
+                  >
                     <Input
                       placeholder="---"
                       value={
@@ -2037,34 +2008,40 @@ useEffect(() => {
                       className={"dark:text-white dark:border-b-gray-400 dark:rounded-none dark:hover:border-transparent dark:focus:border-transparent dark:focus:rounded-lg dark:p-2"}
                     />
                   </CaseField>
-                  <CaseField label="Is Partner" lock>
+                  <CaseField label="Is Partner" lock
+                  >
                     <Input className={"dark:text-white dark:border-b-gray-400 dark:rounded-none dark:hover:border-transparent dark:focus:border-transparent dark:focus:rounded-lg dark:p-2"} placeholder="---" />
                   </CaseField>
-                  <CaseField label="Partner & Customer" lock>
+                  <CaseField label="Partner & Customer" lock
+                  >
                     <Input className={"dark:text-white dark:border-b-gray-400 dark:rounded-none dark:hover:border-transparent dark:focus:border-transparent dark:focus:rounded-lg dark:p-2"} placeholder="---" />
                   </CaseField>
-                  <CaseField label="PIC Name" lock>
+                  <CaseField label="PIC Name" lock
+                  >
                     <Input
                       className={"dark:text-white dark:border-b-gray-400 dark:rounded-none dark:hover:border-transparent dark:focus:border-transparent dark:focus:rounded-lg dark:p-2"}
                       placeholder="---"
                       value={customerData.MainAccount?.PIC_Name}
                     />
                   </CaseField>
-                  <CaseField label="PIC Email" lock>
+                  <CaseField label="PIC Email" lock
+                  >
                     <Input
                       className={"dark:text-white dark:border-b-gray-400 dark:rounded-none dark:hover:border-transparent dark:focus:border-transparent dark:focus:rounded-lg dark:p-2"}
                       placeholder="---"
                       value={customerData.MainAccount?.PIC_Email}
                     />
                   </CaseField>
-                  <CaseField label="PIC Phone no." lock>
+                  <CaseField label="PIC Phone no." lock
+                  >
                     <Input
                       className={"dark:text-white dark:border-b-gray-400 dark:rounded-none dark:hover:border-transparent dark:focus:border-transparent dark:focus:rounded-lg dark:p-2"}
                       placeholder="---"
                       value={customerData.MainAccount?.PIC_Phone}
                     />
                   </CaseField>
-                  <CaseField label="NPWP" lock>
+                  <CaseField label="NPWP" lock
+                  >
                     <Input
                       className={"dark:text-white dark:border-b-gray-400 dark:rounded-none dark:hover:border-transparent dark:focus:border-transparent dark:focus:rounded-lg dark:p-2"}
                       placeholder="---"
@@ -2072,7 +2049,7 @@ useEffect(() => {
                     />
                   </CaseField>
 
-                  <Accordion type="single" collapsible className="col-span-2">
+                  <Accordion type="single" collapsible className="md:col-span-2">
                     <AccordionItem value="more-details" className={"pl-5 "}>
                       <AccordionTrigger
                         className={
@@ -2121,7 +2098,7 @@ useEffect(() => {
             </div>
             {/* --- Card 1: Customer Issue & System Info --- */}
 
-            <Card className="flex-col dark:bg-gradient-to-l dark:from-slate-800 dark:via-slate-600 dark:to-slate-800  dark:border-slate-700 dark:border-4">
+            <Card className="flex-col dark:bg-gradient-to-l dark:from-slate-800 dark:via-slate-600 dark:to-slate-800  dark:border-slate-700 dark:border-2">
               <CardHeader>
                 <CardTitle className="text-lg  flex gap-3">
                   <FileSliders />
@@ -2195,7 +2172,7 @@ useEffect(() => {
               </CardContent>
             </Card>
             {/* --- Card 2: Case Notes --- */}
-            <Card className="dark:bg-radial-[at_50%_20%] dark:from-slate-600 dark:via-slate-800 dark:to-slate-700  dark:border-slate-700 dark:border-4">
+            <Card className="dark:bg-radial-[at_50%_20%] dark:from-slate-600 dark:via-slate-800 dark:to-slate-700  dark:border-slate-700 dark:border-2">
               <CardHeader>
                 <CardTitle className="text-xl flex gap-2 ">
                   <NotepadText />
@@ -2214,7 +2191,7 @@ useEffect(() => {
                         onChange={(val) => setDraftField(caseId,"LogType", val)}
                         options={["Notes Log", "Phone Log"]}
                         placeholder="--Select--"
-                        className={"dark:bg-transparent dark:ring-1 dark:ring-gray-400 "}
+                        className={"dark:bg-transparent dark:ring-1 dark:ring-gray-400 border-b-2 border-b-neutral-400 shadow-md hover:shadow-lg"}
                       />
                     </CaseField>
 
@@ -2231,7 +2208,7 @@ useEffect(() => {
                           "CE/Partner Assist",
                           "Customer Email",
                         ]}
-                        className={"dark:bg-transparent dark:ring-1 dark:ring-gray-400 "}
+                        className={"dark:bg-transparent dark:ring-1 dark:ring-gray-400 border-b-2 border-b-neutral-400 shadow-md hover:shadow-lg"}
                       />
                     </CaseField>
 
@@ -2247,63 +2224,8 @@ useEffect(() => {
                       />
                     </CaseField>
                   </div>
-                  <div className="w-full overflow-auto rounded-2xl shadow-xl dark:bg-slate-900/90 dark:border-slate-700">
-                    <Table>
-                      <TableHeader className={"bg-slate-300 dark:bg-slate-700/90"}>
-                        <TableRow>
-                          <TableHead>Created On</TableHead>
-                          <TableHead>Created By</TableHead>
-                          <TableHead>Log Type</TableHead>
-                          <TableHead>Action Type</TableHead>
-                          <TableHead>Role</TableHead>
-                          <TableHead>Note</TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {Array.isArray(notesList) && notesList.length > 0 ? (
-                          notesList.map((n, i) => (
-                            <TableRow key={n.NoteID} className={cn(
-                                              "hover:bg-blue-50/70 dark:hover:bg-slate-700",
-                                              i % 2 === 0
-                                                ? "bg-white dark:bg-slate-900"
-                                                : "bg-gray-50 dark:bg-slate-800/80"
-                                             )}>
-                              <TableCell>
-                                {n.CreatedOn
-                                  ? format(
-                                      new Date(n.CreatedOn),
-                                      "yyyy-MM-dd HH:mm"
-                                    )
-                                  : "-"}
-                              </TableCell>
-                              <TableCell>
-                                {n.createdByUser?.Name || n.CreatedBy || "-"}
-                              </TableCell>
-                              <TableCell>{n.LogType || "-"}</TableCell>
-                              <TableCell>{n.ActionType || "-"}</TableCell>
-                              <TableCell>
-                                {n.createdByUser?.Role || "-"}
-                              </TableCell>
-                              <TableCell
-                                colSpan="3"
-                                className="whitespace-pre-wrap max-w-xl"
-                              >
-                                {parseNoteText(n.Note)}
-                              </TableCell>
-                            </TableRow>
-                          ))
-                        ) : (
-                          <TableRow>
-                            <TableCell
-                              colSpan={4}
-                              className="text-center text-sm text-gray-500"
-                            >
-                              No notes yet
-                            </TableCell>
-                          </TableRow>
-                        )}
-                      </TableBody>
-                    </Table>
+                  <div className="rounded-2xl bg-white/95 dark:bg-slate-900/90 border border-slate-200 shadow-md p-2 grid grid-cols-1">
+                   <CaseNotetable notesList={notesList} />
                   </div>
                 </div>
               </CardContent>
@@ -2317,7 +2239,7 @@ useEffect(() => {
                   <CardTitle className="text-lg ">Asset Information</CardTitle>
                   <hr className="dark:border-gray-500"/>
                 </CardHeader>
-                <CardContent className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-6">
+                <CardContent className="grid grid-cols-1 sm:grid-cols-4 lg:grid-cols-6 gap-6">
                   <CaseField
                     label="Category Warranty"
                     lock
@@ -2471,7 +2393,7 @@ useEffect(() => {
                           onChangeCase("Owner")(OwnerApv.IDUser);
                         }
                       }}
-                      className={"cursor-pointer dark:bg-transparent dark:ring-2 dark:ring-gray-400 dark:rounded-md dark:text-white"}
+                      className={"cursor-pointer dark:bg-transparent dark:ring-2 dark:ring-gray-400 dark:rounded-md dark:text-white border-b-slate-500 shadow-lg border-b-2 data-[state=open]:border-b-0 transition-all"}
                     />
                   </CaseField>
 
@@ -2493,7 +2415,7 @@ useEffect(() => {
                       onChange={handleEntitlementStatus(
                         "WarrantyApprovalStatus"
                       )}
-                      className={"dark:bg-transparent dark:ring-2 dark:ring-gray-400 dark:rounded-md dark:text-white"}
+                      className={"dark:bg-transparent dark:ring-2 dark:ring-gray-400 dark:rounded-md dark:text-white border-b-slate-500 shadow-lg border-b-2 data-[state=open]:border-b-0 transition-all"}
                     />
                   </CaseField>
 
@@ -2840,7 +2762,7 @@ useEffect(() => {
                   <CardTitle className="text-lg ">Work Order</CardTitle>
                   <hr className="dark:border-gray-500"/>
                 </CardHeader>
-                <CardContent className="flex flex-col gap-5 p-3 ">
+                <CardContent className="flex flex-col gap-5  ">
                   <div className="grid grid-cols-4 gap-5" hidden>
                     <CaseField label="Incident Type" span={3}>
                       <Input className={"dark:text-white dark:border-b-gray-400 mt-2 dark:rounded-none dark:hover:border-transparent dark:focus:border-transparent dark:focus:rounded-lg dark:p-2"} placeholder="---" />
@@ -3365,6 +3287,7 @@ useEffect(() => {
                     <CardTitle className={"text-lg"}>
                       Invoice Information
                     </CardTitle>
+                    {permissionModal.includes(user?.role) && (
                     <Button
                       className={'cursor-pointer dark:bg-gradient-to-bl dark:from-slate-800 dark:via-slate-600 dark:to-slate-700 dark:border-b-slate-600 dark:to-60% dark:via-100% dark:from-50%'}
                       size="sm"
@@ -3376,6 +3299,7 @@ useEffect(() => {
                     >
                       {invoiceSummary ? "Edit Invoice" : "Buat Invoice"}
                     </Button>
+                    )}
                   </div>
                   <hr className="dark:border-gray-500"/>
                 </CardHeader>
@@ -3537,6 +3461,7 @@ useEffect(() => {
                 <CardHeader className="space-y-2">
                   <div className="flex items-center justify-between">
                     <CardTitle className="text-lg">DP Information</CardTitle>
+                    {permissionModal.includes(user?.role) && (
                     <Button
                       className={'cursor-pointer dark:bg-gradient-to-bl dark:from-slate-800 dark:via-slate-600 dark:to-slate-700 dark:border-b-slate-600 dark:to-60% dark:via-100% dark:from-50%'}
                       size="sm"
@@ -3546,6 +3471,7 @@ useEffect(() => {
                     >
                       Tambah DP
                     </Button>
+                    )}
                   </div>
                   <hr className="dark:border-gray-500"/>
                 </CardHeader>

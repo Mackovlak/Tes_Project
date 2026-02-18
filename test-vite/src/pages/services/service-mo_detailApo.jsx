@@ -591,7 +591,8 @@ useEffect(() => {
               <CardTitle className="text-lg">
                 Material Order Line Item  For <strong>{MODetailInput.description}</strong> 
               </CardTitle>
-              <TabsList className="sm:w-full  gap-2  bg-white dark:bg-gradient-to-r dark:from-slate-800 dark:via-slate-700 dark:to-slate-800  dark:border-b-slate-600 dark:rounded-none">
+            <div className="  w-full overflow-x-auto h-fit no-scrollbar p-0">
+              <TabsList className="sm:w-full  gap-2  bg-gray-100 dark:bg-gradient-to-r dark:from-slate-800 dark:via-slate-700 dark:to-slate-800  dark:border-b-slate-600 dark:rounded-none h-full">
                 {tabs.map((tab, index) =>
                   tab.component ? (
                     <div key={index}>{tab.component}</div>
@@ -601,7 +602,7 @@ useEffect(() => {
                       variant={"modernUnderline"}
                       value={tab.value}
                       disabled={tab.disable}
-                      className="dark:text-white text-center flex justify-center"
+                      className="dark:text-white "
                       hidden={tab.hidden}
                     >
                       {tab.label}
@@ -609,6 +610,7 @@ useEffect(() => {
                   )
                 )}
               </TabsList>
+    </div>
             </Card>
 
             <TabsContent
@@ -620,7 +622,7 @@ useEffect(() => {
                   <CardTitle className={"text-lg "}>MO Order Details</CardTitle>
                   <hr className="dark:border-gray-400"/>
                 </CardHeader>
-                <CardContent className="grid grid-cols-4 gap-5">
+                <CardContent className="grid grid-cols-1 md:grid-cols-4 gap-5">
                   <CaseField label={"MO Order Name"} lock>
                     <Input
                       className={"dark:text-white dark:border-b-gray-400 dark:rounded-none dark:hover:border-transparent dark:focus:border-transparent dark:focus:rounded-lg dark:p-2"}
@@ -699,7 +701,7 @@ useEffect(() => {
                     />
                   </CaseField>
 
-                  <Accordion type="Single" collapsible className="col-span-4">
+                  <Accordion type="Single" collapsible className="col-span-1 md:col-span-4">
                     <AccordionItem value="more-details">
                       <AccordionTrigger className={"decoration-transparent cursor-pointer p-2 border-2"}>More Details . . .</AccordionTrigger>
                       <AccordionContent>
@@ -870,7 +872,7 @@ useEffect(() => {
                   </CardTitle>
                   <hr className="dark:border-gray-400"/>
                 </CardHeader>
-                <CardContent className="grid items-center grid-cols-4 gap-6 m-1">
+                <CardContent className="grid items-center grid-cols-1 md:grid-cols-4 gap-6 m-1">
                   <CaseField label="CT Validation"  lock>
                     <SearchCommandBlock
                     className={"dark:bg-transparent dark:ring-1 dark:ring-gray-400"}
@@ -896,7 +898,7 @@ useEffect(() => {
                     onChange={handleInputChange}
                     placeholder="Search Failure..."
                     options={searchResults}
-                    readOnly={!canEditCE}
+                    readOnly
                     className={"dark:bg-transparent dark:ring-1 dark:ring-gray-400"}
                   />
               </div>
@@ -942,7 +944,7 @@ useEffect(() => {
                               QuantityUsed: checked,
                             }))
                           }
-                          disabled={!canEditCE || MODetailInput.isQuantityUsedDisabled}
+                          disabled
                       />
                       <span>{MODetailInput.QuantityUsed ? "Used" : "Not Used"}</span>
                     </div>
@@ -986,7 +988,7 @@ useEffect(() => {
                         type="file"
                         accept="image/*"
                         onChange={handlePhotoUpload}
-                        disabled={!canEditCE}
+                        disabled
                         className={"dark:text-white dark:border-b-gray-400 dark:rounded-none dark:hover:border-transparent dark:focus:border-transparent dark:focus:rounded-lg dark:p-2"}
                       />
                   </CaseField>
@@ -1004,47 +1006,47 @@ useEffect(() => {
                       className={"dark:bg-transparent dark:ring-1 dark:ring-gray-400"}
                     />
                   </CaseField>
-                  <div className="col-span-4 flex flex-col gap-2 pl-10">
+                  <div className=" col-span-1 md:col-span-4 flex flex-col gap-2 pl-10">
                      {photoUploadLoading && (
-        <span className="text-sm text-muted-foreground">Uploading photo...</span>
-      )}
+                       <span className="text-sm text-muted-foreground">Uploading photo...</span>
+                     )}
 
-      {/* Thumbnail */}
-      {resolvedPhotoSrc && (
-        <div className="flex items-start gap-3">
-          <img
-            src={resolvedPhotoSrc}
-            alt="Unit photo preview"
-            className="max-h-24 rounded border object-cover cursor-pointer"
-            onClick={() => setPreviewSrc(resolvedPhotoSrc)} // klik untuk preview
-          />
-          {canEdit && (
-            <Button
-              type="button"
-              variant="outline"
-              onClick={handleRemovePhoto}
-            >
-              Remove
-            </Button>
-          )}
-        </div>
-      )}
+                     {/* Thumbnail */}
+                     {resolvedPhotoSrc && (
+                       <div className="flex items-start gap-3">
+                         <img
+                           src={resolvedPhotoSrc}
+                           alt="Unit photo preview"
+                           className="max-h-24 rounded border object-cover cursor-pointer"
+                           onClick={() => setPreviewSrc(resolvedPhotoSrc)} // klik untuk preview
+                         />
+                         {canEdit && (
+                           <Button
+                             type="button"
+                             variant="outline"
+                             onClick={handleRemovePhoto}
+                           >
+                             Remove
+                           </Button>
+                         )}
+                       </div>
+                     )}
 
-      {/* Modal Preview */}
-      {previewSrc && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/70"
-          onClick={() => setPreviewSrc(null)} // klik luar untuk tutup
-        >
-          <div className="max-w-3xl max-h-[90vh]">
-            <img
-              src={previewSrc}
-              alt="Preview"
-              className="rounded-lg max-h-[90vh] object-contain"
-            />
-          </div>
-        </div>
-      )}
+                     {/* Modal Preview */}
+                     {previewSrc && (
+                       <div
+                         className="fixed inset-0 z-50 flex items-center justify-center bg-black/70"
+                         onClick={() => setPreviewSrc(null)} // klik luar untuk tutup
+                       >
+                         <div className="max-w-3xl max-h-[90vh]">
+                           <img
+                             src={previewSrc}
+                             alt="Preview"
+                             className="rounded-lg max-h-[90vh] object-contain"
+                           />
+                         </div>
+                       </div>
+                     )}
                   </div>
 
                   <CaseField label="Part Order Consumption Comment" lock className={"hidden"} >

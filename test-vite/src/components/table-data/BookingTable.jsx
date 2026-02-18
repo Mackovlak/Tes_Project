@@ -110,19 +110,19 @@ function bookingColums(opts) {
                 <DataTableColumnHeader column={column} title={"Created By"}/>
             ),
         },
-        {
-            id: "actions",
-            header: () => <div className="text-center">Actions</div>,
-            cell: ({ row }) => {
-                const id = row.original.BookingId
-            return (
-                <div className="flex justify-center gap-2">
-                    {opts.onEdit(id)}
-                    {opts.onDelete(id)}
-                </div>
-            )
-            },
-        },
+        // {
+        //     id: "actions",
+        //     header: () => <div className="text-center">Actions</div>,
+        //     cell: ({ row }) => {
+        //         const id = row.original.BookingId
+        //     return (
+        //         <div className="flex justify-center gap-2">
+        //             {opts.onEdit(id)}
+        //             {opts.onDelete(id)}
+        //         </div>
+        //     )
+        //     },
+        // },
     ]
 }
 
@@ -179,7 +179,7 @@ export function BookingTable() {
                         title={"All WOID"}
                         column={table.getColumn("WOID")}
                        />
-                       <BookingsAdd/>
+                       {/* <BookingsAdd/> */}
                     </DataTableToolbar>
                 )}
             />

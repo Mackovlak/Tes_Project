@@ -237,9 +237,6 @@ export const ErfCase = () => {
 
         <TabsContent value="Pending">
     <div className="rounded-2xl bg-white/95 dark:bg-slate-900/90 border border-slate-200 shadow-md p-2 grid grid-cols-1">
-    <Button className={'w-fit'} onClick={() => togglerelog()} disabled={loading}> 
-     Refresh <RefreshCw className={loading && 'animate-spin'}/>
-    </Button>
             <DataTable
               title={<h2 className="text-xl font-bold p-2">Pending ERF Cases</h2>}
               data={pendingData}
@@ -248,17 +245,15 @@ export const ErfCase = () => {
               loading={loading}
               sorting={sorting}
               setSorting={setSorting}
+              handleRefresh={togglerelog}
               toolbar={(table) => (
-                <DataTableToolbar table={table} searchPlaceholder="🔍 Search erf cases..." />
+                <DataTableToolbar table={table} searchPlaceholder="🔍 Search erf cases..." loading={loading} handleRefresh={togglerelog}/>
               )}
             />
           </div>
         </TabsContent>
         <TabsContent value="ErfCase">
     <div className="rounded-2xl bg-white/95 dark:bg-slate-900/90 border border-slate-200 shadow-md p-2 grid grid-cols-1">
-    <Button className={'w-fit'} onClick={() => togglerelog()} disabled={loading} > 
-     Refresh <RefreshCw className={loading && 'animate-spin'} />
-    </Button>
             <DataTable
               title={<h2 className="text-xl font-bold p-2">Completed ERF Cases</h2>}
               data={erfCase}
@@ -267,8 +262,9 @@ export const ErfCase = () => {
               loading={loading}
               sorting={sorting}
               setSorting={setSorting}
+              handleRefresh={togglerelog}
               toolbar={(table) => (
-                <DataTableToolbar table={table} searchPlaceholder="🔍 Search erf cases..." />
+                <DataTableToolbar table={table} searchPlaceholder="🔍 Search erf cases..." loading={loading} handleRefresh={togglerelog}/>
               )}
             />
           </div>

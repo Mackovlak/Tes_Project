@@ -7,7 +7,7 @@ export async function GET(request) {
     const { searchParams } = new URL(request.url);
     const search = searchParams.get("keyword") || "";  // Ambil kata kunci pencarian
     const page = parseInt(searchParams.get("page")) || 1;  // Halaman saat ini
-    const limit = parseInt(searchParams.get("limit")) || 10;  // Batas data per halaman
+    const limit = parseInt(searchParams.get("limit")) || 1000;  // Batas data per halaman
 
     const skip = (page - 1) * limit;
 

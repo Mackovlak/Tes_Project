@@ -293,7 +293,6 @@ export async function POST(request) {
       await deleteByPattern("case:list:*");
       await deleteByPattern("case:detail:*");
 
-
   await notifySocket("case:created", {
     message: `Case ${case_information.CaseID} created`,
     caseId: case_information.CaseID,
@@ -301,9 +300,6 @@ export async function POST(request) {
     createdById: case_information.CreatedBy,  // your schema column
     ownerId: case_information.Owner           // your schema column
   });
-
-
-
       return NextResponse.json({
           success: true,
           message: "Case Created Successfully!",

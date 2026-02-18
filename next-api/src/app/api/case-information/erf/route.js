@@ -16,8 +16,8 @@ export async function POST(request) {
         const formData = await request.formData();
         const files = formData.getAll("files"); // multiple file inputs with same name
         const userId = formData.getAll("user");
-        console.log(userId);
-
+        const userName = formData.getAll("userName");
+        
         if (!files || files.length === 0) {
             return NextResponse.json(
                 { success: false, message: "No files uploaded" },
@@ -35,8 +35,8 @@ export async function POST(request) {
         for (const file of files) {
             const originalName = file.name;
             const caseId = path.parse(originalName).name; 
-           const noteText = `Uploding ERF document To This Case "${caseId}"`;   // Your forget this shit IN YOUR PR
-          const ownerIdNumber = Number.parseInt(userId, 10); // And this one
+            const ownerIdNumber = Number.parseInt(userId, 10); // And this one
+            const noteText = `Success upload ERF file by "${userName}" for case "${caseId}"`;   // Your forget this shit IN YOUR PR
             if  (!(/^([Cc]-\d+|\d+)$/.test(caseId))){
                 results.push({
                     file: originalName,
@@ -123,7 +123,7 @@ export async function POST(request) {
                 code: "UPLOADED",
                 message: `File uploaded and linked to case ${caseId}`,
                 path: relativePath,
-            });
+            });  
         }
 
     const failed = results.filter(r => r.status === "failed");

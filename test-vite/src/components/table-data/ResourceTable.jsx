@@ -10,7 +10,10 @@ import { DataTablePagination } from "./config/data-table-pagination"
 import { DataTableFacetedFilter } from "./config/data-table-faceted-filter"
 import { DataTable } from "./config/data-table"
 import { Button } from "../ui/button"
-import { ResourceDelete, ResourceEdit } from "../model/sc-modal"
+import { ResourceEdit } from "../model/MastertabelEdit/ResourceEdit"
+import { ConfirmDialog } from "../model/config/ConfirmDialog"
+import { Trash } from "lucide-react"
+import { ResourceAdd } from "../model/MastertabelAdd/ResourceAdd"
 
 function ResourceColums(opts) {
     return [
@@ -141,6 +144,9 @@ export function ResourceTable() {
     const [data, setData] = React.useState([])
     const [loading, setLoading] = React.useState(false)
     const [error, setError] = React.useState(null)
+    const [selectedId, setSelectedId] = React.useState()
+    const [isDialogOpen, setIsDialogOpen] = React.useState(false)   
+    const [isDeleting, setIsDeleting] = React.useState(false)
     const [sorting, setSorting] = React.useState([])
     const [refresh, setRefresh] = React.useState(false) 
 
@@ -165,11 +171,32 @@ export function ResourceTable() {
         fetchResource()
     }, [fetchResource, refresh])
 
+    const HandleDeleteResource = React.useCallback(async ()=> {
+        if (!selectedId) return;
+        setIsDeleting(true);
+        try {
+            await ApiCustomer.delete(`/api/resources/${selectedId}`);
+            toast.success("Resource deleted successfully");
+            fetchResource();
+            setSelectedId(null)
+            setIsDialogOpen(false);
+        } catch (error) {
+            toast.error("Failed to delete Resource");
+        }finally {
+            setIsDeleting(false);
+        }
+    }, [selectedId, fetchResource]);
+
     const columns = React.useMemo(
         () => 
             ResourceColums({
                 onEdit: (id) => <ResourceEdit ResourceId={id} onUpdate={fetchResource}/>,
-                onDelete: (id) => <ResourceDelete ResourceId={id}/>
+                onDelete: (id) => <Button variant={"outline"} className={"text-red-500 hover:text-red-700"} onClick={() => {
+                    setSelectedId(id);
+                    setIsDialogOpen(true);
+                }}>
+                    <Trash/>
+                </Button>
             }),
         [fetchResource]
     )
@@ -186,12 +213,26 @@ export function ResourceTable() {
                 error={error}
                 toolbar={(table) => (
                     <DataTableToolbar table={table} searchPlaceholder="🔍 Search resource..." loading={loading} handleRefresh={handleRefresh}>
+                        <ResourceAdd/>
                        <DataTableFacetedFilter
                         title={"All Resource"}
                         column={table.getColumn("ResourceId")}
                        />
                     </DataTableToolbar>
                 )}
+            />
+        
+            <ConfirmDialog
+                onConfirm={HandleDeleteResource}
+                open={isDialogOpen}
+                onOpenChange={(open) => {
+                    setIsDialogOpen(open)
+                    if (!open) setSelectedId(null)
+                }}
+                title="Delete Resource"
+                description="Are you sure want to delete this resource? This action cannot be undone."
+                confirming={isDeleting}
+                confirmLabel="Delete Resource"
             />
         </div>
     )

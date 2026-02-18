@@ -12,7 +12,11 @@ import { DataTable } from "./config/data-table"
 import { Button } from "../ui/button"
 import { formatDate } from "@/lib/utils"
 import { Link } from "react-router"
-import { CrsAdd, CrsDelete, CrsEdit,} from "../model/sc-modal"
+import { CrsAdd} from "../model/MastertabelAdd/CaseResolutionAdd"
+import { Trash } from "lucide-react"
+import { ConfirmDialog } from "../model/config/ConfirmDialog"
+import { CrsEdit } from "../model/MastertabelEdit/CaseResolutionEdit"
+// import { CrsEdit } from "../model/sc-modal"
 
 function caseResolutionColums(opts) {
     return [
@@ -45,6 +49,12 @@ function caseResolutionColums(opts) {
             accessorKey: "autoClose",
             header: ({ column }) => (
                 <DataTableColumnHeader column={column} title={"Auto Close"}/>
+            ),
+        },
+        {
+            accessorKey: "caseReadyForClosure",
+            header: ({ column }) => (
+                <DataTableColumnHeader column={column} title={"Case Ready For Closure"}/>
             ),
         },
         {
@@ -94,6 +104,9 @@ export function CaseResolutionTable() {
     const [data, setData] = React.useState([])
     const [loading, setLoading] = React.useState(false)
     const [error, setError] = React.useState(null)
+    const [selecetedId, setSelectedId] = React.useState(null)
+    const [isDialogOpen, setIsDialogOpen] = React.useState(false)
+    const [isDeleting, setIsDeleting] = React.useState(false)
     const [sorting, setSorting] = React.useState([])
     const [refresh, setRefresh] = React.useState(false) 
 
@@ -119,11 +132,32 @@ export function CaseResolutionTable() {
         fetchCaseResolution()
     }, [fetchCaseResolution, refresh])
 
+    const HandleDeleteCSR = React.useCallback(async () => {
+        if (!selecetedId) return 
+        setIsDeleting(true)
+        try {
+            await ApiCustomer.delete(`/api/caseResolution/${selecetedId}`)
+            toast.success("CSR Delete Success")
+            fetchCaseResolution()
+            setIsDialogOpen(false)
+            setSelectedId(null)
+        } catch (error) {
+            toast.error("Delete Failed CSR")
+        }finally {
+            setIsDeleting(false)
+        }
+    },[selecetedId, fetchCaseResolution])
+
     const columns = React.useMemo(
         () => 
             caseResolutionColums({
                 onEdit: (id) => <CrsEdit id_csr={id}  onUpdate={fetchCaseResolution}/>,
-                onDelete: (id) => <CrsDelete id_csr={id}/>
+                onDelete: (id) => <Button variant={"outline"} className={"text-red-500 hover:text-red-700"} onClick={() => {
+                    setIsDialogOpen(true)
+                    setSelectedId(id)
+                }}>
+                    <Trash/>
+                </Button>
             }),
         [fetchCaseResolution]
     )
@@ -141,8 +175,23 @@ export function CaseResolutionTable() {
                 toolbar={(table) => (
                     <DataTableToolbar table={table} searchPlaceholder="🔍 Search case resolution..." loading={loading} handleRefresh={handleRefresh}>
                         <CrsAdd/>
+                        <DataTableFacetedFilter
+                        title={"All Case Resolution Code"}
+                        column={table.getColumn("caseResolutionCode")}
+                        />
                     </DataTableToolbar>
                 )}
+            />
+            <ConfirmDialog
+                open={isDialogOpen}
+                confirming={isDeleting}
+                onConfirm={HandleDeleteCSR}
+                onOpenChange={(open) => {
+                    setIsDialogOpen(open)
+                    if (!open) setSelectedId(null)
+                }}
+                title={"Delete Case Resolution"}
+                description={"Are you sure want to delete Case Resolution ?"}
             />
         </div>
     )

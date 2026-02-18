@@ -98,19 +98,19 @@ function MaterialOrderColums(opts) {
                 <DataTableColumnHeader column={column} title={"Owner"}/>
             ),
         },
-        {
-            id: "actions",
-            header: () => <div className="text-center">Actions</div>,
-            cell: ({ row }) => {
-                const id = row.original.MOID
-            return (
-                <div className="flex justify-center gap-2">
-                    {opts.onEdit(id)}
-                    {opts.onDelete(id)}
-                </div>
-            )
-            },
-        },
+        // {
+        //     id: "actions",
+        //     header: () => <div className="text-center">Actions</div>,
+        //     cell: ({ row }) => {
+        //         const id = row.original.MOID
+        //     return (
+        //         <div className="flex justify-center gap-2">
+        //             {opts.onEdit(id)}
+        //             {opts.onDelete(id)}
+        //         </div>
+        //     )
+        //     },
+        // },
     ]
 }
 
@@ -165,6 +165,7 @@ export function MaterialOrderTable() {
                 sorting={sorting}
                 setSorting={setSorting}
                 handleRefresh={handleRefresh}
+                cellName={"h-9"}
                 loading={loading}
                 error={error}
                 toolbar={(table) => (

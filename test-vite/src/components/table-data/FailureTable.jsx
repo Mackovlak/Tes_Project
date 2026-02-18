@@ -12,7 +12,10 @@ import { DataTable } from "./config/data-table"
 import { Button } from "../ui/button"
 import { formatDate } from "@/lib/utils"
 import { Link } from "react-router"
-import { FailureAdd, FailureDelete, FailureEdit } from "../model/sc-modal"
+import { FailureAdd } from "../model/MastertabelAdd/FailureAdd"
+import { FailureEdit } from "../model/MastertabelEdit/FailureEdit"
+import { Trash } from "lucide-react"
+import { ConfirmDialog } from "../model/config/ConfirmDialog"
 
 function failureColums(opts) {
     return [
@@ -67,6 +70,9 @@ export function FailureTable() {
     const [data, setData] = React.useState([])
     const [loading, setLoading] = React.useState(false)
     const [error, setError] = React.useState(null)
+    const [selectedId, setSelectedId] = React.useState(null)
+    const [isDialogOpen, setIsDialogOpen] = React.useState(false)
+    const [isDeleting, setIsDeleteing] = React.useState(false)
     const [sorting, setSorting] = React.useState([])
     const [refresh, setRefresh] = React.useState(false) 
 
@@ -92,18 +98,39 @@ export function FailureTable() {
         fetchFailure()
     }, [fetchFailure, refresh])
 
+    const HandleDeleteFailure = React.useCallback(async () => {
+        if (!selectedId) return
+        setIsDeleteing(true)
+        try {
+            await ApiCustomer.delete(`/api/failure/${selectedId}`)
+            toast.success("Delete Failure Success")
+            fetchFailure()
+            setSelectedId(null)
+            setIsDialogOpen(false)
+        } catch (error) {
+            toast.error("Delete Failed")
+        }finally{
+            setIsDeleteing(false)
+        }
+    },[selectedId, fetchFailure])
+
     const columns = React.useMemo(
         () => 
             failureColums({
                 onEdit: (id) => <FailureEdit FailureId={id}  onUpdate={fetchFailure}/>,
-                onDelete: (id) => <FailureDelete FailureId={id}/>
+                onDelete: (id) => <Button variant={"outline"} className={"text-red-500 hover:text-red-700"} onClick={() => {
+                    setIsDialogOpen(true)
+                    setSelectedId(id)
+                }}>
+                    <Trash/>
+                </Button>
             }),
         [fetchFailure]
     )
     return (
         <div className="p-4 grid grid-cols-1 w-full rounded-2xl">
             <DataTable
-                title={<h2 className="text-xl sm:text-2xl font-bold">📊 NMU Management</h2>}
+                title={<h2 className="text-xl sm:text-2xl font-bold">📊 Failure Management</h2>}
                 data={data}
                 columns={columns}
                 sorting={sorting}
@@ -114,8 +141,24 @@ export function FailureTable() {
                 toolbar={(table) => (
                     <DataTableToolbar table={table} searchPlaceholder="🔍 Search nmu..." loading={loading} handleRefresh={handleRefresh}>
                         <FailureAdd/>
+                        <DataTableFacetedFilter
+                            title={"All Name"}
+                            column={table.getColumn("Name")}
+                        />
                     </DataTableToolbar>
                 )}
+            />
+            <ConfirmDialog
+            open={isDialogOpen}
+            onOpenChange={(open) => {
+                setIsDialogOpen(open)
+                if (!open) setSelectedId(null)
+            }}
+            confirming={isDeleting}
+            onConfirm={HandleDeleteFailure}
+            title={"Delete Failure"}
+            confirmLabel="Delete Failure"
+            description={"Are you sure want to delete Failure ?"}
             />
         </div>
     )

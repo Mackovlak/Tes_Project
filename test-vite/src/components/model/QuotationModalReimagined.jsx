@@ -552,7 +552,7 @@ const QuotationDialog = () => {
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="min-w-6xl bg-white flex flex-col h-150 gap-1">
+      <DialogContent className="md:min-w-6xl bg-white flex flex-col h-150 gap-1">
         <DialogHeader className="flex flex-row justify-between gap-4 px-10 py-4 border-b">
           <div>
             <DialogTitle>Quotation Detail</DialogTitle>
@@ -581,9 +581,9 @@ const QuotationDialog = () => {
               <CardTitle>Informasi Quotation</CardTitle>
             </CardHeader>
 
-            <CardContent className="gap-6  columns-2">
+            <CardContent className="gap-6  columns-1 md:columns-2">
               {/* LEFT COLUMN: MAIN FIELDS */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-1 flex-1">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-2 flex-1">
                 {isPendingQuote && (
                   <CaseField label="Quote Approve Date" star className="gap-1">
                     <Input
