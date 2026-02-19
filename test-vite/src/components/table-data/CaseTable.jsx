@@ -16,6 +16,7 @@ import { formatDate } from "@/lib/utils"
 import { get } from "react-hook-form"
 import { File } from "lucide-react"
 import { Link } from "react-router"
+import { CaseImport, CaseTemplateButton } from "../importFileComponent/CaseImport"
 import { ExportExcel } from "../Export-Excel"
 
 function caseColums() {
@@ -273,6 +274,8 @@ export function CaseTable() {
                             title="All Case Status"
                             column={table.getColumn("CaseStatus")}
                         />
+                        <CaseImport/>
+                        <CaseTemplateButton/>
                     </DataTableToolbar>
                 )}
             />
