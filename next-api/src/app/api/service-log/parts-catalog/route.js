@@ -8,20 +8,70 @@ import prisma from "../../../../../prisma/client";
 
 // Helper to parse boolean value
 const parseBool = (val) => val === "true" || val === true;
+const clampInt = (value, { min = 1, max = 200, defaultVal = 50 } = {}) => {
+  const num = Number.parseInt(value, 10);
+  if (Number.isNaN(num)) return defaultVal;
+  return Math.min(Math.max(num, min), max);
+};
 
 export async function GET(request) {
   try {
     const { searchParams } = new URL(request.url);
 
-    const servicecatalog_parts = await prisma.servicecatalog_parts.findMany({
-      orderBy: { PartNumber: "asc" },
-    });
+    const q = searchParams.get("q")?.trim() || "";
+    const partNumber = searchParams.get("partNumber")?.trim() || "";
+    const keyword = searchParams.get("keyword")?.trim() || "";
+    const description = searchParams.get("description")?.trim() || "";
+    const orderableParam = searchParams.get("orderable");
+
+    const limit = clampInt(searchParams.get("limit"), { min: 1, max: 200, defaultVal: 50 });
+    const page = clampInt(searchParams.get("page"), { min: 1, max: 100000, defaultVal: 1 });
+    const skip = (page - 1) * limit;
+
+    const where = {};
+
+    if (q) {
+      where.OR = [
+        { PartNumber: { contains: q } },
+        { Keyword: { contains: q } },
+        { PartDescription: { contains: q } },
+      ];
+    }
+
+    if (partNumber) {
+      where.PartNumber = { contains: partNumber };
+    }
+    if (keyword) {
+      where.Keyword = { contains: keyword };
+    }
+    if (description) {
+      where.PartDescription = { contains: description };
+    }
+    if (orderableParam !== null) {
+      where.Orderability = parseBool(orderableParam);
+    }
+
+    const [servicecatalog_parts, total] = await Promise.all([
+      prisma.servicecatalog_parts.findMany({
+        where,
+        orderBy: { PartNumber: "asc" },
+        take: limit,
+        skip,
+      }),
+      prisma.servicecatalog_parts.count({ where }),
+    ]);
 
     return NextResponse.json({
       success: true,
       status: 200,
       message: "List Data Parts Catalog",
       data: servicecatalog_parts,
+      meta: {
+        page,
+        limit,
+        total,
+        hasMore: skip + servicecatalog_parts.length < total,
+      },
     });
   } catch (e) {
     console.error("🔥 ERROR in GET API:", e);

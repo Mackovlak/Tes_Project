@@ -12,11 +12,11 @@ import { DataTable } from "./config/data-table"
 import { Button } from "../ui/button"
 import { formatDate } from "@/lib/utils"
 import { Link } from "react-router"
+import { UserImport, UserTemplateButton } from "../importFileComponent/UserImport"
 import { UserAdd,} from "../model/MastertabelAdd/UserAdd"
 import { UsersEdit } from "../model/MastertabelEdit/UserEdit"
 import { Trash } from "lucide-react"
 import { ConfirmDialog } from "../model/config/ConfirmDialog"
-import { UserImport, UserTemplateButton } from "../importFileComponent/UserImport"
 
 function usersColums(opts) {
     return [
