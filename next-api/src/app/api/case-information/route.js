@@ -129,7 +129,6 @@ export async function GET(request) {
         ownerUser: true,
         ActionLog: {
           orderBy: { ChangeAt: "desc" },
-          take: 5,
         },
         workorder:{
           include:{

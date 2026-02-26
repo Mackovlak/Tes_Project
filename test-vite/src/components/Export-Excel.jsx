@@ -37,7 +37,11 @@ export const ExportExcel = ({ caseData, resource, isAdmin }) => {
         const CreatedCase = new Date(c.caseinformation.CreatedOn);
 
         const finishRepairLog = c.UpdatedActionLogs.find(
-          log => log.dataNew === "Finish Repair"
+          log => log.dataNew === "FinishRepair"  || log.dataNew === "Finish Repair"
+        );
+
+        const partOrderLog = c.UpdatedActionLogs.find(
+          log => log.dataNew === "PartOrder"
         );
 
         if (finishRepairLog) {
@@ -72,8 +76,8 @@ export const ExportExcel = ({ caseData, resource, isAdmin }) => {
           } ${c.caseinformation.contact_information?.LastName ?? ""}`.trim() || "N/A",
           Customer_City : c.caseinformation.contact_information?.City || "N/A",
           Received_Date: c.caseinformation.CreatedOn ? new Date (c.caseinformation.CreatedOn).toLocaleString() : "N/A",
-          Part_OrderDate: c.UpdatedActionLogs.find(log => log.dataNew === "PartOrder") ? new Date (c.UpdatedActionLogs.find(log => log.dataNew === "PartOrder").ChangeAt).toLocaleString() : "N/A",
-          FinishRepair : finishRepairLog ? new Date (c.UpdatedActionLogs.find(log => log.dataNew === "Finish Repair").ChangeAt).toLocaleString() : "N/A",
+          Part_OrderDate: partOrderLog ? new Date (c.UpdatedActionLogs.find(log => log.dataNew === "PartOrder").ChangeAt).toLocaleString() : "N/A",
+          FinishRepair : finishRepairLog ? new Date (c.UpdatedActionLogs.find(log => log.dataNew === "FinishRepair" || log.dataNew === "Finish Repair").ChangeAt).toLocaleString() : "N/A",
           Closed_Date: c.caseinformation.CaseClosedDate ? new Date (c.caseinformation.CaseClosedDate).toLocaleString() : "N/A",
           Case_ID_Manual_Date : c.caseinformation.CaseID_Manual_Date ? new Date (c.caseinformation.CaseID_Manual_Date).toLocaleString() : "N/A",
           //  NEW COLUMNS
@@ -87,7 +91,7 @@ export const ExportExcel = ({ caseData, resource, isAdmin }) => {
     };
 
     fetchCases();
-  }, []);
+  }, [resource, isAdmin]);
 
   const labelCase = cases.map((items) => ({
     "ID Case" : items.CaseID,

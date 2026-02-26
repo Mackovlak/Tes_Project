@@ -934,8 +934,7 @@ setQuickLogOpen: (open) => set({ quickLogOpen: open }),
                   `/api/asset-information/${caseDetails.AssetID}`,
                 );
                 const fieldAsset = getAsset.data.data;
-                const status =
-                  fieldAsset.asset_warranty[0]?.WarrantyApprovalStatus;
+                const status = fieldAsset.asset_warranty[0]?.WarrantyApprovalStatus;
 
                 let newOwner = null;
 

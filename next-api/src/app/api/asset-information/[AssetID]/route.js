@@ -63,7 +63,6 @@ export async function GET(request, { params }) {
 
 import fs from "fs";
 import path from "path";
-import { time } from "console";
 
 export async function PATCH(request, { params }) {
     const assetId = parseInt(params.AssetID);
@@ -184,8 +183,7 @@ export async function PATCH(request, { params }) {
 
             // If warranty update is needed
             if (
-                (needWarrantyApproval === "true" || needWarrantyApproval === true) &&
-                Warranty_Status === "01T"
+                (needWarrantyApproval === "true" || needWarrantyApproval === true)
             ) {
                 const existingWarranty = await tx.asset_warranty.findFirst({
                     where: { AssetID: assetId },

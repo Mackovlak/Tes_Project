@@ -1356,7 +1356,7 @@ useEffect(() => {
   let canEditWarranty = false;
 
   if (caseDetails?.CaseStatus !== "Close" && caseDetails?.CaseStatus !== "Cancel" ) {
-    canEdit = caseDetails?.Owner === user?.id || user?.role === "admin" || user?.role === "spv" || user?.role === "celead" ;
+    canEdit = caseDetails?.Owner === user?.id || user?.role === "admin" || user?.role === "spv" || user?.role === "celead" || user?.role === "fd" ;
     canEditFd = user?.role === "fd" || user?.role === "admin" || user?.role === "spv";
     canEditApo = user?.role === "apo" || user?.role === "admin" || user?.role === "spv";
     canEditCe = user?.role === "ce" || user?.role === "celead" || user?.role === "admin" || user?.role === "spv";
@@ -1676,7 +1676,7 @@ useEffect(() => {
 
                   <CaseField
                     label="Case Status"
-                    lock={!canEdit}
+                    lock={!canEdit && !canEditFd}
                   >
                     <SearchCommandBlock
                       id="case-status"
@@ -2379,16 +2379,16 @@ useEffect(() => {
                         const OwnerApv = userTarget.data.data[0];
                         handleEntitlementStatus("needWarrantyApproval")(isNeed);
                         if (isNeed) {
-                          const CmbineOTC = otcCode.find(
-                            (otc) =>
-                              otc.OTCCode === "01T" &&
-                              otc.Description === "Trade (OOW)"
-                          );
-                          if (CmbineOTC) {
-                            handleEntitlementStatus("OTCCode")(
-                              CmbineOTC.OTCCode
-                            );
-                          }
+                          // const CmbineOTC = otcCode.find(
+                          //   (otc) =>
+                          //     otc.OTCCode === "01T" &&
+                          //     otc.Description === "Trade (OOW)"
+                          // );
+                          // if (CmbineOTC) {
+                          //   handleEntitlementStatus("OTCCode")(
+                          //     CmbineOTC.OTCCode
+                          //   );
+                          // }
                           onChangeCase("CaseStatus")("NEW_POPDoc");
                           onChangeCase("Owner")(OwnerApv.IDUser);
                         }

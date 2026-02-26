@@ -18,6 +18,7 @@ export async function GET(req) {
           OR: [
             { CaseID: { contains: searchTerm} },
             { CaseSubject: { contains: searchTerm} },
+            { CaseID_Manual: { contains: searchTerm} },
             { CaseType: { contains: searchTerm} },
             { site_account: { Company: { contains: searchTerm} } },
             { contact_information: { FirstName: { contains: searchTerm}, LastName: { contains: searchTerm} } },

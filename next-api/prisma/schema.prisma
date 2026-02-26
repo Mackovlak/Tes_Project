@@ -74,6 +74,9 @@ model caseinformation {
   CreatedBy                                     Int?
   Owner                                         Int?
   WorkGround                                    Int?
+  IsRerepair                                    Boolean              @default(false)
+  RerepairCode                                  String?              @db.VarChar(3)
+  repairClassCode                               repairClassCode?     @relation(fields: [RerepairCode], references: [Code], onDelete: Restrict, onUpdate: Cascade)
   site_account                                  site_account?        @relation(fields: [SiteAccountID], references: [SiteAccountID], onDelete: Restrict, onUpdate: Cascade, map: "caseinformation_ibfk_1")
   contact_information                           contact_information? @relation(fields: [ContactID], references: [ContactID], onDelete: Restrict, onUpdate: Cascade, map: "caseinformation_ibfk_2")
   asset_information                             asset_information?   @relation(fields: [AssetID], references: [AssetID], onDelete: Restrict, onUpdate: Cascade, map: "caseinformation_ibfk_3")
@@ -920,6 +923,7 @@ model repairClassCode {
   Definition         String              @db.VarChar(255)
   PaymentEligibility payment_eligibility
   CreatedOn          DateTime?           @default(now()) @db.DateTime(0)
+  caseinformation    caseinformation[]
 }
 
 model caseresolution {
@@ -1017,9 +1021,9 @@ enum CaseStatus {
   AssignLeader
   AssignPS
   AssignCM
-  PartOrder
+  PartOrder // PART REQUEST LOGISTIC
   PartRequest
-  PartRequestLog
+  PartRequestLog // PART ORDER LOGISTIC
   PartAvailable
   RepairProgress
   FinishRepair

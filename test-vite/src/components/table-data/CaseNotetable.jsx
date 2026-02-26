@@ -3,6 +3,8 @@ import { DataTableColumnHeader } from "./config/data-table-column-header"
 import { DataTable } from "./config/data-table"
 import { DataTableToolbar } from "./config/data-table-toolbar"
 import { formatDate } from "@/lib/utils"
+import { parseNoteText } from "@/lib/utils.jsx"
+import { format } from "date-fns"
 
 function getErfColumns() {
   return [
@@ -11,10 +13,10 @@ function getErfColumns() {
       header: ({ column }) => (
         <DataTableColumnHeader column={column} title={"Created On"} />
       ),
-      cell: ({ getValue }) => <span className="whitespace-break-spaces">{formatDate(getValue())}</span>
+      cell: ({ getValue }) => <span className="whitespace-break-spaces">{format(new Date(getValue()), "yyyy-MM-dd HH:mm")}</span>
     },
     {
-      accessorKey: "CreatedBy",
+      accessorKey: "createdByUser.Name",
       header: ({ column }) => (
         <DataTableColumnHeader column={column} title={"Created By"} />
       ),
@@ -43,6 +45,7 @@ function getErfColumns() {
       header: ({ column }) => (
         <DataTableColumnHeader column={column} title={"Note"} />
       ),
+      cell: ({ getValue }) => <span className="whitespace-break-spaces">{parseNoteText(getValue())}</span>
     },
   ]
 }
