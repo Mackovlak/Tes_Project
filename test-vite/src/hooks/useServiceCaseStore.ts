@@ -75,6 +75,7 @@ interface ServiceCaseState {
   openDialogQuotation: boolean;
   invoiceDialogOpen: boolean;
   signature: string | null;
+  isVoidWarranty: boolean,
 
   // is dirty checkers
   isDirty: boolean;
@@ -97,7 +98,7 @@ setQuickLogOpen: (open: boolean) => void;
   setEntitlementFieldSilent: (field: string, value: any) => void;
   setProductFormField: (field: string, value: any) => void;
   setCaseNoteField: (field: string, value: any) => void;
-  
+  setIsVoidWarranty: (data: any) => void;
   
   setSelectedSymptom: (value: any) => void;
 
@@ -172,6 +173,7 @@ export const useServiceCaseStore = create<ServiceCaseState>((set, get) => ({
     CaseID_Manual: "",
     CaseID_Manual_Date: null,
     ReferenceCase: "",
+    OTCCode: "",
     CaseProductNote: "",
     StorageLocationStore: "",
     VoidReason:"",
@@ -273,6 +275,7 @@ export const useServiceCaseStore = create<ServiceCaseState>((set, get) => ({
   isDirty: false,
   saveIntent: null,
 quickLogOpen: false,
+  isVoidWarranty: false,
 setQuickLogOpen: (open) => set({ quickLogOpen: open }),
 
   setDirty: (dirty) => set({ isDirty: dirty }),
@@ -347,6 +350,7 @@ setQuickLogOpen: (open) => set({ quickLogOpen: open }),
         CaseID_Manual: caseDetails.CaseID_Manual,
         CaseID_Manual_Date: caseDetails.CaseID_Manual_Date,
         ReferenceCase: caseDetails.ReferenceCase,
+        OTCCode: caseDetails.OTCCode,
         CaseProductNote: caseDetails.CaseProductNote,
         StorageLocationStore: caseDetails.StorageLocationStore,
         VoidReason: caseDetails.VoidReason,
@@ -451,7 +455,7 @@ setQuickLogOpen: (open) => set({ quickLogOpen: open }),
   setOpenDialogQuotation: (open) => set({ openDialogQuotation: open }),
   setInvoiceDialogOpen: (open) => set({ invoiceDialogOpen: open }),
   setOwnerUserData: (data) => set({ ownerUserData: data }),
-
+ setIsVoidWarranty: (perdi) => set({ isVoidWarranty: perdi }),
   // ------------- fetchers -----------------
   fetchCustomerData: async () => {
     const { caseDetails } = get();
@@ -767,6 +771,7 @@ setQuickLogOpen: (open) => set({ quickLogOpen: open }),
         CaseID_Manual: caseForm.CaseID_Manual,
         CaseID_Manual_Date: caseForm.CaseID_Manual_Date,
         ReferenceCase: caseForm.ReferenceCase,
+        OTCCode: caseForm.OTCCode,
         StorageLocationStore: caseForm.StorageLocationStore,
         VoidReason: caseForm.VoidReason,
       });
@@ -1057,6 +1062,9 @@ setQuickLogOpen: (open) => set({ quickLogOpen: open }),
                 }
                 if (caseForm.ReferenceCase?.trim()) {
                   caseUpdates.ReferenceCase = caseForm.ReferenceCase;
+                }
+                if (caseForm.OTCCode?.trim()) {
+                  caseUpdates.OTCCode = caseForm.OTCCode;
                 }
                 if (caseForm.StorageLocationStore?.trim()) {
                   caseUpdates.StorageLocationStore =

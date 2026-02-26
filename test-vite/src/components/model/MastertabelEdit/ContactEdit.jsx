@@ -15,20 +15,24 @@ import { AsyncComboboxField } from "../config/async-combobox-field"
 import ApiCustomer from "@/api"
 
 const ContactSchema = z.object({
-    Salutation: z.string().min(1, "Salutation is required"),
-    FirstName: z.string().min(1, "First Name is required"),
-    LastName: z.string().min(1, "Last Name is required"),
-    Email: z.string().email("Email is required"),
+    Salutation: z.string(),
+    FirstName: z.string(),
+    LastName: z.string(),
+    Email: z.string(),
     PreferredLanguage: z.string(),
-    Phone: z.string().min(1, "Phone is required"),
+    Companys: z.object({
+      SiteAccountID: z.number(),
+      Company: z.string()
+    }),
+    Phone: z.string(),
     Mobile: z.string(),
     WorkPhone: z.string(),
     WorkExtension: z.string(),
-    AddressLine1: z.string().min(1, "Address Line 1 is required"),
+    AddressLine1: z.string(),
     AddressLine2: z.string(),
-    City: z.object({ City: z.string(), }).nullable(),
-    Province: z.object({ StateProvince: z.string(),}).nullable(),
-    Country: z.string().min(1, "Country is required"),
+    City: z.object({ City: z.string() }).nullable(),
+    Province: z.object({ StateProvince: z.string()}).nullable(),
+    Country: z.string(),
     ZipPostalCode: z.string(),
     PIC_Name: z.string(),
     PIC_Email: z.string(),
@@ -54,6 +58,7 @@ export function ContactEdit({ contactID, onUpdate }) {
         LastName: values?.LastName,
         Email: values?.Email,
         PreferredLanguage: values?.PreferredLanguage,
+        SiteAccountID: values?.Companys?.SiteAccountID,
         Phone: values?.Phone,
         Mobile: values?.Mobile,
         WorkPhone: values?.WorkPhone,
@@ -83,6 +88,7 @@ export function ContactEdit({ contactID, onUpdate }) {
         LastName: "",
         Email: "",
         PreferredLanguage: "",
+        Companys: null,
         Phone: "",
         Mobile: "",
         WorkPhone: "",
@@ -115,6 +121,7 @@ export function ContactEdit({ contactID, onUpdate }) {
         LastName: data?.LastName ?? "",
         Email: data?.Email ?? "",
         PreferredLanguage: data?.PreferredLanguage ?? "",
+        Companys: data?.SiteAccountID ? { Company: data.site_account.Company, SiteAccountID: data.SiteAccountID } : null,
         Phone: data?.Phone ?? "",
         Mobile: data?.Mobile ?? "",
         WorkPhone: data?.WorkPhone ?? "",
@@ -202,6 +209,30 @@ export function ContactEdit({ contactID, onUpdate }) {
               <TField label="Preferred Language"  field={field}>
                 {({ value, onChange, onBlur }) => (
                    <Input value={value} onChange={(e) => onChange(e.target.value)} onBlur={onBlur} />
+                )}
+              </TField>
+            )}
+          </form.Field>
+
+          <form.Field name="Companys">
+            {(field) => (
+              <TField label="Company"  field={field}>
+                {({ value, onChange, onBlur }) => (
+                   <AsyncComboboxField
+                    value={value}
+                    onChange={onChange}
+                    labelKey={"Company"}
+                    valueKey={"SiteAccountID"}
+                    fetcher={async (q) => {
+                      const res = await ApiCustomer.get(`/api/site_account`,{params: {q}})
+                      const FetchCompany = res.data.data
+                      return FetchCompany.map((item) => ({
+                        SiteAccountID: item.SiteAccountID,
+                        Company: item.Company
+                      }))
+                    }}
+                   
+                   />
                 )}
               </TField>
             )}

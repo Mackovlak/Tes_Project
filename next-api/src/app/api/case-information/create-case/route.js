@@ -65,6 +65,7 @@ export async function POST(request) {
       isNewContact = false,
       isNewAsset = false,
       needWarrantyApproval = false,
+      isVoidWarranty = false,
       usePIC = false,
       assignCompanyToExistingContact = false,
       attachContactToExistingAsset = false,
@@ -301,9 +302,9 @@ export async function POST(request) {
         }
       } else if (assetId) {
         const dataToUpdate = {};
-
+        
         if (warrantyStatus) {
-          dataToUpdate.Warranty_Status = warrantyStatus;
+          isVoidWarranty ? caseData.OTCCode = warrantyStatus : dataToUpdate.Warranty_Status = warrantyStatus;
         }
         if (warranty?.hasOwnProperty("eowDate")) {
           dataToUpdate.EOW_Date = toDateOrNull(warrantyEowDate);
@@ -397,6 +398,7 @@ export async function POST(request) {
         SymptomCode: caseData.SymptomCode ?? null,
         CaseResolution: caseData.CaseResolution ?? null,
         Owner: ownerAssign,
+        OTCCode: caseData.OTCCode ?? null,
         CreatedBy: createdBy,
         ProblemDescription: caseData.ProblemDescription ?? "",
         CaseProductNote: caseData.CaseNoteProduct ?? null,

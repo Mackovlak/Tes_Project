@@ -62,7 +62,7 @@ export const CaseNotetable = ({notesList}) => {
               loading={loading}
               sorting={sorting}
               setSorting={setSorting}
-              potraitName={"max-h-50 lg:max-h-70 2xl:max-h-140"}
+              potraitName={"max-h-50 lg:max-h-50 2xl:max-h-140"}
               paginationDisabled
             />
   )

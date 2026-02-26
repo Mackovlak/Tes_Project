@@ -610,7 +610,7 @@ export const ServiceMaterialApo = () => {
                                   newStatus
                                 )
                               }
-                              disabled={!canEditapo}
+                              disabled={!canEditapo || user?.role === 'ce'}
                             >
                               <SelectTrigger className="w-[120px]">
                                 <SelectValue placeholder="Select status" />

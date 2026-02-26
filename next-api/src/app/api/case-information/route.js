@@ -1,8 +1,5 @@
 import { NextResponse } from "next/server";
-
 import prisma, { setUserIdProvider }  from "../../../../prisma/client";
-
-
 import { generateID } from "@/utils/generateID";
 import { notifySocket } from "../../../../lib/SocketClient";
 import { getTokenUserId } from "@/app/middleware/auth";
@@ -126,6 +123,7 @@ export async function GET(request) {
           include: { site_account: true },
         },
         createdByUser: true,
+        otcCodeTable: true,
         ownerUser: true,
         ActionLog: {
           orderBy: { ChangeAt: "desc" },
@@ -196,10 +194,6 @@ export async function GET(request) {
   }
   
   await redis.set(cacheKey, JSON.stringify(response), "EX", 120);
-
-
-
-
   return NextResponse.json(response, {status: 200});
 }
 

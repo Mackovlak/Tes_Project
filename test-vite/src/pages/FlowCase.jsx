@@ -314,6 +314,22 @@ export const FlowCaseData = (user) => {
   const allowedRoles = ["fd", "admin"];
   const navigate = useNavigate();
 
+  const warrantyBadge = (caseinfo) => {
+    
+    const condition = caseinfo?.OTCCode ? 
+    caseinfo.otcCodeTable?.WarrantyCondition :
+    caseinfo.asset_information?.WarrantyOTCCode?.WarrantyCondition
+
+    const statusMap = {
+      InWarranty: { label: "IW", color: "bg-green-500" },
+      OutWarranty: { label: "OOW", color: "bg-red-500"}
+    }
+
+    const { label, color } = statusMap[condition] || { label: "?", color: "bg-gray-500" }
+
+    return <Badge className={`${color} text-[10px]`}>{label}</Badge>
+  }
+
   const  isLarge  = useMediaQuery({query: '(max-width: 1024px)'})
   return (
     <>
@@ -398,18 +414,7 @@ export const FlowCaseData = (user) => {
                     </div>
                     <div className="flex flex-col items-center gap-2 align-middle" id='case-badge'>  
                         <div className="space-x-2 justify-center inline-flex">
-                          {c?.caseinformation?.asset_information
-                            ?.WarrantyOTCCode?.WarrantyCondition ===
-                          "InWarranty" ? (
-                            <Badge className="bg-green-500 text-[10px]">IW</Badge>
-                          ) : c?.caseinformation?.asset_information
-                              ?.WarrantyOTCCode?.WarrantyCondition ===
-                            "OutWarranty" ? (
-                            <Badge className="bg-red-500 text-[10px]">OOW</Badge>
-                          ) : (
-                            <Badge className="bg-gray-500 text-[10px]">?</Badge>
-                          )}
-
+                          {warrantyBadge(c.caseinformation)}
                           <Badge className="bg-cyan-600 text-[10px]">
                             {STATUS_ENUM_TO_LABEL[c.CaseStatus]}
                           </Badge>

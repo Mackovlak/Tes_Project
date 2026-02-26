@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import prisma from "../../../../../prisma/client";
 import { generateID } from "@/utils/generateID";
 import { handleActionLogNotifications } from "../../../../../lib/actionLogDispatcher";
+import { STATUS_ENUM_TO_LABEL } from "@/utils/EnumToLabel";
 
 const CASE_INFO_SELECT = {
     CaseID: true,
@@ -23,46 +24,6 @@ const CASE_INFO_SELECT = {
         },
     },
 };
-
-export const STATUS_ENUM_TO_LABEL = {
-  New: "New",
-  Open: "Open",
-  InActive: "Inactive",
-  Close: "Closed",
-  Cancel: "Cancel",
-  Active: "Active",
-  Monitor: "Monitor",
-  Pending_Customer_Action: "Pending Customer Action",
-  Quote_Requested: "Quote Requested",
-  Pending_Follow_Up: "Pending Follow Up",
-  Pending_Order: "Pending Order",
-  Escalated: "Escalated",
-  Quote_Approved: "Quote Approved",
-  Quote_Rejected: "Quote Rejected",
-  Pending_Quote: "Pending Quote",
-  NEW_AssignFD: "New Assign To FD",
-  NEW_AssignCE: "New Assign To CE",
-  NEW_AssignLeader: "New Assign To Leader",
-  NEW_AssignAPO: "New Assign To APO",
-  NEW_AssignPS: "New Assign To PS",
-  NEW_AssignCM: "New Assign To CM",
-  AssignFD: "Assign To FD",
-  AssignCE: "Assign To CE",
-  AssignAPO: "Assign To APO",
-  AssignLeader: "Assign To Leader",
-  AssignPS: "Assign To PS",
-  AssignCM: "Assign To CM",
-  NEW_POPDoc: "New Needed POP Document",
-  NEW_Warranty: "New Warranty Approval",
-  PartRequest: "Part Request",
-  PartRequestLog: "Part Request Logistic",
-  PartOrder: "Part Order",
-  PartAvailable: "Part Available",
-  RepairProgress: "Repair Progress",
-  FinishRepair: "Finish Repair",
-  CancelRepair: "Cancel Repair",
-};
-
 
 export async function POST(request) {
     try{

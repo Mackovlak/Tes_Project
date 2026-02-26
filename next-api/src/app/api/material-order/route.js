@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import prisma from "../../../../prisma/client";
 import { generateID } from "@/utils/generateID";
 import { notifySocket } from "../../../../lib/SocketClient";
+import { STATUS_ENUM_TO_LABEL } from "@/utils/EnumToLabel";
 
 export async function GET(request) {
   try {
@@ -345,11 +346,12 @@ export async function POST(request) {
                         connect: { IDUser: ownerIdNumber },
                     }
                   : undefined,
-              logDescription: `Edit: change status from ${previousCaseStatus} to ${caseUpdateData.CaseStatus}`,
+              logDescription: `Edit: change status from ${STATUS_ENUM_TO_LABEL[previousCaseStatus]} to ${STATUS_ENUM_TO_LABEL[caseUpdateData.CaseStatus]}`,
           },
           include: includeChangedBy,
       });
       createdLogs.push(statusLog);
+      
 
       return { MOIDs: createdMOIDs, actionLogs: createdLogs };
     }, { timeout: 20000 });

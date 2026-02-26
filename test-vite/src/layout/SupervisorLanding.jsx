@@ -30,6 +30,7 @@ import { buildBusinessDayCaseTypeSeries } from "@/components/chart-data/utils-co
 import { ChartAreaBig } from "@/components/chart-data/ChartAreaBig";
 import { ChartPieClose } from "@/components/chart-data/PieChartClose";
 import axios from "axios";
+import { ExportExcel } from "@/components/Export-Excel";
 
 function StatCard({
   title,
@@ -182,10 +183,7 @@ export default function Landing() {
               <RefreshCw className={"h-4 w-4", loading && "animate-spin"} />
               Refresh
             </Button>
-            <Button size="sm" className="gap-2" disabled>
-              <Download className="h-4 w-4" />
-              Export
-            </Button>
+            <ExportExcel caseData={caseData} resource={user?.resource} isAdmin={user?.role === 'admin' || user?.role === 'spv'}/>
           </div>
         </div>
 

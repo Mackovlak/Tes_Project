@@ -16,6 +16,9 @@ export async function GET(request, { params }) {
 
         const contact_information = await prisma.contact_information.findUnique({
             where: { ContactID: parseInt(contactId) },
+            include: {
+                site_account: true
+            }
         });
 
         if (!contact_information) {

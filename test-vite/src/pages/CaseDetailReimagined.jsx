@@ -1330,12 +1330,14 @@ useEffect(() => {
     [filteredStatusKeys]
   );
 
+  const RoleSelect = ["fd","ce","celead"]
+
   // ------ fetch assignable users by role when needed ------
   const fetchUserAssign = async (role) => {
     try {
       const res = await ApiCustomer.get(`/api/user?role=${role}`);
       const FetchAllUserByRole = res.data.data || [];
-      const FilterAllUserByRole = FetchAllUserByRole.filter(u => u.ResourceId === user.resource)
+      const FilterAllUserByRole = RoleSelect.includes(user?.role) ? FetchAllUserByRole.filter(u => u.ResourceId === user.resource) : FetchAllUserByRole
       setRoleAssign(FilterAllUserByRole);      
     } catch (err) {
       console.error(err)
@@ -1405,8 +1407,7 @@ useEffect(() => {
   if (!caseDetails) return null;
 
   // ---- compute hidden tab for OOW ----
-  const hiddenOowTab =
-    caseDetails.asset_information?.WarrantyOTCCode?.OTCCode !== "01T";
+  const hiddenOowTab = caseDetails.OTCCode ? caseDetails.OTCCode !== "01T" : caseDetails.asset_information?.WarrantyOTCCode?.OTCCode !== "01T";
 
   const tabs = [
     { value: "case_info", label: "Case & Customer" },
@@ -1424,7 +1425,7 @@ useEffect(() => {
       {(caseDetails.CaseStatus === "Close" || caseDetails.CaseStatus === "Cancel") && (
         <div className="p-4 mt-2 text-yellow-700 bg-yellow-100 border-l-4 border-yellow-500">
           This Case is <strong>read-only</strong> because it is
-          <strong> Closed OR Canceled</strong>.
+          <strong>{caseDetails.CaseStatus === "Close" ? " Closed" : caseDetails.CaseStatus === "Cancel" ? " Cancelled" : ""}</strong>
         </div>
       )}
 
@@ -1690,7 +1691,7 @@ useEffect(() => {
                         const isNewAssign =
                           typeof enumValue === "string" &&
                           enumValue?.startsWith("NEW_Assign");
-                        setHideAssignTo(isNewAssign);
+                          setHideAssignTo(isNewAssign);
 
                         if (isNewAssign) {
                           const role = extractRoleFromStatus(enumValue);
@@ -2343,10 +2344,15 @@ useEffect(() => {
                   >
                     <SearchCommandBlock
                       options={otcCode}
-                      value={entitlementStatus.OTCCode || "--select--"}
-                      onChange={(value) =>
-                        handleEntitlementStatus("OTCCode")(value)
-                      }
+                      value={caseDetails.OTCCode ? caseForm?.OTCCode : entitlementStatus.OTCCode}
+                      onChange={(value) => {
+                        if (caseDetails.OTCCode) {
+                          onChangeCase("OTCCode")(value)
+                        } else {
+                          handleEntitlementStatus("OTCCode")(value)
+
+                        }
+                      }}
                       placeholder="---"
                       renderLabel={(opt) =>
                         `${opt.OTCCode} - ${opt.Description}`

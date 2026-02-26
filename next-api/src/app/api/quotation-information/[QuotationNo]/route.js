@@ -7,6 +7,7 @@ import {
   parseDate,
 } from "../helpers";
 import redis, { redisKey } from "../../../../../lib/redis";
+import { STATUS_ENUM_TO_LABEL } from "@/utils/EnumToLabel";
 
 export async function GET(_request, { params }) {
   const { QuotationNo } = params;
@@ -460,7 +461,7 @@ export async function PATCH(request, { params }) {
                 connect: { IDUser: createdBy },
               }
             : undefined,
-          logDescription: `Edit: change status from ${status} to ${targetStatusCase}`,
+          logDescription: `Edit: change status from ${STATUS_ENUM_TO_LABEL[status]} to ${STATUS_ENUM_TO_LABEL[targetStatusCase]}`,
         },
         include: includeChangedBy,
       });

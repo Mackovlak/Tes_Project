@@ -258,7 +258,7 @@ const delaytime = createdOninsec + TimeDelay();
         {/* FORM VIEW */}
         {step === "form" && (
           <Card className="mt-2">
-            <CardContent className="grid grid-cols-1 md:grid-cols-4 gap-3 overflow-auto h-100 md:h-fit">
+            <CardContent className="grid grid-cols-1 md:grid-cols-4 gap-3 overflow-auto h-100 md:h-fit p-2">
               {isCancelRepair && (
                 <CaseField label="Cancel Reason" lock={!canEdit} span={3} star={isCancelRepair} indent>
                   <Textarea

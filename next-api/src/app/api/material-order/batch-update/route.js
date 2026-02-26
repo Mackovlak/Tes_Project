@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import prisma from "../../../../../prisma/client";
 import { handleActionLogNotifications } from "../../../../../lib/actionLogDispatcher";
+import { STATUS_ENUM_TO_LABEL } from "@/utils/EnumToLabel";
 
 const CASE_STATUS_BY_ORDER_STATUS = {
   Ordered: "PartOrder",
@@ -232,6 +233,7 @@ export async function PATCH(request) {
           where: { CaseID: workOrder.caseinformation.CaseID },
           data: caseUpdateData,
         });
+        
 
         const ownerChanged =
           caseOwnerId &&
@@ -269,7 +271,7 @@ export async function PATCH(request) {
             dataOld: currentCaseStatus ?? "Unknown",
             dataNew: targetCaseStatus,
             changedBy: userId,
-            logDescription: `Edit: change status from ${currentCaseStatus ?? "Unknown"} to ${targetCaseStatus}.${ownerNote}`,
+            logDescription: `Edit: change status from ${STATUS_ENUM_TO_LABEL[currentCaseStatus] ?? "Unknown"} to ${STATUS_ENUM_TO_LABEL[targetCaseStatus]}.${ownerNote}`,
           },
           include: includeChangedBy,
         });

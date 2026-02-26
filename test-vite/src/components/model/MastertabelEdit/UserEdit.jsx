@@ -93,7 +93,7 @@ function SignaturePad({ value, onChange }) {
 }
 
 const UsersSchema = z.object({
-    Email: z.string().email(),
+    Email: z.string(),
     Username: z.string(),
     Password: z.string(),
     Name: z.string(),
@@ -152,7 +152,7 @@ export function UsersEdit({ UserId, onUpdate }) {
         Name: "",
         Role: "",
         Resource: null,
-        ProfilePhoto: "",
+        ProfilePhoto: undefined,
         Phone: "",
         Signature: "",
     },
@@ -174,7 +174,7 @@ export function UsersEdit({ UserId, onUpdate }) {
         Password: "",
         Name: data.Name || "",
         Role: data.Role || "user",
-        ProfilePhoto: data.ProfilePhoto || "",
+        ProfilePhoto: data.ProfilePhoto || undefined,
         Phone: data.Phone || "",
         Resource: data.ResourceId ? { ResourceId: data.ResourceId, Name: data.ResourceId } : null,
         Signature: data.Signature || "",
@@ -293,7 +293,10 @@ export function UsersEdit({ UserId, onUpdate }) {
             {(field) => (
               <TField label="Profile Photo"  field={field}>
                 {({ onChange, onBlur }) => (
-                  <Input type="file" onChange={(e) => onChange(e.target.files[0])} onBlur={onBlur} />
+                  <Input type="file" onChange={(e) => {
+                    const file = e.target.files?.[0]
+                    onChange(file ?? undefined)
+                  }} onBlur={onBlur} />
                 )}
               </TField>
             )}

@@ -405,6 +405,7 @@ export default function NewCaseForm() {
   const [isNewCompany, setIsNewCompany] = useState(false);
 
   const [needWarrantyApproval, setNeedWarrantyApproval] = useState(false);
+  const [isVoidWarranty, setIsVoidWarranty] = useState(false);
 
 
   // Warranty
@@ -1191,6 +1192,7 @@ export default function NewCaseForm() {
         isNewContact,
         isNewAsset,
         needWarrantyApproval,
+        isVoidWarranty,
         usePIC,
         assignCompanyToExistingContact:!isNewContact &&
           Boolean((companyPayload || existingCompanyId) && selectedContact) &&
@@ -2072,6 +2074,15 @@ export default function NewCaseForm() {
               <div>
                 <Label>EOW Date</Label>
                 <Input type="date" variant={"default"} value={eowDate} onChange={(e) => setEowDate(e.target.value)} className={"mt-2 ring-1 ring-gray-400 dark:text-white"} />
+              </div>
+              <div className="flex flex-col gap-2">
+                <Label>Is Void Warranty?</Label>
+                <Checkbox 
+                  id="isVoidWarranty"
+                  checked={isVoidWarranty}
+                  onCheckedChange={(v) => setIsVoidWarranty(Boolean(v))}
+                  className={"ring-2 bg-gray-100 dark:bg-transparent dark:data-[state=checked]:bg-white"}
+                />
               </div>
               {
               warrantySearchValue === "01T" &&
