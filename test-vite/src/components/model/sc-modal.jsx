@@ -4370,7 +4370,7 @@ export function PartAdd ({ onReload = true, onSuccess }) {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant="outline" className="ml-2 rounded-sm h-11">Add Part</Button>
+        <Button variant="outline" className="ml-2 rounded-sm h-11">Add New Part</Button>
       </DialogTrigger>
 
       <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-3xl">
@@ -7071,6 +7071,14 @@ export function BtnModalsPartAdd({
 
         {/* ================= FOOTER ================= */}
         <DialogFooter>
+          <PartAdd 
+            onReload={false}
+            onSuccess={async(createdPart) =>{
+              if(typeof onPartAdded === "function"){
+                await onPartAdded();
+              }
+            }}
+          />
           <Button onClick={handleAddParts}>
             Add Part
           </Button>
