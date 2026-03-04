@@ -15,6 +15,7 @@ import { AsyncComboboxField } from "../config/async-combobox-field"
 import ApiCustomer from "@/api"
 
 const SubkTechnicianSchema = z.object({
+    SubkId: z.string(),
     Name: z.string(),
     ResourceAccount: z.object({
         ResourceAccountId: z.string(),
@@ -36,6 +37,7 @@ export function SubkTechnicianEdit({ subkTechnicianId, onUpdate }) {
   const updateMutation = useMutation({
     mutationFn: async (values) => {
       const payload = {
+        SubkId: values?.SubkId,
         Name: values?.Name,
         ResourceAccountId: values?.ResourceAccount?.ResourceAccountId ?? null,
       }
@@ -49,6 +51,7 @@ export function SubkTechnicianEdit({ subkTechnicianId, onUpdate }) {
   const form = useForm({
     validatorAdapter: zodValidator,
     defaultValues: {
+        SubkId: "",
         Name: "",
         Resource: null,
     },
@@ -65,8 +68,9 @@ export function SubkTechnicianEdit({ subkTechnicianId, onUpdate }) {
     if (!subkTechnicianQuery.data) return
     const data = subkTechnicianQuery.data
     form.reset({
+        SubkId: data.SubkTechnicianId ?? "",
         Name: data.Name ?? "",
-        ResourceAccount: data.ResourceAccountId ? { ResourceAccountId: data.ResourceAccountId, name: data.ResourceAccountId}  : null,
+        ResourceAccount: data.ResourceAccountId ? { ResourceAccountId: data.ResourceAccountId, name: data.resourceAccount?.Name}  : null,
     })
   }, [subkTechnicianQuery.data])
 
@@ -88,6 +92,17 @@ export function SubkTechnicianEdit({ subkTechnicianId, onUpdate }) {
         }
       >
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+          <form.Field name="SubkId" validators={{ required: "SubkId is required" }}>
+            {(field) => (
+              <TField label="SubkId" required field={field}>
+                {({ value, onChange, onBlur }) => (
+                    <Input value={value} onChange={(e) => onChange(e.target.value)} onBlur={onBlur} />
+                )}
+              </TField>
+            )}
+          </form.Field>
+
           <form.Field name="Name" validators={{ required: "Name is required" }}>
             {(field) => (
               <TField label="Name" required field={field}>
@@ -97,6 +112,7 @@ export function SubkTechnicianEdit({ subkTechnicianId, onUpdate }) {
               </TField>
             )}
           </form.Field>
+
           <form.Field name="ResourceAccount">
             {(field) => (
               <TField label="Resource Account"  field={field}>
@@ -110,7 +126,6 @@ export function SubkTechnicianEdit({ subkTechnicianId, onUpdate }) {
                         fetcher={async (q) => {
                           const res = await ApiCustomer.get("/api/resource-account", { params: { q } })
                           const data = res.data.data ?? []
-                          console.log("Fetched resource accounts:", data)
                             return data.map((item) => ({
                                 name: item.Name,
                                 ResourceAccountId: item.ResourceAccountId,

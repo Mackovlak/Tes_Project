@@ -365,8 +365,8 @@ export function AppSidebar({
         only: "fd",
       },
       {
-        name: "My Work",
-        title: "My Work",
+        name: "Create Case",
+        title: "Create Case",
         url: "/app/searchcaseproto2",
         icon: Table,
       },

@@ -110,7 +110,7 @@ function caseColums() {
             }
         },
         {
-            accessorKey: "caseinformation.CaseType",
+            accessorKey: "CaseType",
             header: ({ column }) => (
                 <DataTableColumnHeader column={column} title={"Case Type"}/>
             ),
@@ -265,6 +265,10 @@ export function CaseTable() {
                         <DataTableFacetedFilter
                             title="All Product Number"
                             column={table.getColumn("ProductNumber")}
+                        />
+                        <DataTableFacetedFilter
+                            title="All Case Type"
+                            column={table.getColumn("CaseType")}
                         />
                         <DataTableFacetedFilter
                             title="All Serial Number"

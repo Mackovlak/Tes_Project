@@ -8,6 +8,9 @@ export async function GET(request, { params }) {
   try {
     const subkTechnician = await prisma.subkTechnician.findUnique({
       where: { SubkTechnicianId },
+      include: {
+        resourceAccount: true
+      }
     });
 
     if (!subkTechnician) {
@@ -38,7 +41,7 @@ export async function PATCH(request, { params }) {
 
   try {
     const body = await request.json();
-    const { Name, ResourceAccountId } = body;
+    const {SubkId ,Name, ResourceAccountId } = body;
 
     if (!Name) {
       return NextResponse.json({
@@ -50,6 +53,7 @@ export async function PATCH(request, { params }) {
     const updatedSubkTechnician = await prisma.subkTechnician.update({
       where: { SubkTechnicianId },
       data: {
+        SubkTechnicianId: SubkId,
         Name,
         ResourceAccountId: ResourceAccountId || null, // optional
       },
