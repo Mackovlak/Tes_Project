@@ -16,6 +16,7 @@ import { formatDate } from "@/lib/utils"
 import { get } from "react-hook-form"
 import { File } from "lucide-react"
 import { Link } from "react-router"
+import { CaseImport, CaseTemplateButton } from "../importFileComponent/CaseImport"
 import { ExportExcel } from "../Export-Excel"
 
 function caseColums() {
@@ -285,6 +286,8 @@ export function CaseTable() {
                             title="All Case Status"
                             column={table.getColumn("CaseStatus")}
                         />
+                        <CaseImport/>
+                        <CaseTemplateButton/>
                         <div className="flex flex-col">
                             <label className="text-sm font-medium mb-1">Created Date (From)</label>
                             <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} className="p-2 text-sm border rounded-lg"/>  

@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import debounce from "lodash.debounce"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import {
@@ -14,32 +15,42 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { ChevronDown, RefreshCw } from "lucide-react"
 
-function useDebounced(value, delay = 400) {
-  const [debounced, setDebounced] = React.useState(value)
-  React.useEffect(() => {
-    const t = setTimeout(() => setDebounced(value), delay)
-    return () => clearTimeout(t)
-  }, [value, delay])
-  return debounced
-}
-
-
 export function DataTableToolbar({
   table,
   searchPlaceholder = "Search…",
   children,
   loading,
   handleRefresh,
+  onSearchChange,
+  searchValue,
+  searchDelay = 450,
 } ) {
-  const [raw, setRaw] = React.useState("");
-  const debounced = useDebounced(raw, 450);
+  const [raw, setRaw] = React.useState(searchValue ?? "");
+
   React.useEffect(() => {
-    table.setGlobalFilter(debounced);
-    table.setPageIndex(0);
-  }, [debounced, table]);
+    if (searchValue !== undefined) {
+      setRaw(searchValue);
+    }
+  }, [searchValue]);
+
+  const debouncedSearch = React.useMemo(() => {
+    return debounce((value) => {
+      if (onSearchChange) {
+        onSearchChange(value);
+      } else {
+        table.setGlobalFilter(value);
+      }
+      table.setPageIndex(0);
+    }, searchDelay);
+  }, [onSearchChange, searchDelay, table]);
+
+  React.useEffect(() => {
+    debouncedSearch(raw);
+    return () => debouncedSearch.cancel();
+  }, [debouncedSearch, raw]);
 
   const isFiltered =
-    table.getState().globalFilter || table.getState().columnFilters?.length > 0;
+    raw || table.getState().globalFilter || table.getState().columnFilters?.length > 0;
 
   return (
     <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -60,7 +71,12 @@ export function DataTableToolbar({
               size="sm"
               onClick={() => {
                 setRaw("");
-                table.resetGlobalFilter();
+                debouncedSearch.cancel();
+                if (onSearchChange) {
+                  onSearchChange("");
+                } else {
+                  table.resetGlobalFilter();
+                }
                 table.resetColumnFilters();
                 table.resetSorting();
                 table.setPageIndex(0);
@@ -107,4 +123,3 @@ export function DataTableToolbar({
     </div>
   );
 }
-

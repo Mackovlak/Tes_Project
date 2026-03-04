@@ -1275,7 +1275,7 @@ export default function NewCaseForm() {
         const userData = user?.user;
         await ApiCustomer.post("/api/case-information/case-notes", {
           CaseID: `${caseId}`,
-          LogTye: 'NotesLog',
+          LogType: 'NotesLog',
           ActionType: 'Initial',
           VisibleExternally: false,
           MinutesSpent: 0,
@@ -1294,7 +1294,7 @@ export default function NewCaseForm() {
           const rerepairCount = await getReRepairCount(selectedAsset.AssetID);
           await ApiCustomer.post("/api/case-information/case-notes",{
             CaseID: `${caseId}`,
-            LogTye: 'NotesLog',
+            LogType: 'NotesLog',
             ActionType: 'Initial',
             VisibleExternally: false,
             MinutesSpent: 0,

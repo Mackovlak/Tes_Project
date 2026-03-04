@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
+import debounce from "lodash.debounce";
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -4369,7 +4370,7 @@ export function PartAdd ({ onReload = true, onSuccess }) {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant="outline" className="ml-2 rounded-sm h-11">Add Part</Button>
+        <Button variant="outline" className="ml-2 rounded-sm h-11">Add New Part</Button>
       </DialogTrigger>
 
       <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-3xl">
@@ -5421,22 +5422,43 @@ export function BtnModalsServiceCatalog({
   useEffect(() => {
   }, [selectedWarrantyServices]);
   
+  //search part handler
+  const [partNumberSearch, setPartNumberSearch] = useState("");
+  const [keywordSearch, setKeywordSearch] = useState("");
+  const [descriptionSearch, setDescriptionSearch] = useState("");
+
   //part state
   const [partCatalog, setPartCatalog] = useState([])
   //fetch data part catalog
-  const fetchDataPartCatalog = async () => {
+  const fetchDataPartCatalog = useCallback(async ({ partNumber = "", keyword = "", description = "" } = {}) => {
     try{
-      const response = await ApiCustomer.get(`/api/service-log/parts-catalog`)
-      setPartCatalog(response.data.data)
+      const params = new URLSearchParams()
+      if (partNumber) params.set("partNumber", partNumber)
+      if (keyword) params.set("keyword", keyword)
+      if (description) params.set("description", description)
+      params.set("limit", "100")
+
+      const response = await ApiCustomer.get(`/api/service-log/parts-catalog?${params.toString()}`)
+      setPartCatalog(response.data.data || [])
       return response.data.data
     }catch(e){
       toast.error("Err :",e)
     }
-  }
+  }, [])
+
+  const debouncedFetchPartCatalog = useMemo(() => {
+    return debounce((params) => {
+      fetchDataPartCatalog(params);
+    }, 450);
+  }, [fetchDataPartCatalog]);
 
   const handlePartAdded = async (createdPart) => {
     // 1) refresh catalog from backend (optional but recommended)
-    await fetchDataPartCatalog();
+    await fetchDataPartCatalog({
+      partNumber: partNumberSearch,
+      keyword: keywordSearch,
+      description: descriptionSearch,
+    });
 
     // 2) auto-select the newly created part in selectedPartCatalog
     if (createdPart?.PartNumber) {
@@ -5461,10 +5483,14 @@ export function BtnModalsServiceCatalog({
   };
 
 
-  //search part handler
-  const [partNumberSearch, setPartNumberSearch] = useState("");
-  const [keywordSearch, setKeywordSearch] = useState("");
-  const [descriptionSearch, setDescriptionSearch] = useState("");
+  useEffect(() => {
+    debouncedFetchPartCatalog({
+      partNumber: partNumberSearch,
+      keyword: keywordSearch,
+      description: descriptionSearch,
+    });
+    return () => debouncedFetchPartCatalog.cancel();
+  }, [partNumberSearch, keywordSearch, descriptionSearch, debouncedFetchPartCatalog]);
 
   //handler part
   const [selectedPartCatalog, setSelectedPartCatalog] = useState([])
@@ -5703,14 +5729,12 @@ export function BtnModalsServiceCatalog({
   function renderStepContent() {
     const [currentPage, setCurrentPage] = useState(1);
     const PAGE_SIZE = 5;
-    const filteredPartCatalog = partCatalog.filter(part => {
-      return (
-        part.PartNumber?.toLowerCase().includes(partNumberSearch.toLowerCase()) &&
-        part.Keyword?.toLowerCase().includes(keywordSearch.toLowerCase()) &&
-        part.PartDescription?.toLowerCase().includes(descriptionSearch.toLowerCase())
-      );
-    });
+    const filteredPartCatalog = partCatalog;
   const MAX_PAGES_SHOWN = 3;
+
+    useEffect(() => {
+      setCurrentPage(1);
+    }, [partNumberSearch, keywordSearch, descriptionSearch]);
 
     const totalPages = Math.ceil(filteredPartCatalog.length / PAGE_SIZE);
     
@@ -6793,53 +6817,85 @@ export function ServiceCatalogPartDelete({ PartNumber, onUpdate }) {
     </Dialog>
   );
 }
+
 export function BtnModalsPartAdd({
-  open2, 
+  open2,
   setOpen2,
   partCatalog,
   selectedPartCatalog,
   setSelectedPartCatalog,
   onPartAdded,
-}){
+}) {
   const [tempSelectedParts, setTempSelectedParts] = useState([]);
-  const handlerPartCatalog = (part, checked) => {
-    if (checked) {
-      setTempSelectedParts((prev) => [...prev, part]);
-    } else {
-      setTempSelectedParts((prev) =>
-        prev.filter((item) => item.PartNumber !== part.PartNumber)
-      );
-    }
-  };
+  const [remotePartCatalog, setRemotePartCatalog] = useState(null);
 
-  //search
+  /* ==============================
+     🔎 Debounced Search
+  ============================== */
+
   const [partNumberInput, setPartNumberInput] = useState("");
-  const [partNumberSearch, setPartNumberSearch] = useState("");
+  const [keywordInput, setKeywordInput] = useState("");
+  const [descriptionInput, setDescriptionInput] = useState("");
+
+  const fetchPartByNumber = useCallback(async (value) => {
+    const partNumber = String(value?.partNumber || "").trim();
+    const keyword = String(value?.keyword || "").trim();
+    const description = String(value?.description || "").trim();
+    if (!partNumber && !keyword && !description) {
+      setRemotePartCatalog(null);
+      return;
+    }
+    try {
+      const params = new URLSearchParams();
+      if (partNumber) params.set("partNumber", partNumber);
+      if (keyword) params.set("keyword", keyword);
+      if (description) params.set("description", description);
+      params.set("limit", "100");
+      const res = await ApiCustomer.get(`/api/service-log/parts-catalog?${params.toString()}`);
+      setRemotePartCatalog(res.data.data || []);
+    } catch (e) {
+      toast.error("Failed to search parts");
+    }
+  }, []);
+
+  const debouncedFetch = useMemo(() => {
+    return debounce((value) => {
+      fetchPartByNumber(value);
+    }, 450);
+  }, [fetchPartByNumber]);
+
+  useEffect(() => {
+    debouncedFetch({
+      partNumber: partNumberInput,
+      keyword: keywordInput,
+      description: descriptionInput,
+    });
+    return () => debouncedFetch.cancel();
+  }, [partNumberInput, keywordInput, descriptionInput, debouncedFetch]);
+
+  /* ==============================
+     📄 Filtering
+  ============================== */
+
+  const filteredPartCatalog = useMemo(() => {
+    const source = remotePartCatalog ?? partCatalog;
+    return source.filter(
+      (part) =>
+        !selectedPartCatalog.some(
+          (selected) => selected.PartNumber === part.PartNumber
+        )
+    );
+  }, [partCatalog, remotePartCatalog, selectedPartCatalog]);
+
+  /* ==============================
+     📑 Pagination
+  ============================== */
 
   const [currentPage, setCurrentPage] = useState(1);
   const PAGE_SIZE = 6;
-  const filteredPartCatalog = partCatalog.filter(part => {
-    return (
-      part.PartNumber?.toLowerCase().includes(partNumberSearch.toLowerCase())
-    );
-  });
-    const MAX_PAGES_SHOWN = 3;
- const getPaginationPages = () => {
-    if (totalPages <= MAX_PAGES_SHOWN) {
-      return Array.from({ length: totalPages }, (_, i) => i + 1);
-    }
-    if (currentPage <= 2) {
-      return [1, 2, 3];
-    }
-    if (currentPage >= totalPages - 1) {
-      return [totalPages - 2, totalPages - 1, totalPages];
-    }
-    return [currentPage - 1, currentPage, currentPage + 1];
-  };
+
   const totalPages = Math.ceil(filteredPartCatalog.length / PAGE_SIZE);
-  const paginationPages = getPaginationPages();
-  
-  
+
   const currentPageData = useMemo(() => {
     const start = (currentPage - 1) * PAGE_SIZE;
     return filteredPartCatalog.slice(start, start + PAGE_SIZE);
@@ -6850,103 +6906,124 @@ export function BtnModalsPartAdd({
       setCurrentPage(page);
     }
   };
-  
-  return(
-    <>
-    <Dialog open={open2} onOpenChange={setOpen2}>
-      <DialogContent className={' sm:min-w-[58vw] sm:min-h-[fit-content] flex flex-col justify-center overflow-y-auto'}>
-        <DialogHeader className={''}>
-          <DialogTitle className={'text-blue-600 text-2xl '}>Add Part</DialogTitle>
-        </DialogHeader>
-          <div className="flex items-center justify-between sm:max-w-full">
-            <span className="flex items-center gap-2">
-              <DialogDescription className={'whitespace-nowrap'}>Part Number</DialogDescription>
-              <Input 
-                className={'ring-1 min-w-[10em] ring-zinc-700 rounded-lg focus:ring-2 focus:ring-blue-500'}
-                value={partNumberInput}
-                onChange={(e) => setPartNumberInput(e.target.value)}
-              />
-              <Button 
-                variant={'search'}
-                onClick={(e) => setPartNumberSearch(partNumberInput)}
-              >Search</Button>
-              <PartAdd
-                onReload={false}
-                onSuccess={async(createdPart) =>{
-                  if(typeof onPartAdded === "function"){
-                    await onPartAdded();
-                  }
-                }}
-              />
-            </span>
-            <div className="bg-gray-300 flex gap-x-10 p-2 flex-1 max-w-[10em]">
-                <p>Currency</p><p className="whitespace-nowrap">: </p>
-            </div>
-          </div>
-          <div className="overflow-y-auto">
-            <Table className={''}>
-              <TableHeader>
-                <TableRow>
-                  <TableHead className={'p-2 text-black font-bold'}>Select</TableHead>
-                  <TableHead className={'text-black font-bold p-2'}>Part #</TableHead>
-                  <TableHead className={'text-black font-bold'}>Keyword</TableHead>
-                  <TableHead className={'text-black font-bold'}>Part Description</TableHead>
-                  <TableHead className={'font-black text-black'}>Orderability</TableHead>
-                  <TableHead className={'font-black text-black whitespace-break-spaces'}>Restriction Reason</TableHead>
-                  <TableHead className={'font-black text-black'}>CRS</TableHead>
-                  <TableHead className={'font-black text-black'}>ROHS</TableHead>
-                  <TableHead className={'font-black text-black'}>Retrunable</TableHead>
-                  <TableHead className={'font-black text-black whitespace-break-spaces'}>Hard roll</TableHead>
-                  <TableHead className={'font-black text-black whitespace-break-spaces'}>Dangerous Goods</TableHead>
-                  <TableHead className={'font-black text-black whitespace-break-spaces'}>Lithium Battery</TableHead>
-                  <TableHead className={'font-black text-black'}>Oversize</TableHead>
-                  <TableHead className={'font-black text-black'}>Heavy</TableHead>
-                  <TableHead className={'font-black text-black'}>Price</TableHead>
-                  <TableHead className={'font-black text-black whitespace-break-spaces'}>Friegh Price</TableHead>
-                  <TableHead className={'font-black text-black'}>Tax</TableHead>
-                  <TableHead className={'font-black text-black'}>Total</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-              {
-              currentPageData
-              .filter(part => !selectedPartCatalog.some(selected => selected.PartNumber === part.PartNumber))
-              .map((part, index) => {
-                  const isChecked = tempSelectedParts.some((item) => item.PartNumber === part.PartNumber)
 
-                  const toggleRow = () => {
-                    handlerPartCatalog(part, !isChecked);
-                  };
-                  return (
-                    <TableRow key={index} onClick={toggleRow} className={`cursor-pointer ${isChecked ? "bg-blue-100" : ""}`}>
-                      <TableCell className="flex">
-                        <Checkbox 
-                          checked={isChecked}
-                          onCheckedChange={(checked) => handlerPartCatalog(part, checked)}
-                        />
-                      </TableCell>
-                      <TableCell>{part.PartNumber}</TableCell>
-                      <TableCell>{part.Keyword}</TableCell>
-                      <TableCell>{part.PartDescription}</TableCell>
-                      <TableCell>{part.Orderability ? 'Yes' : 'No'}</TableCell>
-                      <TableCell>{part.ResistrictionReason}</TableCell>
-                      <TableCell>{part.Csr ? 'Y' : 'N'}</TableCell>
-                      <TableCell>{part.Rohs}</TableCell>
-                      <TableCell>{part.Returnable_Flag ? 'true' : 'false'}</TableCell>
-                      <TableCell>{part.Hardrolls}</TableCell>
-                      <TableCell>{part.Dangerousgoods ? 'true' : 'false'}</TableCell>
-                      <TableCell>{part.Lithiumbattry ? 'true' : 'false'}</TableCell>
-                      <TableCell>{part.Oversize ? 'true' : 'false'}</TableCell>
-                      <TableCell>{part.Heavy ? 'true' : 'false'}</TableCell>
-                      <TableCell>{part.Price}</TableCell>
-                      <TableCell>{part.Freightprice}</TableCell>
-                      <TableCell>{part.Tax}</TableCell>
-                      <TableCell>{part.Total}</TableCell>
-                    </TableRow>
-                  )
-                })}
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [partNumberInput, keywordInput, descriptionInput, remotePartCatalog]);
+
+  /* ==============================
+     ✅ Selection Handler
+  ============================== */
+
+  const handlerPartCatalog = (part, checked) => {
+    if (checked) {
+      setTempSelectedParts((prev) => [...prev, part]);
+    } else {
+      setTempSelectedParts((prev) =>
+        prev.filter((item) => item.PartNumber !== part.PartNumber)
+      );
+    }
+  };
+
+  /* ==============================
+     🚀 Add To Parent
+  ============================== */
+
+  const handleAddParts = () => {
+    setSelectedPartCatalog((prev) => [
+      ...prev,
+      ...tempSelectedParts
+        .filter((part) => !prev.some((p) => p.PartNumber === part.PartNumber))
+        .map((part) => ({
+          ...part,
+          qty: 1,
+          Total: parseFloat(part.Price || 0).toFixed(2),
+        })),
+    ]);
+
+    setTempSelectedParts([]);
+    setOpen2(false);
+  };
+
+  return (
+    <Dialog open={open2} onOpenChange={setOpen2}>
+      <DialogContent className="sm:min-w-[60vw] flex flex-col">
+        <DialogHeader>
+          <DialogTitle className="text-blue-600 text-2xl">
+            Add Part
+          </DialogTitle>
+        </DialogHeader>
+
+        {/* ================= SEARCH ================= */}
+        <div className="flex flex-wrap items-center gap-3">
+          <DialogDescription>Part Number</DialogDescription>
+          <Input
+            value={partNumberInput}
+            onChange={(e) => setPartNumberInput(e.target.value)}
+            className="w-60"
+          />
+          <DialogDescription>Keyword</DialogDescription>
+          <Input
+            value={keywordInput}
+            onChange={(e) => setKeywordInput(e.target.value)}
+            className="w-60"
+          />
+          <DialogDescription>Description</DialogDescription>
+          <Input
+            value={descriptionInput}
+            onChange={(e) => setDescriptionInput(e.target.value)}
+            className="w-60"
+          />
+        </div>
+
+        {/* ================= TABLE ================= */}
+        <div className="overflow-y-auto mt-4">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Select</TableHead>
+                <TableHead>Part #</TableHead>
+                <TableHead>Description</TableHead>
+                <TableHead>Price</TableHead>
+              </TableRow>
+            </TableHeader>
+
+            <TableBody>
+              {currentPageData.map((part) => {
+                const isChecked = tempSelectedParts.some(
+                  (item) => item.PartNumber === part.PartNumber
+                );
+
+                return (
+                  <TableRow
+                    key={part.PartNumber}
+                    className={`cursor-pointer ${
+                      isChecked ? "bg-blue-100" : ""
+                    }`}
+                    onClick={() =>
+                      handlerPartCatalog(part, !isChecked)
+                    }
+                  >
+                    <TableCell>
+                      <Checkbox
+                        checked={isChecked}
+                        onCheckedChange={(checked) =>
+                          handlerPartCatalog(part, checked)
+                        }
+                        onClick={(e) => e.stopPropagation()}
+                      />
+                    </TableCell>
+                    <TableCell>{part.PartNumber}</TableCell>
+                    <TableCell>{part.PartDescription}</TableCell>
+                    <TableCell>{part.Price}</TableCell>
+                  </TableRow>
+                );
+              })}
+
+              {/* Pagination */}
+              {totalPages > 1 && (
                 <TableRow>
-                    <TableCell colSpan={'100%'}>
+                  <TableCell colSpan="100%">
                     <Pagination className="flex justify-start">
                       <PaginationContent>
                         <PaginationItem>
@@ -6959,17 +7036,17 @@ export function BtnModalsPartAdd({
                           />
                         </PaginationItem>
 
-                        {paginationPages.map((i) => (
+                        {[...Array(totalPages)].map((_, i) => (
                           <PaginationItem key={i}>
                             <PaginationLink
                               href="#"
-                              isActive={currentPage === i }
+                              isActive={currentPage === i + 1}
                               onClick={(e) => {
                                 e.preventDefault();
-                                handlePageChange(i);
+                                handlePageChange(i + 1);
                               }}
                             >
-                              {i}
+                              {i + 1}
                             </PaginationLink>
                           </PaginationItem>
                         ))}
@@ -6987,84 +7064,42 @@ export function BtnModalsPartAdd({
                     </Pagination>
                   </TableCell>
                 </TableRow>
-              </TableBody>
-            </Table>
+              )}
+            </TableBody>
+          </Table>
+        </div>
 
-            {/* Selected Parts Summary with Return CT Key inputs */}
-            {selectedPartCatalog.length > 0 && (
-              <div className="mt-4 p-3 border rounded-md bg-gray-50">
-                <div className="font-semibold mb-2">Selected Parts</div>
-                <Table>
-                  <TableHeader>
-                    <TableRow className="bg-gray-200">
-                      <TableHead>Part Number</TableHead>
-                      <TableHead>Description</TableHead>
-                      <TableHead>Qty</TableHead>
-                      <TableHead>Return CT Key</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {selectedPartCatalog.map((p, idx) => (
-                      <TableRow key={p.PartNumber || idx}>
-                        <TableCell>{p.PartNumber}</TableCell>
-                        <TableCell>{p.PartDescription}</TableCell>
-                        <TableCell className="max-w-24">
-                          <Input
-                            className="bg-white"
-                            value={p.qty || 1}
-                            type="number"
-                            min="1"
-                            onChange={(e) => handleQtyChangePartsCatalog(p.PartNumber, e.target.value)}
-                          />
-                        </TableCell>
-                        <TableCell>
-                          <Input
-                            placeholder="Enter Return CT Key"
-                            className="bg-white"
-                            value={p.RemovedPartNumber || ''}
-                            onChange={(e) => handleRemovedPartNumberChange(p.PartNumber, e.target.value)}
-                          />
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </div>
-            )}
-          </div>
-          <DialogFooter className={'sm:justify-start'}>
-            <Button 
-              variant={'search'}
-              onClick={() => {
-                setSelectedPartCatalog((prev) => [
-                  ...prev,
-                  ...tempSelectedParts.filter(
-                    (part) => !prev.some((p) => p.PartNumber === part.PartNumber)
-                  ),
-                ]);
-                setTempSelectedParts([]); //  clear after adding
-                Swal.fire({
-                  title: "Success!",
-                  text: "Part(s) added successfully!",
-                  icon: "success",
-                  timer: 1500,
-                  showConfirmButton: false,
-                }).then(()=>{
-                  setOpen2(false);
-                });
-
-              }}
-            >Add Part</Button>
-            <Button variant={'search'} onClick={() => { setTempSelectedParts([]); 
-            setPartNumberInput("");
-            setPartNumberSearch(""); }}>Clear</Button>
-            <Button variant={'search'} onClick={() => setOpen2(false)}>Cancel</Button>
-          </DialogFooter>
+        {/* ================= FOOTER ================= */}
+        <DialogFooter>
+          <PartAdd 
+            onReload={false}
+            onSuccess={async(createdPart) =>{
+              if(typeof onPartAdded === "function"){
+                await onPartAdded();
+              }
+            }}
+          />
+          <Button onClick={handleAddParts}>
+            Add Part
+          </Button>
+          <Button
+            variant="outline"
+            onClick={() => {
+              setTempSelectedParts([]);
+              setPartNumberInput("");
+            }}
+          >
+            Clear
+          </Button>
+          <Button variant="outline" onClick={() => setOpen2(false)}>
+            Cancel
+          </Button>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
-    </>
-  )
+  );
 }
+
 
 export function BtnModalsResourceAccountAdd({
   open,
