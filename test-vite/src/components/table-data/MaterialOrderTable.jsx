@@ -13,7 +13,37 @@ import { Button } from "../ui/button"
 import { formatDate } from "@/lib/utils"
 import { MaterialOrderDelete, MaterialOrderEdit } from "../model/sc-modal"
 import { Link } from "react-router"
+import { useServerPageTable } from "./config/data-use-table"
 
+const MO_STATUS_OPTIONS = [
+  { label: "New",                          value: "New" },
+  { label: "Submitted",                         value: "Submitted" },
+  { label: "Ordered",                     value: "Ordered" },
+  { label: "Shipped",        value: "Shipped" },
+  { label: "Closed",        value: "Closed" },
+  { label: "Cancelled",                       value: "Cancelled" },
+  { label: "BackOrdered",                      value: "BackOrdered" },
+];
+
+function materialorderFiltersToParams(filters) {
+  const p = { mode: "paginated" };
+  for (const f of filters) {
+    // Both modes store [value] — read first element
+    const v = Array.isArray(f.value) ? f.value[0] : f.value;
+    if (!v) continue;
+    switch (f.id) {
+      case "OrderStatus":    p.OrderStatus    = v; break;
+      case "OrderType":  p.OrderType  = v; break;
+      default: break;
+    }
+  }
+  return p;
+}
+
+function materialorderSortToParams(s) {
+  if (!s[0]) return { sortBy: "CreatedOn", sortDir: "desc" };
+  return { sortBy: s[0].id, sortDir: s[0].desc ? "desc" : "asc" };
+}
 function MaterialOrderColums(opts) {
     return [
         {
@@ -115,69 +145,54 @@ function MaterialOrderColums(opts) {
 }
 
 export function MaterialOrderTable() {
-    const [data, setData] = React.useState([])
-    const [loading, setLoading] = React.useState(false)
-    const [error, setError] = React.useState(null)
-    const [sorting, setSorting] = React.useState([
-        {
-            id: "CreatedOn",
-            desc:true
-        }
-    ])
-    const [refresh, setRefresh] = React.useState(false) 
 
-    function handleRefresh(){
-      setRefresh(prev => !prev)
-    }
+  const hook = useServerPageTable({
+    url:               "/api/mo-detaill",
+    pageSize:          20,
+    defaultSorting:    [{ id: "CreatedOn", desc: true }],
+    filtersToParams:   materialorderFiltersToParams,
+    sortToParams:      materialorderSortToParams,
+    globalSearchParam: "search",
+  });
 
-    const fetchMaterialOrder = React.useCallback(async () => {
-        setLoading(true)
-        setError(null)
-        try {
-        const res = await ApiCustomer.get("/api/mo-detaill")
-        setData(res.data.data || [])
-        } catch (error) {
-            toast.error("Failed to fetch Material Order data")
-            setError("Failed to fetch data")
-        } finally {
-            setLoading(false)
-        }
-    }, [])
+  const columns   = React.useMemo(() => MaterialOrderColums(), []);
 
-    React.useEffect(() => {
-        fetchMaterialOrder()
-    }, [fetchMaterialOrder, refresh])
-
-    const columns = React.useMemo(
-        () => 
-            MaterialOrderColums({
-                onEdit: (id) => <MaterialOrderEdit MOID={id} onUpdate={fetchMaterialOrder}/>,
-                onDelete: (id) => <MaterialOrderDelete MOID={id}/>
-            }),
-        [fetchMaterialOrder]
-    )
     return (
         <div className="p-4 grid grid-cols-1 w-full rounded-2xl">
             <DataTable
                 title={<h2 className="text-xl sm:text-2xl font-bold">📊 Material Order Management</h2>}
-                data={data}
+                data={hook.data}
                 columns={columns}
-                sorting={sorting}
-                setSorting={setSorting}
-                handleRefresh={handleRefresh}
-                cellName={"h-9"}
-                loading={loading}
-                error={error}
-                toolbar={(table) => (
-                    <DataTableToolbar table={table} searchPlaceholder="🔍 Search material order..." loading={loading} handleRefresh={handleRefresh}>
+                sorting={hook.sorting}
+                setSorting={hook.setSorting}
+                handleRefresh={hook.refresh}
+                cellClassName={"h-9"}
+                loading={hook.loading}
+                error={hook.error}
+                columnFilters={hook.columnFilters}
+                setColumnFilters={hook.setColumnFilters}
+                globalSearch={hook.globalSearch}
+                onGlobalSearchChange={hook.setGlobalSearch}
+                serverPagination={{
+                  pageIndex:        hook.pageIndex,
+                  pageCount:        hook.pageCount,
+                  pageSize:         hook.pageSize,
+                  total:            hook.total,
+                  onPageChange:     hook.setPageIndex,
+                  onPageSizeChange: hook.setPageSize,
+                }}
+                toolbar={(table, serverProps) => (
+                    <DataTableToolbar table={table} searchPlaceholder=" Search material order..." loading={hook.loading} handleRefresh={hook.refresh} total={hook.total} {...serverProps}>
                        <DataTableFacetedFilter
+                        mode="server"
                         title={"All Order Status"}
                         column={table.getColumn("OrderStatus")}
+                        options={MO_STATUS_OPTIONS}
                        />
-                       <DataTableFacetedFilter
-                        title={"All Order Type"}
-                        column={table.getColumn("OrderType")}
-                       />
+                       {/* <DataTableFacetedFilter */}
+                       {/*  title={"All Order Type"} */}
+                       {/*  column={table.getColumn("OrderType")} */}
+                       {/* /> */}
                     </DataTableToolbar>
                 )}
             />

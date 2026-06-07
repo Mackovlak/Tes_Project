@@ -37,6 +37,7 @@ export async function PATCH(request) {
       MOID,
       WOID,
       userId,
+      ResourceId,
       SalesOrderNumber,
       RMANumber,
     } = await request.json();
@@ -205,18 +206,19 @@ export async function PATCH(request) {
 
       let caseOwnerId = null;
       if (targetCaseStatus === "PartOrder") {
-        let logisticUser = await tx.user.findUnique({ where: { Username: "logis" } });
+        let logisticUser = await tx.user.findFirst({ where: { Role: "lg", ResourceId: ResourceId  } });
         if (!logisticUser) {
           logisticUser = await tx.user.findFirst({
             where: { Role: { equals: "lg" } },
             orderBy: { IDUser: "asc" },
           });
         }
+        
         caseOwnerId = logisticUser?.IDUser ?? null;
       } else if (targetCaseStatus === "PartAvailable") {
         caseOwnerId = workOrder.OwnerID ?? null;
       }
-
+      
       if (
         targetCaseStatus &&
         targetCaseStatus !== currentCaseStatus &&

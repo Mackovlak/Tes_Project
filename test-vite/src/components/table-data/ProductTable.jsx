@@ -16,6 +16,46 @@ import { ProductImport } from "../importFileComponent/ProductImport"
 import { ProductTemplateButton } from "../importFileComponent/ProductImport"
 import { Trash } from "lucide-react"
 import { ConfirmDialog } from "../model/config/ConfirmDialog"
+import { useServerPageTable } from "./config/data-use-table"
+
+
+function makeFetch(field) {
+  return async (q) => {
+    const res = await ApiCustomer.get("/api/product-information", {
+      params: { mode: "distinct", field, q: q ?? "", limit: 30 },
+    });
+    return (res.data.values ?? []).map((v) => ({ label: v, value: v }));
+  };
+}
+
+// Creating fetchers for your specific table filters
+const fetchProductNumber = makeFetch("ProductNumber");
+const fetchProductName = makeFetch("ProductName");
+const fetchHWPC = makeFetch("HWPC");
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Parameter Parsers
+// ─────────────────────────────────────────────────────────────────────────────
+function productFiltersToParams(filters) {
+  const p = { mode: "paginated" };
+  for (const f of filters) {
+    const v = Array.isArray(f.value) ? f.value[0] : f.value;
+    if (!v) continue;
+    switch (f.id) {
+      case "ProductNumber": p.ProductNumber = v; break;
+      case "ProductName":       p.ProductName = v; break;
+      case "HWPC":          p.HWPC = v; break;
+      default: break;
+    }
+  }
+  return p;
+}
+
+function productSortToParams(s) {
+  if (!s[0]) return { sortBy: "ProductNumber", sortDir: "asc" };
+  return { sortBy: s[0].id, sortDir: s[0].desc ? "desc" : "asc" };
+}
+
 
 function productColums(opts) {
     return [
@@ -91,35 +131,18 @@ function productColums(opts) {
 }
 
 export function ProductTable() {
-    const [data, setData] = React.useState([])
-    const [loading, setLoading] = React.useState(false)
-    const [error, setError] = React.useState(null)
     const [isDialogOpen, setIsDialogOpen] = React.useState(false)
     const [isDeleting, setIsDeleting] = React.useState(false)
     const [selectedId, setSeletectedId] = React.useState()
-    const [sorting, setSorting] = React.useState([])
-    const [refresh, setRefresh] = React.useState(false) 
 
-    function handleRefresh(){
-      setRefresh(prev => !prev)
-    }
-    const fetchProduct = React.useCallback(async () => {
-        setLoading(true)
-        setError(null)
-        try {
-        const res = await ApiCustomer.get("/api/product-information")
-        setData(res.data.data || [])
-        } catch (error) {
-            toast.error("Failed to fetch Asset data")
-            setError("Failed to fetch data")
-        } finally {
-            setLoading(false)
-        }
-    }, [])
-
-    React.useEffect(() => {
-        fetchProduct()
-    }, [fetchProduct, refresh])
+    const hook = useServerPageTable({
+        url: "/api/product-information",
+        pageSize: 20,
+        defaultSorting: [{ id: "ProductNumber", desc: false }],
+        filtersToParams: productFiltersToParams,
+        sortToParams: productSortToParams,
+        globalSearchParam: "search",
+    });
 
     const handleDeleteProduct = React.useCallback(async () => {
         if (!selectedId) return
@@ -127,7 +150,7 @@ export function ProductTable() {
         try {
             const res = await ApiCustomer.delete(`/api/product-information/${selectedId}`)
             toast.success("Product deleted successfully")
-            fetchProduct()
+            hook.refresh
             setIsDialogOpen(false)
             setSeletectedId(null)
         } catch (error) {
@@ -135,12 +158,12 @@ export function ProductTable() {
         } finally {
             setIsDeleting(false)
         }
-    }, [selectedId, fetchProduct])
+    }, [selectedId, hook])
 
     const columns = React.useMemo(
         () => 
             productColums({
-                onEdit: (id) => <ProductEdit productNumber={id} onUpdate={fetchProduct}/>,
+                onEdit: (id) => <ProductEdit productNumber={id} onUpdate={hook.refresh}/>,
                 onDelete: (id) => <Button variant={"outline"} className={"text-red-500 hover:text-red-700"} onClick={() => {
                     setSeletectedId(id)
                     setIsDialogOpen(true)
@@ -148,35 +171,53 @@ export function ProductTable() {
                     <Trash/>
                 </Button>
             }),
-        [fetchProduct]
+        [hook.refresh]
     )
     return (
         <div className="p-4 grid grid-cols-1 w-full rounded-2xl">
             <DataTable
                 title={<h2 className="text-xl sm:text-2xl font-bold">📊 Product Management</h2>}
-                data={data}
+                data={hook.data}
                 columns={columns}
-                sorting={sorting}
-                setSorting={setSorting}
-                handleRefresh={handleRefresh}
-                loading={loading}
-                error={error}
-                toolbar={(table) => (
-                    <DataTableToolbar table={table} searchPlaceholder="🔍 Search product..." loading={loading} handleRefresh={handleRefresh}>
+                sorting={hook.sorting}
+                setSorting={hook.setSorting}
+                handleRefresh={hook.refresh}
+                loading={hook.loading}
+                error={hook.error}
+                columnFilters={hook.columnFilters}
+                setColumnFilters={hook.setColumnFilters}
+                globalSearch={hook.globalSearch}
+                onGlobalSearchChange={hook.setGlobalSearch}
+                serverPagination={{
+                  pageIndex: hook.pageIndex,
+                  pageCount: hook.pageCount,
+                  pageSize: hook.pageSize,
+                  total: hook.total,
+                  onPageChange: hook.setPageIndex,
+                  onPageSizeChange: hook.setPageSize,
+                }}
+                toolbar={(table, serverProps) => (
+                    <DataTableToolbar table={table} searchPlaceholder="🔍 Search product..." loading={hook.loading} handleRefresh={hook.refresh} total={hook.total} {...serverProps}>
                         <ProductAdd/>
                         <ProductImport/>
                         <ProductTemplateButton/>
                         <DataTableFacetedFilter
+                            mode="server"
                             title="All Product Number"
                             column={table.getColumn("ProductNumber")}
+                            fetchOptions={fetchProductNumber}
                         />
                         <DataTableFacetedFilter
+                            mode="server"
                             title="All Product Name"
                             column={table.getColumn("ProductName")}
+                            fetchOptions={fetchProductName}
                         />
                         <DataTableFacetedFilter
+                            mode="server"
                             title="All HWPC"
                             column={table.getColumn("HWPC")}
+                            fetchOptions={fetchHWPC}
                         />
                     </DataTableToolbar>
                 )}

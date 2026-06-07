@@ -109,7 +109,7 @@ export function BookingStatusTable() {
                 columns={columns}
                 sorting={sorting}
                 setSorting={setSorting}
-                cellName={"h-9"}
+                cellClassName={"h-9"}
                 handleRefresh={handleRefresh}
                 loading={loading}
                 error={error}

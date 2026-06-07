@@ -26,7 +26,7 @@ export default function Logistik() {
   const [loading, setLoading] = useState(false);
   
 
-    const fetchData = async () => {
+  const fetchData = async () => {
         setLoading(true);
         try {
             const fetchMo = await ApiCustomer.get('/api/mo-detaill');
@@ -46,25 +46,27 @@ export default function Logistik() {
                 ProfilePhoto: fecthUserData.data.data.ProfilePhoto ? `${import.meta.env.VITE_API_BASE_URL}${fecthUserData.data.data.ProfilePhoto}` : null,
                 Signature: fecthUserData.data.data.Signature ? `${import.meta.env.VITE_API_BASE_URL}${fecthUserData.data.data.Signature}` : null,
             });
-          const valueFilterPartOrder = fetchMo.data.data.filter(m =>  m?.materialorderlineitems?.[0]?.LineItemID)
-         setMoData(valueFilterPartOrder)            
-        } catch (err) {
-            toast.error("Fetching data: ",err);
-        }finally {
-            setLoading(false);
-        }
+            const valueFilterPartOrder = fetchMo.data.data.filter(m => {
+                const item =  m?.materialorderlineitems?.[0]?.LineItemID
+                const itemOwner  = m?.owner?.ResourceId === user?.resource
+              return item && itemOwner
+            }
+          )
+          setMoData(valueFilterPartOrder)            
+          } catch (err) {
+              toast.error("Fetching data: ",err);
+          }finally {
+              setLoading(false);
+          }
     }
     useEffect(() =>{
         fetchData();
     },[])
 
     const filteredData =
-    filterStatus === "All" ? MoData
-      : MoData.filter(
-          (m) =>
-            m.OrderStatus === filterStatus
-        );
-   
+    filterStatus === "All" ? MoData : 
+    MoData.filter((m) => m.OrderStatus === filterStatus);
+  
    const sortedData = [...filteredData].sort((a,b) => {
     const orderA = a.MOID;
     const orderB = b.MOID;
@@ -73,7 +75,6 @@ export default function Logistik() {
   const totalPages = Math.ceil(sortedData.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const currentData = sortedData.slice(startIndex, startIndex + itemsPerPage);
-
 
 
     return (
@@ -164,7 +165,7 @@ export default function Logistik() {
                         {m.MOID} 
                         <Badge className={
                           m.OrderStatus === 'New' ? "text-white bg-green-500" : 
-                          m.OrderStatus  === 'Shipped' ? "text-white bg-yellow-500" : 
+                          m.OrderStatus === 'Shipped' ? "text-white bg-yellow-500" : 
                           m.OrderStatus === 'Ordered' ? "text-white bg-blue-500" :
                           m.OrderStatus === 'Closed' ? "text-white bg-gray-500" :
                           m.OrderStatus === 'BackOrdered' ? "text-white bg-purple-500" :
@@ -224,7 +225,7 @@ export default function Logistik() {
             Next
           </button>
         </CardFooter>
-            </Card>
+        </Card>
 
         <Card className={"rounded-sm dark:border-slate-600 dark:border-r-6 dark:bg-gradient-to-tl dark:from-slate-900 dark:via-slate-700 dark:to-slate-800"} id='notifications'>
             <CardHeader>

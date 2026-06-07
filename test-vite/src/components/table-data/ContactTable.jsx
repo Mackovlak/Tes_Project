@@ -4,17 +4,67 @@ import * as React from "react"
 import Swal from "sweetalert2"
 import { toast } from "sonner"
 import ApiCustomer from "@/api"
-import { ContactEdit } from "../model/MastertabelEdit/ContactEdit"
 import { DataTableToolbar } from "./config/data-table-toolbar"
 import { DataTableColumnHeader } from "./config/data-table-column-header"
-import { DataTablePagination } from "./config/data-table-pagination"
 import { DataTableFacetedFilter } from "./config/data-table-faceted-filter"
 import { DataTable } from "./config/data-table"
 import { Button } from "../ui/button"
-import { Trash } from "lucide-react"
+import { ContactEdit } from "../model/MastertabelEdit/ContactEdit"
 import { ConfirmDialog } from "../model/config/ConfirmDialog"
+import { Trash } from "lucide-react"
+import { useServerPageTable } from "./config/data-use-table"
 
- function contactColumns(opts){
+// ─────────────────────────────────────────────────────────────────────────────
+// Data Fetchers for Dropdowns
+// ─────────────────────────────────────────────────────────────────────────────
+function makeFetch(field) {
+  return async (q) => {
+    const res = await ApiCustomer.get("/api/contact-information", {
+      params: { mode: "distinct", field, q: q ?? "", limit: 30 },
+    });
+    return (res.data.values ?? []).map((v) => ({ label: v, value: v }));
+  };
+}
+
+const fetchCompany = makeFetch("Company");
+const fetchSalutation = makeFetch("Salutation");
+const fetchLanguage = makeFetch("PreferredLanguage");
+const fetchCountry = makeFetch("Country");
+const fetchState = makeFetch("StateProvince");
+const fetchCity = makeFetch("City");
+const fetchZip = makeFetch("ZipPostalCode");
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Parameter Parsers
+// ─────────────────────────────────────────────────────────────────────────────
+function contactFiltersToParams(filters) {
+  const p = { mode: "paginated" };
+  for (const f of filters) {
+    const v = Array.isArray(f.value) ? f.value[0] : f.value;
+    if (!v) continue;
+    switch (f.id) {
+      case "Company":           p.Company = v; break;
+      case "Salutation":        p.Salutation = v; break;
+      case "PreferredLanguage": p.PreferredLanguage = v; break;
+      case "Country":           p.Country = v; break;
+      case "StateProvince":     p.StateProvince = v; break;
+      case "City":              p.City = v; break;
+      case "ZipPostalCode":     p.ZipPostalCode = v; break;
+      default: break;
+    }
+  }
+  return p;
+}
+
+function contactSortToParams(s) {
+  if (!s[0]) return { sortBy: "FirstName", sortDir: "asc" };
+  return { sortBy: s[0].id, sortDir: s[0].desc ? "desc" : "asc" };
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Columns Definition
+// ─────────────────────────────────────────────────────────────────────────────
+function contactColumns(opts) {
   return [
     {
       id: "no",
@@ -29,93 +79,19 @@ import { ConfirmDialog } from "../model/config/ConfirmDialog"
         )
       },
     },
-    {
-      accessorKey: "ContactID",
-      header: ({ column }) => (
-        <DataTableColumnHeader column={column} title="Contact ID" />
-      ),
-    },
-    {
-      accessorKey: "Company",
-      header: ({ column }) => (
-        <DataTableColumnHeader column={column} title="Company" />
-      ),
-      filterFn: "equalsString",
-    },
-    {
-      accessorKey: "Salutation",
-      header: ({ column }) => (
-        <DataTableColumnHeader column={column} title="Salutation" />
-      ),
-      filterFn: "equalsString",
-    },
-    {
-      accessorKey: "FirstName",
-      header: ({ column }) => (
-        <DataTableColumnHeader column={column} title="First Name" />
-      ),
-    },
-    {
-      accessorKey: "LastName",
-      header: ({ column }) => (
-        <DataTableColumnHeader column={column} title="Last Name" />
-      ),
-    },
-    {
-      accessorKey: "Email",
-      header: ({ column }) => (
-        <DataTableColumnHeader column={column} title="Email" />
-      ),
-    },
-    {
-      accessorKey: "PreferredLanguage",
-      header: ({ column }) => (
-        <DataTableColumnHeader column={column} title="Language" />
-      ),
-      filterFn: "equalsString",
-    },
-    { accessorKey: "Phone", header: ({ column }) => <DataTableColumnHeader column={column} title="Phone" /> },
-    { accessorKey: "Mobile", header: ({ column }) => <DataTableColumnHeader column={column} title="Mobile" /> },
-    { accessorKey: "WorkPhone", header: ({ column }) => <DataTableColumnHeader column={column} title="Work Phone" /> },
-    { accessorKey: "WorkExtension", header: ({ column }) => <DataTableColumnHeader column={column} title="Work Ext" /> },
-    { accessorKey: "OtherPhone", header: ({ column }) => <DataTableColumnHeader column={column} title="Other Phone" /> },
-    { accessorKey: "OtherExtension", header: ({ column }) => <DataTableColumnHeader column={column} title="Other Ext" /> },
-    { accessorKey: "Fax", header: ({ column }) => <DataTableColumnHeader column={column} title="Fax" /> },
-    { accessorKey: "AddressLine1", header: ({ column }) => <DataTableColumnHeader column={column} title="Address 1" /> },
-    { accessorKey: "AddressLine2", header: ({ column }) => <DataTableColumnHeader column={column} title="Address 2" /> },
-    {
-      accessorKey: "Country",
-      header: ({ column }) => (
-        <DataTableColumnHeader column={column} title="Country" />
-      ),
-      filterFn: "equalsString",
-    },
-    {
-      accessorKey: "StateProvince",
-      header: ({ column }) => (
-        <DataTableColumnHeader column={column} title="State" />
-      ),
-      filterFn: "equalsString",
-    },
-    {
-      accessorKey: "City",
-      header: ({ column }) => (
-        <DataTableColumnHeader column={column} title="City" />
-      ),
-      filterFn: "equalsString",
-    },
-    {
-      accessorKey: "ZipPostalCode",
-      header: ({ column }) => (
-        <DataTableColumnHeader column={column} title="Zip" />
-      ),
-      filterFn: "equalsString",
-    },
-
-    { accessorKey: "PIC_Name", header: ({ column }) => <DataTableColumnHeader column={column} title="PIC Name" /> },
-    { accessorKey: "PIC_Email", header: ({ column }) => <DataTableColumnHeader column={column} title="PIC Email" /> },
-    { accessorKey: "PIC_Phone", header: ({ column }) => <DataTableColumnHeader column={column} title="PIC Phone" /> },
-
+    { accessorKey: "ContactID", id: "ContactID", header: ({ column }) => <DataTableColumnHeader column={column} title="Contact ID" /> },
+    { accessorKey: "Company", id: "Company", header: ({ column }) => <DataTableColumnHeader column={column} title="Company" /> },
+    { accessorKey: "Salutation", id: "Salutation", header: ({ column }) => <DataTableColumnHeader column={column} title="Salutation" /> },
+    { accessorKey: "FirstName", id: "FirstName", header: ({ column }) => <DataTableColumnHeader column={column} title="First Name" /> },
+    { accessorKey: "LastName", id: "LastName", header: ({ column }) => <DataTableColumnHeader column={column} title="Last Name" /> },
+    { accessorKey: "Email", id: "Email", header: ({ column }) => <DataTableColumnHeader column={column} title="Email" /> },
+    { accessorKey: "PreferredLanguage", id: "PreferredLanguage", header: ({ column }) => <DataTableColumnHeader column={column} title="Language" /> },
+    { accessorKey: "Phone", id: "Phone", header: ({ column }) => <DataTableColumnHeader column={column} title="Phone" /> },
+    { accessorKey: "Mobile", id: "Mobile", header: ({ column }) => <DataTableColumnHeader column={column} title="Mobile" /> },
+    { accessorKey: "Country", id: "Country", header: ({ column }) => <DataTableColumnHeader column={column} title="Country" /> },
+    { accessorKey: "StateProvince", id: "StateProvince", header: ({ column }) => <DataTableColumnHeader column={column} title="State" /> },
+    { accessorKey: "City", id: "City", header: ({ column }) => <DataTableColumnHeader column={column} title="City" /> },
+    { accessorKey: "ZipPostalCode", id: "ZipPostalCode", header: ({ column }) => <DataTableColumnHeader column={column} title="Zip" /> },
     {
       id: "actions",
       header: () => <div className="text-center">Actions</div>,
@@ -132,111 +108,94 @@ import { ConfirmDialog } from "../model/config/ConfirmDialog"
   ]
 }
 
-
+// ─────────────────────────────────────────────────────────────────────────────
+// Main Component
+// ─────────────────────────────────────────────────────────────────────────────
 export function ContactTable() {
-  const [data, setData] = React.useState([])
-  const [loading, setLoading] = React.useState(false)
-  const [error, setError] = React.useState(null)
   const [isDialogOpen, setIsDialogOpen] = React.useState(false)
   const [isDeleting, setIsDeleting] = React.useState(false)
   const [selectedId, setSeletectedId] = React.useState()
-  const [sorting, setSorting] = React.useState([])
-  const [refresh, setRefresh] = React.useState(false) 
 
-    function handleRefresh(){
-      setRefresh(prev => !prev)
-    }
-
-  const fetchContacts = React.useCallback(async () => {
-    setLoading(true)
-    setError(null)
-    try {
-      const res = await ApiCustomer.get(`/api/contact-information`)
-      setData(res.data.data || [])
-    } catch (err) {
-      toast.error("Failed to fetch contact data")
-      setError("Failed to fetch data")
-    } finally {
-      setLoading(false)
-    }
-  }, [])    
-
-  React.useEffect(() => {
-    fetchContacts()
-  }, [fetchContacts, refresh])
+  const hook = useServerPageTable({
+    url: "/api/contact-information",
+    pageSize: 20,
+    defaultSorting: [{ id: "FirstName", desc: false }],
+    filtersToParams: contactFiltersToParams,
+    sortToParams: contactSortToParams,
+    globalSearchParam: "search",
+  });
 
   const handleDeleteContact = React.useCallback(async () => {
     if (!selectedId) return
     setIsDeleting(true)
     try {
-      const res =  await ApiCustomer.delete(`/api/contact-information/${selectedId}`);
+      await ApiCustomer.delete(`/api/contact-information/${selectedId}`)
       toast.success("Contact deleted successfully")
-      fetchContacts()
+      hook.refresh()
       setIsDialogOpen(false)
       setSeletectedId(null)
-    }catch (err) {
+    } catch (error) {
       toast.error("Failed to delete contact")
-    }finally {
+    } finally {
       setIsDeleting(false)
     }
-  },[selectedId, fetchContacts])
+  }, [selectedId, hook])
 
   const columns = React.useMemo(
     () =>
       contactColumns({
-        onEdit: (id) => <ContactEdit contactID={id} onUpdate={fetchContacts} />,
-        onDelete: (id) => <Button variant={"outline"} className={"text-red-500 hover:text-red-700"}
-        onClick={() => {
-          setIsDialogOpen(true)
-          setSeletectedId(id)
-        }}>
-        <Trash/>
-        </Button>,
+        onEdit: (id) => <ContactEdit contactID={id} onUpdate={hook.refresh} />,
+        onDelete: (id) => (
+          <Button variant="outline" className="text-red-500 hover:text-red-700" onClick={() => {
+            setIsDialogOpen(true)
+            setSeletectedId(id)
+          }}>
+            <Trash />
+          </Button>
+        ),
       }),
-    [fetchContacts]
+    [hook.refresh]
   )
+console.log('Hook contact',hook)
   return (
-    <div className="p-4 grid  grid-cols-1 w-full rounded-2xl">
+    <div className="p-4 grid grid-cols-1 w-full rounded-2xl">
       <DataTable
-        contact
         title={<h2 className="text-xl sm:text-2xl font-bold">📊 Contact Management</h2>}
-        data={data}
+        data={hook.data}
         columns={columns}
-        loading={loading}
-        sorting={sorting}
-        setSorting={setSorting}
-        handleRefresh={handleRefresh}
-        error={error}
-        toolbar={(table) => (
-          <DataTableToolbar table={table} searchPlaceholder="🔍 Search contacts..." loading={loading} handleRefresh={handleRefresh}>
-            <DataTableFacetedFilter
-              title="🏢 Company"
-              column={table.getColumn("Company")}
-            />
-            <DataTableFacetedFilter
-              title="🙋 Salutation"
-              column={table.getColumn("Salutation")}
-            />
-            <DataTableFacetedFilter
-              title="🌐 Language"
-              column={table.getColumn("PreferredLanguage")}
-            />
-            <DataTableFacetedFilter
-              title="🌍 Country"
-              column={table.getColumn("Country")}
-            />
-            <DataTableFacetedFilter
-              title="🗺 State"
-              column={table.getColumn("StateProvince")}
-            />
-            <DataTableFacetedFilter
-              title="🏙 City"
-              column={table.getColumn("City")}
-            />
-            <DataTableFacetedFilter
-              title="📮 Zip"
-              column={table.getColumn("ZipPostalCode")}
-            />
+        sorting={hook.sorting}
+        setSorting={hook.setSorting}
+        handleRefresh={hook.refresh}
+        columnFilters={hook.columnFilters}
+        setColumnFilters={hook.setColumnFilters}
+        loading={hook.loading}
+        error={hook.error}
+        globalSearch={hook.globalSearch}
+        onGlobalSearchChange={hook.setGlobalSearch}
+        serverPagination={{
+          pageIndex: hook.pageIndex,
+          pageCount: hook.pageCount,
+          pageSize: hook.pageSize,
+          total: hook.total,
+          onPageChange: hook.setPageIndex,
+          onPageSizeChange: hook.setPageSize,
+        }}
+        toolbar={(table, serverProps) => (
+          <DataTableToolbar
+            table={table}
+            searchPlaceholder=" Search contacts..."
+            loading={hook.loading}
+            handleRefresh={hook.refresh}
+            total={hook.total}
+            {...serverProps}
+          >
+            <DataTableFacetedFilter mode="server" title="🏢 Company" column={table.getColumn("Company")} fetchOptions={fetchCompany} />
+            <DataTableFacetedFilter mode="server" title="🙋 Salutation" column={table.getColumn("Salutation")} fetchOptions={fetchSalutation} />
+            <DataTableFacetedFilter mode="server" title="🌐 Language" column={table.getColumn("PreferredLanguage")} fetchOptions={fetchLanguage} />
+            <DataTableFacetedFilter mode="server" title="🌍 Country" column={table.getColumn("Country")} fetchOptions={fetchCountry} />
+            <DataTableFacetedFilter mode="server" title="🗺 State" column={table.getColumn("StateProvince")} fetchOptions={fetchState} />
+            <DataTableFacetedFilter mode="server" title="🏙 City" column={table.getColumn("City")} fetchOptions={fetchCity} />
+            <DataTableFacetedFilter mode="server" title="📮 Zip" column={table.getColumn("ZipPostalCode")} fetchOptions={fetchZip} />
           </DataTableToolbar>
         )}
       />
@@ -244,15 +203,13 @@ export function ContactTable() {
         open={isDialogOpen}
         confirming={isDeleting}
         onOpenChange={(open) => {
-          setIsDialogOpen(open)
-          if (!open) setSeletectedId(null)
+          setIsDialogOpen(open);
+          if (!open) setSeletectedId(null);
         }}
         onConfirm={handleDeleteContact}
-        title={"Delete Contact"}
-        description="Are you sure you want to delete this contact?"
-        />
+        title="Delete Contact"
+        description="Are you sure want to delete this contact?"
+      />
     </div>
-  )
+  );
 }
-
-

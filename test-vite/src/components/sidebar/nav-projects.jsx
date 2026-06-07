@@ -35,15 +35,15 @@ export function NavProjects({
     return location.pathname === url;
   };
 
-
+  const checkOnly = projects.map((item) => item.only?.includes(user.role));
   return (
     <SidebarGroup>
-      <SidebarGroupLabel className={'font-bold text-gray-100'}>Main Menu</SidebarGroupLabel>
+      {/* <SidebarGroupLabel className={'font-bold text-gray-100'}>Main Menu</SidebarGroupLabel> */}
       <SidebarMenu>
         {projects.map((item) => (
           <SidebarMenuItem key={item.name}
           >
-            <SidebarMenuButton className={"dark:hover:bg-slate-600 dark:active:bg-slate-400"} asChild tooltip={item.title}    isActive={isActive(item.url)} hidden={item.only && !(item.only === user.role)}>
+            <SidebarMenuButton className={"dark:hover:bg-slate-600 dark:active:bg-slate-400"} asChild tooltip={item.title}    isActive={isActive(item.url)} hidden={item.only && !item.only?.includes(user.role)}>
               <Link to={item.url} >
                 <item.icon/>
                 <span className="font-medium text-[1rem]">{item.name}</span>

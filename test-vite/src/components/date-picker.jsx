@@ -11,7 +11,8 @@ import {
   getHours,
   getMinutes,
   isValid,
-  startOfDay
+  startOfDay,
+  parse
 } from "date-fns";
 
 import "react-day-picker/dist/style.css";
@@ -95,11 +96,37 @@ export default function DatePicker({
   };
 
   const handleDateInputSubmit = () => {
-    const parsed = parseFlexibleDate(dateInput) || new Date(dateInput);
-    if (isValid(parsed)) {
-      onChange?.(setMinutes(setHours(parsed, getHours(value || new Date())), getMinutes(value || new Date())));
+    // const parsed = parseFlexibleDate(dateInput) || new Date(dateInput);
+    // if (isValid(parsed)) {
+    //   onChange?.(setMinutes(setHours(parsed, getHours(value || new Date())), getMinutes(value || new Date())));
+    // } else {
+    //   setDateInput(value ? format(value, dateFormat) : "");
+    // }
+    if (mode === "range") {
+      // Split by dash and trim spaces
+      const parts = dateInput.split("-").map(p => p.trim());
+      if (parts.length === 2) {
+        const from = parse(parts[0], dateFormat, new Date());
+        const to = parse(parts[1], dateFormat, new Date());
+        
+        if (isValid(from) && isValid(to)) {
+          onChange?.({ from, to });
+          setViewDate(from);
+          return;
+        }
+      }
+      // Revert on fail
+      const { from, to } = value || {};
+      setDateInput(from && to ? `${format(from, dateFormat)} - ${format(to, dateFormat)}` : "");
+      
     } else {
-      setDateInput(value ? format(value, dateFormat) : "");
+      const parsed = parse(dateInput, dateFormat, new Date());
+      if (isValid(parsed)) {
+        onChange?.(parsed);
+        setViewDate(parsed);
+      } else {
+        setDateInput(value ? format(value, dateFormat) : "");
+      }
     }
   };
 
@@ -206,6 +233,14 @@ export default function DatePicker({
                 <Button variant={'outline'}  onClick={handleToday}>Todays</Button>
                 <Button variant={'outline'}  onClick={handlehide}>Month</Button>
               </div>
+    {mode === "range" && (
+              <div className="flex flex-row  gap-2 border-b sm:border-b-0 sm:border-r border-gray-100 pr-0 sm:pr-4 pb-4 sm:pb-0 overflow-x-auto no-scrollbar w-70">
+                <Button variant="ghost" size="sm" onClick={() => handlePreset("today")} className="justify-start text-xs h-8">Today</Button>
+                <Button variant="ghost" size="sm" onClick={() => handlePreset("last7")} className="justify-start text-xs h-8">Last 7 Days</Button>
+                <Button variant="ghost" size="sm" onClick={() => handlePreset("thisMonth")} className="justify-start text-xs h-8">This Month</Button>
+                <Button variant="ghost" size="sm" onClick={() => handlePreset("thisYear")} className="justify-start text-xs h-8">This Year</Button>
+              </div>
+            )}
               <DayPicker
                 mode={mode}
                 selected={value}

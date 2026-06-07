@@ -228,7 +228,7 @@ model contact_information {
   asset_information asset_information[]
   caseinformation   caseinformation[]
   site_account      site_account?       @relation(fields: [SiteAccountID], references: [SiteAccountID], onDelete: Restrict, onUpdate: Cascade, map: "contact_information_ibfk_1")
-
+  ticket            ticket[]
   @@index([SiteAccountID], map: "SiteAccountID")
 }
 
@@ -556,6 +556,7 @@ model site_account {
   asset_information   asset_information[]
   caseinformation     caseinformation[]
   contact_information contact_information[]
+  ticket              ticket[]
 }
 
 model symptom_codes {
@@ -939,6 +940,45 @@ model caseresolution {
   cases caseinformation[]
 }
 
+model ticket {
+  TicketID          Int          @id @default(autoincrement())
+  TicketNumber      String       @unique @db.VarChar(50)
+  
+  ContactID         Int?
+  SiteAccountID     Int?
+  
+  Type              TicketType
+  Status            TicketStatus @default(OPEN)
+  Subject           String       @db.VarChar(255)
+  Description       String?      @db.Text
+
+  SerialNumber      String?  @db.VarChar(100)
+  ProductNumber     String?  @db.VarChar(100)
+  ReferenceNumber   String?  @db.VarChar(100) 
+
+  CreatedAt         DateTime     @default(now())
+  UpdatedAt         DateTime     @updatedAt
+
+  contact_information contact_information? @relation(fields: [ContactID], references: [ContactID], onDelete: Restrict, onUpdate: Cascade)
+  site_account        site_account?        @relation(fields: [SiteAccountID], references: [SiteAccountID], onDelete: Restrict, onUpdate: Cascade)
+  
+  ticket_history      ticket_history[]
+}
+
+model ticket_history {
+  HistoryID   Int      @id @default(autoincrement())
+  
+  TicketID    Int
+  
+  ChangedBy   String?  @db.VarChar(100)
+  OldStatus   String?  @db.VarChar(50)
+  NewStatus   String   @db.VarChar(50)
+  Note        String?  @db.Text
+  CreatedAt   DateTime @default(now())
+
+  ticket      ticket   @relation(fields: [TicketID], references: [TicketID], onDelete: Cascade, onUpdate: Cascade)
+}
+
 enum payment_eligibility {
   Eligible
   Not_Eligible
@@ -1110,3 +1150,20 @@ enum QuotationDecision {
   Approved
   Rejected
 }
+
+enum TicketStatus {
+  OPEN
+  IN_PROGRESS
+  WAITING_FOR_PARTS
+  READY_FOR_PICKUP
+  CLOSED
+  CANCELLED
+}
+
+enum TicketType {
+  Perbaikan           
+  PengambilanBarang  
+  OnlineBooking      
+  Premium             
+}
+

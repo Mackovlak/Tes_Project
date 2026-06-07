@@ -13,7 +13,7 @@ const spanMap = {
     6: "lg:col-span-6",
 };
 
-const CaseField = ({ label, children, lock = false, span = 1, className, childClass, star = false, hide, labelId, fieldId, indent = false }) => {
+const CaseField = ({ label, children, lock = false, span = 1, className, childClass, star = false, hide, labelId, fieldId, indent = false, errors= [] }) => {
     if (hide) return null;
     
     // Determine which lock to use
@@ -39,8 +39,13 @@ const CaseField = ({ label, children, lock = false, span = 1, className, childCl
                 {label}
                 {star ? <span className="text-red-400 dark:text-[#FF8A80]">*</span> : ""}
             </Label>
-            <CardTitle className={twMerge(spanMap[span], childClass, "font-semibold items-center flex")} id={fieldId}>
+            <CardTitle className={twMerge(spanMap[span], childClass, "font-semibold items-center flex flex-col")} id={fieldId}>
                 {modifiedChildren}
+               {errors && errors.length > 0 ? (
+                    <span className="text-[13px] font-medium text-red-500 mt-1">
+                        {errors.map(err => err.message || err).join(", ")}
+                    </span>
+                ) : null}
             </CardTitle>
         </>
     );

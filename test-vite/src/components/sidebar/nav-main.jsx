@@ -25,7 +25,7 @@ import { Link } from "react-router";
   
     return (
       <SidebarGroup>
-        <SidebarGroupLabel className={'font-bold text-gray-100'}>Master Table</SidebarGroupLabel>
+        {/* <SidebarGroupLabel className={'font-bold text-gray-100'}>Master Table</SidebarGroupLabel> */}
         <SidebarMenu>
           {items.map((item) => (
             <Collapsible
@@ -37,7 +37,7 @@ import { Link } from "react-router";
                 <CollapsibleTrigger asChild >
                   <SidebarMenuButton tooltip={item.title} className="dark:bg-transparent dark:hover:bg-slate-500">
                     {item.icon && <item.icon />}
-                    <span>{item.title}</span>
+                    <span className="font-medium text-[1rem]">{item.title}</span>
                     <ChevronRight
                       className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
                   </SidebarMenuButton>

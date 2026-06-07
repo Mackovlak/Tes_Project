@@ -7,7 +7,7 @@ function Table({
   ...props
 }) {
   return (
-    <div data-slot="table-container" className={cn("relative w-full overflow-x-auto",props.potrait)}>
+    <div data-slot="table-container" className={cn("relative w-full overflow-x-auto",props.potrait)} ref={props.ref}>
       <table
         data-slot="table"
         className={cn("w-full caption-bottom text-sm", className)}

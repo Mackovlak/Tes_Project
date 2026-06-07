@@ -1,5 +1,4 @@
 import React, { useState, useRef, useEffect } from 'react'
-import { SheetBar } from './components/app-sheetbar'
 import { Button } from "@/components/ui/button"
 import { AppSidebar } from "@/components/sidebar/app-sidebar"
 import { Input } from './components/ui/input'
@@ -35,9 +34,10 @@ import { ThemeProvider } from './context/theme-context'
 import { ThemeToggle } from './components/ThemeToggle'
 import { ButtonTour } from './components/driver-tour'
 import { useMediaQuery } from 'react-responsive'
+import { NotifBar } from './components/app-notification'
+import { TicketsBar } from './components/app-ticketList'
 
-export function Breadcrumbs() {
-  const location = useLocation();
+export function Breadcrumbs({ location }) {
   const pathnames = location.pathname.split('/').filter((x) => x);
 
   return (
@@ -151,6 +151,8 @@ export function GlobalSearchBar() {
 
 const App = () => {
 
+  const location = useLocation();
+  console.log("Check path",location)
   const  isLarge  = useMediaQuery({query: '(max-width: 1024px)'})
   return (
     <ThemeProvider defaultTheme="light" storageKey="my-app-theme">
@@ -164,20 +166,22 @@ const App = () => {
           >
             <AppSidebar id='sidebar'/>
             <SidebarInset className={"w-full"} >
-              <header className="  flex sticky top-0 z-10 items-center justify-between px-4 gap-0 bg-gradient-to-r from-hp-50 via-hp-100 to-hp-300 dark:bg-gradient-to-r dark:from-slate-800 dark:via-slate-700 dark:to-slate-800 w-(screen-64)  dark:border-b-slate-600">
+              <header className="  flex sticky top-0 z-10 items-center justify-between px-4 gap-0 bg-gradient-to-r from-hp-50 via-hp-100 to-hp-300 dark:bg-gradient-to-r dark:from-slate-800 dark:via-slate-700 dark:to-slate-800 w-(screen-64)  dark:border-b-slate-600 transition-all">
                 <div className="flex items-center gap-4 p-4">
                   <SidebarTrigger className="-ml-1" id='icsidebar'/>
-                 { !isLarge && <Breadcrumbs/> }
+                 { !isLarge && <Breadcrumbs location={location}/> }
                 </div>
                 <div className="flex p-2 items-center gap-2 self-center">
-                  <Search />
                   <GlobalSearchBar />
                 </div>
-                <div className="flex items-center gap-1 pr-2" id='three-button'>
+                <div className="flex items-center gap-1 pr-2  " id='three-button'>
                   {/* tombol light/dark */}
                   <ButtonTour/>
                   <ThemeToggle />
-                  <SheetBar />
+                  <NotifBar/>
+                  { location.pathname === "/app/searchcaseproto2" &&
+                  ( <TicketsBar/> )
+                  }
                 </div>
               </header>
 

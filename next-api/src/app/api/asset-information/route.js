@@ -10,40 +10,57 @@ const toDateOrNull = (value) => {
   };
 
 export async function GET(request) {
-    try{
-        // Ambil parameter pencarian & pagination
+    try {
         const { searchParams } = new URL(request.url);
-        const search = searchParams.get("search") || "";
+        
+        // Setup Modes & Params
+        const mode = searchParams.get("mode") ?? "paginated";
+        const search = searchParams.get("search")?.trim() || "";
+        
+        // ── Handle "Distinct" Mode for Dropdown Autocomplete ──
+        if (mode === "distinct") {
+            const field = searchParams.get("field");
+            const q = searchParams.get("q")?.trim() || "";
+            const limit = Math.min(50, parseInt(searchParams.get("limit") || "30", 10));
 
-        const siteAccountID = searchParams.get("SiteAccountID") ? parseInt(searchParams.get("SiteAccountID")) : null;
-        const contactID = searchParams.get("ContactID") ? parseInt(searchParams.get("ContactID")) : null;
+            const DISTINCT_FIELDS = {
+                SerialNumber: () => prisma.asset_information.findMany({
+                    where: q ? { SerialNumber: { contains: q } } : {},
+                    select: { SerialNumber: true },
+                    distinct: ["SerialNumber"],
+                    orderBy: { SerialNumber: "asc" },
+                    take: limit,
+                }).then(r => r.map(x => x.SerialNumber).filter(Boolean)),
 
-        const page = parseInt(searchParams.get("page")) || 1;
-        const limit = parseInt(searchParams.get("limit")) || 100;
+                ProductNumber: () => prisma.asset_information.findMany({
+                    where: q ? { ProductNumber: { contains: q } } : {},
+                    select: { ProductNumber: true },
+                    distinct: ["ProductNumber"],
+                    orderBy: { ProductNumber: "asc" },
+                    take: limit,
+                }).then(r => r.map(x => x.ProductNumber).filter(Boolean)),
+            };
 
+            if (!DISTINCT_FIELDS[field]) {
+                return NextResponse.json({ success: false, message: `Unknown field: ${field}` }, { status: 400 });
+            }
 
-        const cacheKey = redisKey(`asset:list:${searchParams.toString() || "all"}`);
-        const cached = await redis.get(cacheKey);
-        if (cached) {
-            return NextResponse.json(JSON.parse(cached), {
-                status: 200,
-                headers: {
-                    "Access-Control-Allow-Origin": "*", // Allow all origins
-                    "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
-                    "Access-Control-Allow-Headers": "Content-Type, Authorization",
-                },
-            });
+            const values = await DISTINCT_FIELDS[field]();
+            return NextResponse.json({ success: true, values }, { status: 200 });
         }
 
+        // ── Handle "Paginated" Mode for the Data Table ──
+        const skip = Math.max(0, parseInt(searchParams.get("skip") ?? "0", 10));
+        const take = Math.min(200, Math.max(1, parseInt(searchParams.get("take") ?? "20", 10)));
+
+        // Sort parsing
+        const sortBy = searchParams.get("sortBy") ?? "SerialNumber";
+        const sortDir = searchParams.get("sortDir") === "desc" ? "desc" : "asc";
+        const orderBy = { [sortBy]: sortDir };
+
+        // Filters mapping
         const baseConditions = [];
-        if (siteAccountID !== null) {
-            baseConditions.push({ SiteAccountID: siteAccountID });
-        }
-        if (contactID !== null) {
-            baseConditions.push({ ContactID: contactID });
-        }
-          // If `search` is provided, add OR conditions but ensure SiteAccountID/ContactID are required if present
-         // Add search filters if present
+        
         if (search) {
             baseConditions.push({
                 OR: [
@@ -54,66 +71,62 @@ export async function GET(request) {
             });
         }
 
+        // Exact column filters passed from the table
+        const serialNumber = searchParams.get("SerialNumber");
+        if (serialNumber) baseConditions.push({ SerialNumber: serialNumber });
+        
+        const productNumber = searchParams.get("ProductNumber");
+        if (productNumber) baseConditions.push({ ProductNumber: productNumber });
+
         const whereCondition = baseConditions.length > 0 ? { AND: baseConditions } : {};
 
+        // Redis Caching
+        const sortedParams = new URLSearchParams([...searchParams.entries()].sort(([a], [b]) => a.localeCompare(b)));
+        const cacheKey = redisKey(`asset:list:${sortedParams.toString()}`);
+        const cached = await redis.get(cacheKey);
+        
+        if (cached) {
+            return NextResponse.json(JSON.parse(cached), { status: 200 });
+        }
 
-        // Hitung jumlah data total
-        const totalCount = await prisma.asset_information.count({
-            where: whereCondition,
-        });
-
-
-        // Hitung offset berdasarkan halaman
-        const skip = (page - 1) * limit;
-
-        // Ambil data dengan filter & pagination
-        const asset_information = await prisma.asset_information.findMany({
-            where: whereCondition,
-            skip: skip,
-            take: limit,
-            orderBy: { product_information: { ProductName: "asc" } },
-            include:
-            {
-                site_account: true,
-                contact_information:true,
-                product_information:{
-                    include: {
-                        product_type: true
-                    }
-                },
-                WarrantyOTCCode: true
-            }
-        });
+        // Fetch Data
+        const [totalCount, asset_information] = await Promise.all([
+            prisma.asset_information.count({ where: whereCondition }),
+            prisma.asset_information.findMany({
+                where: whereCondition,
+                skip: skip,
+                take: take,
+                orderBy: orderBy,
+                include: {
+                    site_account: true,
+                    contact_information: true,
+                    product_information: {
+                        include: { product_type: true }
+                    },
+                    WarrantyOTCCode: true
+                }
+            })
+        ]);
 
         const response = {
             success: true,
             message: "List Data Assets Information",
             data: asset_information,
-            totalPages: Math.ceil(totalCount / limit),
-            currentPage: page
+            total: totalCount, // Replaces totalPages calculation
+            skip,
+            take,
+            mode
         };
 
-        await redis.set(cacheKey, JSON.stringify(response), "EX", 300);
+        await redis.set(cacheKey, JSON.stringify(response), "EX", 120);
 
-        return NextResponse.json(response, {
-            status: 200,
-            headers: {
-                "Access-Control-Allow-Origin": "*", // Allow all origins
-                "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
-                "Access-Control-Allow-Headers": "Content-Type, Authorization",
-            },
-        });
+        return NextResponse.json(response, { status: 200 });
+
     } catch (error) {
         console.error("🔥 ERROR in GET API:", error);
-
-        return NextResponse.json({
-            success: false,
-            message: "Failed to fetch data",
-            error: error.message
-        }, { status: 500 });
+        return NextResponse.json({ success: false, message: "Failed to fetch data", error: error.message }, { status: 500 });
     }
 }
-
 
 /**
  * TODO 

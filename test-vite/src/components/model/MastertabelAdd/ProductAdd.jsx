@@ -1,30 +1,28 @@
 import * as React from "react"
 import { useForm } from "@tanstack/react-form"
-import { date, z } from "zod"
+import { z } from "zod"
 import { zodValidator } from "@tanstack/zod-form-adapter"
-import { useMutation, useQuery } from "@tanstack/react-query"
+import { useMutation } from "@tanstack/react-query"
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { DialogTrigger } from "@/components/ui/dialog"
-import { Pencil, Plus } from "lucide-react"
+import { Plus } from "lucide-react"
 
 import { FormDialog } from "../config/form-dialog"
 import { TField } from "../config/tfield"
 import { AsyncComboboxField } from "../config/async-combobox-field"
 import ApiCustomer from "@/api"
-import { SearchCommandBlock } from "@/components/sc-select"
-import DatePicker from "@/components/date-picker"
 
+// 1. Enforce minimum length for required strings so empty strings fail validation
 const ProductSchema = z.object({
-    ProductNumber: z.string(),
-    ProductLine: z.string(),
-    ProductName: z.string(),
+    ProductNumber: z.string().min(1, "Product Number is required"),
+    ProductLine: z.string().min(1, "Product Line is required"),
+    ProductName: z.string().min(1, "Product Name is required"),
     ProductType: z.object({
         ProductTypeID: z.number(),
         ProductType: z.string()
-    }),
-    HWPC: z.string(), 
+    }).nullable().refine((val) => val !== null, { message: "Product Type is required" }),
+    HWPC: z.string().optional(), 
 })
 
 export function ProductAdd() {
@@ -43,9 +41,19 @@ export function ProductAdd() {
     },
     onSuccess: () => {
       setOpen(false)
+      form.reset() // Reset form on success
     },
   })
-  
+
+  const fetchProductTypes = React.useCallback(async (q) => {
+    const res = await ApiCustomer.get("/api/product-type", { params: { q } })
+    const data = res.data.data
+    return data.map((item) => ({
+      ProductTypeID: item.ProductTypeID,
+      ProductType: item.ProductType,
+    }))
+  }, [])
+
   const form = useForm({
     validatorAdapter: zodValidator,
     defaultValues: {
@@ -54,13 +62,12 @@ export function ProductAdd() {
         ProductName: '',
         ProductType: null,
         HWPC: '', 
-       
     },
     onSubmit: async ({ value }) => {
+      // The form will auto-validate based on the field validators before hitting onSubmit
       const parsed = ProductSchema.safeParse(value)
-      if (!parsed.success) {
-        return
-      }
+      if (!parsed.success) return;
+      
       await updateMutation.mutateAsync(parsed.data)
     },
   })
@@ -69,7 +76,10 @@ export function ProductAdd() {
     <>
       <FormDialog
         open={open}
-        onOpenChange={setOpen}
+        onOpenChange={(isOpen) => {
+            setOpen(isOpen)
+            if (!isOpen) form.reset() // Clear errors if user closes the modal
+        }}
         title="Adding Product Information"
         description="Fields marked with * are required."
         submitting={updateMutation.isPending}
@@ -77,42 +87,56 @@ export function ProductAdd() {
         onSubmit={() => form.handleSubmit()}
         trigger={
           <Button variant="outline" size="icon" onClick={() => setOpen(true)}>
-          <Plus className="w-4 h-4"/>
+            <Plus className="w-4 h-4"/>
           </Button>
         }
       >
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <form.Field name="ProductNumber" validators={{ required: "Product Number is required" }}>
+          
+          {/* 2. Use Zod directly in the field validator for instant UI feedback */}
+          <form.Field 
+            name="ProductNumber" 
+            validators={{ onChange: ProductSchema.shape.ProductNumber }}
+          >
             {(field) => (
               <TField label="Product Number" required field={field} span={2}>
                 {({ value, onChange, onBlur }) => (
-                  <Input  value={value} onChange={(e) => onChange(e.target.value)} onBlur={onBlur} />  
+                  <Input value={value} onChange={(e) => onChange(e.target.value)} onBlur={onBlur} />  
                 )}
               </TField>
             )}
           </form.Field>
 
-          <form.Field name="ProductLine" validators={{ required: "Product Line is required" }}>
+          <form.Field 
+            name="ProductLine" 
+            validators={{ onChange: ProductSchema.shape.ProductLine }}
+          >
             {(field) => (
               <TField label="Product Line" required field={field} span={2}>
                 {({ value, onChange, onBlur }) => (
-                  <Input  value={value} onChange={(e) => onChange(e.target.value)} onBlur={onBlur} />  
+                  <Input value={value} onChange={(e) => onChange(e.target.value)} onBlur={onBlur} />  
                 )}
               </TField>
             )}
           </form.Field>
 
-          <form.Field name="ProductName" validators={{ required: "Product Name is required" }}>
+          <form.Field 
+            name="ProductName" 
+            validators={{ onChange: ProductSchema.shape.ProductName }}
+          >
             {(field) => (
               <TField label="Product Name" required field={field} span={2}>
                 {({ value, onChange, onBlur }) => (
-                  <Input  value={value} onChange={(e) => onChange(e.target.value)} onBlur={onBlur} />  
+                  <Input value={value} onChange={(e) => onChange(e.target.value)} onBlur={onBlur} />  
                 )}
               </TField>
             )}
           </form.Field>
 
-          <form.Field name="ProductType" validators={{ required: "Product Type is required" }}>
+          <form.Field 
+            name="ProductType" 
+            validators={{ onChange: ProductSchema.shape.ProductType }}
+          >
             {(field) => (
               <TField label="Product Type" required field={field} span={2}>
                 {({ value, onChange, onBlur }) => (
@@ -121,15 +145,7 @@ export function ProductAdd() {
                         value={value}
                         labelKey={"ProductType"}
                         valueKey={"ProductTypeID"}
-                        fetcher={async (q) => {
-                            const res = await ApiCustomer.get("/api/product-type", {params: {q}})
-                            const data = res.data.data
-                            return data.map((item) => ({
-                                ProductTypeID: item.ProductTypeID,
-                                ProductType: item.ProductType
-                            }))
-
-                        }}
+                        fetcher={fetchProductTypes}
                     />
                 )}
               </TField>
@@ -140,7 +156,7 @@ export function ProductAdd() {
             {(field) => (
               <TField label="HWPC" field={field} span={2}>
                 {({ value, onChange, onBlur }) => (
-                  <Input  value={value} onChange={(e) => onChange(e.target.value)} onBlur={onBlur} />  
+                  <Input value={value} onChange={(e) => onChange(e.target.value)} onBlur={onBlur} />  
                 )}
               </TField>
             )}

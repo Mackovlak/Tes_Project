@@ -32,7 +32,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from ".
 import DatePicker from "../date-picker"
 import { STATUS_ENUM_TO_LABEL, STATUS_LABELS } from "@/hooks/useCaseStatus"
 
-export function SearchBar({ filters, setFilters, className, caseData, filterClose, dataTime }) {
+export function SearchBar({ filters, setFilters, className, caseData, filterClose, dataTime, onFilterChange}) {
     const items = [
         { title: "SerialNumber", label: "Serial Number" },
         { title: "Company", label: "Company" },
@@ -50,6 +50,24 @@ export function SearchBar({ filters, setFilters, className, caseData, filterClos
     const handleChange = (field, value) => {
         setFilters(prev => ({ ...prev, [field]: value }));
     };
+  const handleReset = () => {
+    const empty = {
+      SerialNumber: "", Company: "", Email: "", Phone: "", Id: "",
+      Status: "", Type: "", Role: "",
+      RangeTime: { from: undefined, to: undefined },
+      TimeLength: "",
+    };
+    if (onFilterChange) {
+      Object.entries(empty).forEach(([k, v]) => onFilterChange(k, v));
+    } else {
+      setFilters(empty);
+    }
+  };
+
+  const hasActiveFilters = Object.entries(filters).some(([k, v]) => {
+    if (k === "RangeTime") return v?.from || v?.to;
+    return !!v;
+  });
     return (
         <Sidebar side="right" variant="sidebar" className={cn("z-10 top-15 h-full", className)}>
             <Tabs defaultValue="search" className="w-full h-full dark:bg-gradient-to-t   dark:via-slate-600 dark:to-slate-800 dark:to-70% dark:via-13% dark:from-4% ">
@@ -130,6 +148,13 @@ export function SearchBar({ filters, setFilters, className, caseData, filterClos
                                         />
                                     </SidebarMenuItem>
                                 </SidebarMenu>
+      {hasActiveFilters && (
+                    <SidebarMenuItem>
+                      <Button variant="outline" size="sm" className="w-full" onClick={handleReset}>
+                        Reset all filters
+                      </Button>
+                    </SidebarMenuItem>
+                  )}
                             </SidebarGroupContent>
                         </SidebarGroup>
                     </SidebarContent>

@@ -30,6 +30,7 @@ const Labor = lazy(() => import("./labor"));
 const SignatureWrite = lazy(() => import("@/components/SignaturePad"));
 const Auditwindows = lazy(() => import("./components/audit-windows"));
 const Home = lazy(() => import("./Home").then((m) => ({ default: m.Home })));
+const GenerateTicket = lazy(() => import("./pages/GenerateTicket").then((m) => ({ default: m.GenerateTicket })));
 const GateKeepingRouting = lazy(() =>
   import("./components/GateKeepingRouting").then((m) => ({
     default: m.GateKeepingRouting,
@@ -153,144 +154,148 @@ const FailureTable = lazy(() =>
   import("./components/table-data/FailureTable")
     .then(m => ({ default: m.FailureTable}))
 )
+const TicketTable = lazy(() =>
+  import("./components/table-data/TicketTable")
+    .then(m => ({ default: m.TicketTable}))
+)
 
 import { ViewCase } from "./pages/ViewCase";
 import { UploadRma } from "./pages/uploadRMA";
 import ErrorPage from "./lib/error/Errorpage";
 // --- Master tables (same as before) ---
-const masterTables = {
-  Company_table: lazy(() =>
-    import("./pages/master_table").then((m) => ({ default: m.Company_table }))
-  ),
-  Assets_table: lazy(() =>
-    import("./pages/master_table").then((m) => ({ default: m.Assets_table }))
-  ),
-  Contact_table: lazy(() =>
-    import("./pages/master_table").then((m) => ({ default: m.Contact_table }))
-  ),
-  Case_table: lazy(() =>
-    import("./pages/master_table").then((m) => ({ default: m.Case_table }))
-  ),
-  Product_table: lazy(() =>
-    import("./pages/master_table").then((m) => ({ default: m.Product_table }))
-  ),
-  ProductType_table: lazy(() =>
-    import("./pages/master_table").then((m) => ({
-      default: m.ProductType_table,
-    }))
-  ),
-  WarrantyService_table: lazy(() =>
-    import("./pages/master_table").then((m) => ({
-      default: m.WarrantyService_table,
-    }))
-  ),
-  Mo_table: lazy(() =>
-    import("./pages/master_table").then((m) => ({ default: m.Mo_table }))
-  ),
-  Wo_table: lazy(() =>
-    import("./pages/master_table").then((m) => ({ default: m.Wo_table }))
-  ),
-  ResourceAccount_Table: lazy(() =>
-    import("./pages/master_table").then((m) => ({
-      default: m.ResourceAccount_Table,
-    }))
-  ),
-  SubkTechnician_table: lazy(() =>
-    import("./pages/master_table").then((m) => ({
-      default: m.SubkTechnician_table,
-    }))
-  ),
-  SymptomCode_Table: lazy(() =>
-    import("./pages/master_table").then((m) => ({
-      default: m.SymptomCode_Table,
-    }))
-  ),
-  Bookings_Table: lazy(() =>
-    import("./pages/master_table").then((m) => ({
-      default: m.BookingsTable,
-    }))
-  ),
-  BookingDetails_Table: lazy(() =>
-    import("./pages/master_table").then((m) => ({
-      default: m.BookingDetails_Table,
-    }))
-  ),
-  User_table: lazy(() =>
-    import("./pages/master_table").then((m) => ({ default: m.User_table }))
-  ),
-  Part_table: lazy(() =>
-    import("./pages/master_table").then((m) => ({ default: m.Part_table }))
-  ),
-  Resource_table: lazy(() =>
-    import("./pages/master_table").then((m) => ({ default: m.Resource_table }))
-  ),
-  RepairClassCode_Table: lazy(() =>
-    import("./pages/master_table").then((m) => ({
-      default: m.RepairClassCode_Table,
-    }))
-  ),
-  ServiceCatalog_Table: lazy(() =>
-    import("./pages/master_table").then((m) => ({
-      default: m.ServiceCatalog_Table,
-    }))
-  ),
-  ServiceType_Table: lazy(() =>
-    import("./pages/master_table").then((m) => ({
-      default: m.ServiceType_Table,
-    }))
-  ),
-  OTCCode_Table: lazy(() =>
-    import("./pages/master_table").then((m) => ({
-      default: m.OTCCode_Table,
-    }))
-  ),
-  Crs_Table: lazy(() =>
-    import("./pages/master_table").then((m) => ({ default: m.Crs_Table }))
-  ),
-  Nmu_Table: lazy(() =>
-    import("./pages/master_table").then((m) => ({ default: m.Nmu_Table }))
-  ),
-  NmuItem_Table: lazy(() =>
-    import("./pages/master_table").then((m) => ({ default: m.NmuItem_Table }))
-  ),
-  Failure_Table: lazy(() =>
-    import("./pages/master_table").then((m) => ({ default: m.Failure_Table }))
-  ),
-  BookingStatus_Table: lazy(() =>
-    import("./pages/master_table").then((m) => ({
-      default: m.BookingStatus_Table,
-    }))
-  ),
-};
+// const masterTables = {
+//   Company_table: lazy(() =>
+//     import("./pages/master_table").then((m) => ({ default: m.Company_table }))
+//   ),
+//   Assets_table: lazy(() =>
+//     import("./pages/master_table").then((m) => ({ default: m.Assets_table }))
+//   ),
+//   Contact_table: lazy(() =>
+//     import("./pages/master_table").then((m) => ({ default: m.Contact_table }))
+//   ),
+//   Case_table: lazy(() =>
+//     import("./pages/master_table").then((m) => ({ default: m.Case_table }))
+//   ),
+//   Product_table: lazy(() =>
+//     import("./pages/master_table").then((m) => ({ default: m.Product_table }))
+//   ),
+//   ProductType_table: lazy(() =>
+//     import("./pages/master_table").then((m) => ({
+//       default: m.ProductType_table,
+//     }))
+//   ),
+//   WarrantyService_table: lazy(() =>
+//     import("./pages/master_table").then((m) => ({
+//       default: m.WarrantyService_table,
+//     }))
+//   ),
+//   Mo_table: lazy(() =>
+//     import("./pages/master_table").then((m) => ({ default: m.Mo_table }))
+//   ),
+//   Wo_table: lazy(() =>
+//     import("./pages/master_table").then((m) => ({ default: m.Wo_table }))
+//   ),
+//   ResourceAccount_Table: lazy(() =>
+//     import("./pages/master_table").then((m) => ({
+//       default: m.ResourceAccount_Table,
+//     }))
+//   ),
+//   SubkTechnician_table: lazy(() =>
+//     import("./pages/master_table").then((m) => ({
+//       default: m.SubkTechnician_table,
+//     }))
+//   ),
+//   SymptomCode_Table: lazy(() =>
+//     import("./pages/master_table").then((m) => ({
+//       default: m.SymptomCode_Table,
+//     }))
+//   ),
+//   Bookings_Table: lazy(() =>
+//     import("./pages/master_table").then((m) => ({
+//       default: m.BookingsTable,
+//     }))
+//   ),
+//   BookingDetails_Table: lazy(() =>
+//     import("./pages/master_table").then((m) => ({
+//       default: m.BookingDetails_Table,
+//     }))
+//   ),
+//   User_table: lazy(() =>
+//     import("./pages/master_table").then((m) => ({ default: m.User_table }))
+//   ),
+//   Part_table: lazy(() =>
+//     import("./pages/master_table").then((m) => ({ default: m.Part_table }))
+//   ),
+//   Resource_table: lazy(() =>
+//     import("./pages/master_table").then((m) => ({ default: m.Resource_table }))
+//   ),
+//   RepairClassCode_Table: lazy(() =>
+//     import("./pages/master_table").then((m) => ({
+//       default: m.RepairClassCode_Table,
+//     }))
+//   ),
+//   ServiceCatalog_Table: lazy(() =>
+//     import("./pages/master_table").then((m) => ({
+//       default: m.ServiceCatalog_Table,
+//     }))
+//   ),
+//   ServiceType_Table: lazy(() =>
+//     import("./pages/master_table").then((m) => ({
+//       default: m.ServiceType_Table,
+//     }))
+//   ),
+//   OTCCode_Table: lazy(() =>
+//     import("./pages/master_table").then((m) => ({
+//       default: m.OTCCode_Table,
+//     }))
+//   ),
+//   Crs_Table: lazy(() =>
+//     import("./pages/master_table").then((m) => ({ default: m.Crs_Table }))
+//   ),
+//   Nmu_Table: lazy(() =>
+//     import("./pages/master_table").then((m) => ({ default: m.Nmu_Table }))
+//   ),
+//   NmuItem_Table: lazy(() =>
+//     import("./pages/master_table").then((m) => ({ default: m.NmuItem_Table }))
+//   ),
+//   Failure_Table: lazy(() =>
+//     import("./pages/master_table").then((m) => ({ default: m.Failure_Table }))
+//   ),
+//   BookingStatus_Table: lazy(() =>
+//     import("./pages/master_table").then((m) => ({
+//       default: m.BookingStatus_Table,
+//     }))
+//   ),
+// };
 
-const {
-  Company_table,
-  Assets_table,
-  Contact_table,
-  Case_table,
-  Product_table,
-  ProductType_table,
-  WarrantyService_table,
-  Mo_table,
-  Wo_table,
-  ResourceAccount_Table,
-  SubkTechnician_table,
-  SymptomCode_Table,
-  Bookings_Table,
-  BookingDetails_Table,
-  User_table,
-  Part_table,
-  Resource_table,
-  RepairClassCode_Table,
-  ServiceCatalog_Table,
-  ServiceType_Table,
-  OTCCode_Table,
-  Crs_Table,
-  Nmu_Table,
-  NmuItem_Table,
-  Failure_Table,
-  BookingStatus_Table,
-} = masterTables;
+// const {
+//   Company_table,
+//   Assets_table,
+//   Contact_table,
+//   Case_table,
+//   Product_table,
+//   ProductType_table,
+//   WarrantyService_table,
+//   Mo_table,
+//   Wo_table,
+//   ResourceAccount_Table,
+//   SubkTechnician_table,
+//   SymptomCode_Table,
+//   Bookings_Table,
+//   BookingDetails_Table,
+//   User_table,
+//   Part_table,
+//   Resource_table,
+//   RepairClassCode_Table,
+//   ServiceCatalog_Table,
+//   ServiceType_Table,
+//   OTCCode_Table,
+//   Crs_Table,
+//   Nmu_Table,
+//   NmuItem_Table,
+//   Failure_Table,
+//   BookingStatus_Table,
+// } = masterTables;
 
 // --- Simple components reused ---
 const NotFound = () => (
@@ -553,6 +558,14 @@ export const router = createBrowserRouter([
           </MasterGateKeeping>
         ),
       },
+      {
+        path: "master/Ticket_Table",
+        element: (
+          <MasterGateKeeping allow={["admin", "fd"]}>
+            <TicketTable />
+          </MasterGateKeeping>
+        ),
+      },
 
       // catch-all under /app
       { path: "*", element: <NotFound /> },
@@ -561,6 +574,7 @@ export const router = createBrowserRouter([
 
   // top-level routes
   { path: "/", element: <Home /> },
+  { path: "/generateticket", element: <GenerateTicket/> },
   { path: "/auditwindows", element: <Auditwindows /> },
   { path: "/lorem", element: <Lorem /> },
   { path: "/signature-pad", element: <SignatureWrite /> },

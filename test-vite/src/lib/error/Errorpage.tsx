@@ -1,39 +1,77 @@
-import { useRouteError, isRouteErrorResponse } from "react-router"; // or "@remix-run/react"
+import { useRouteError, isRouteErrorResponse } from "react-router";
 
 const ErrorPage = () => {
-  // 1. Get the error object
   const error = useRouteError();
-  console.error(error); // Log to console for debugging
 
-  // 2. Initialize default variables
-  let errorMessage = "An unexpected error has occurred.";
   let errorStatus = 500;
+  let title = "Unexpected Error";
+  let message = "Something went wrong.";
+  let stack: string | undefined;
 
-  // 3. Type Narrowing (TypeScript Magic)
   if (isRouteErrorResponse(error)) {
-    // This handles errors thrown by the router (like 404 Not Found)
-    errorMessage = error.statusText;
     errorStatus = error.status;
+    title = error.statusText;
+    message = error.data || "Route error occurred.";
   } else if (error instanceof Error) {
-    // This handles standard Javascript errors (like undefined variables)
-    errorMessage = error.message;
-  } else if (typeof error === 'string') {
-    // This handles errors thrown as strings
-    errorMessage = error;
+    title = error.name;
+    message = error.message;
+    stack = error.stack;
+  } else if (typeof error === "string") {
+    message = error;
   }
 
-  // 4. Render the UI
-  return (
-    <div id="error-page" style={{ padding: "2rem", textAlign: "center" }}>
-      <h1>Oops! {errorStatus}</h1>
-      <p>Sorry, an unexpected error has occurred.</p>
-      <p className="bg-fuchsia-200 rounded-2xl p-2 font-black italic text-xl">
-        <i>{errorMessage}</i>
-      </p>
-      <p>I dont Know why,But better luck next time</p>
-<p>Here is a teapot icon </p>
-<button className="text-9xl active:text-7xl">🫖</button>
+  const isDev = import.meta.env.DEV;
 
+  return (
+    <div
+      style={{
+        padding: "2rem",
+        maxWidth: "900px",
+        margin: "0 auto",
+        fontFamily: "monospace",
+      }}
+    >
+      <h1>🚨 {errorStatus}</h1>
+      <h2>{title}</h2>
+
+      <p
+        style={{
+          background: "#fde68a",
+          padding: "1rem",
+          borderRadius: "8px",
+          fontWeight: "bold",
+        }}
+      >
+        {message}
+      </p>
+
+      {/* DEV-ONLY STACK TRACE */}
+      {isDev && stack && (
+        <details style={{ marginTop: "1.5rem" }} open>
+          <summary style={{ cursor: "pointer", fontWeight: "bold" }}>
+            📍 Stack Trace (Dev Only)
+          </summary>
+          <pre
+            style={{
+              background: "#111",
+              color: "#0f0",
+              padding: "1rem",
+              overflowX: "auto",
+              borderRadius: "8px",
+              fontSize: "0.85rem",
+              marginTop: "0.5rem",
+            }}
+          >
+            {stack}
+          </pre>
+        </details>
+      )}
+
+      <p style={{ marginTop: "2rem", opacity: 0.6 }}>
+        I don’t know why… but better luck next time ☕
+      </p>
+
+      <button className="text-9xl active:text-7xl">🫖</button>
     </div>
   );
 };

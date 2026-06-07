@@ -12,12 +12,12 @@ import { useAuth } from '@/context/auth-context'
 import { cn } from '@/lib/utils'
 import { se } from 'date-fns/locale'
 import { filter, set } from 'lodash'
-import { PanelRight } from 'lucide-react'
+import { PanelRight, RefreshCw } from 'lucide-react'
 import React, { useEffect, useMemo, useState } from 'react'
 import { data, Link, useNavigate } from 'react-router'
 import Swal from 'sweetalert2'
 import { Label } from '@/components/ui/label'
-import { format } from 'date-fns'
+import { format, subMonths, isValid, differenceInCalendarMonths } from 'date-fns'
 import { toast } from 'sonner'
 import { STATUS_ENUM_TO_LABEL } from '@/hooks/useCaseStatus'
 import { useMediaQuery } from 'react-responsive'
@@ -47,63 +47,75 @@ export const FlowCaseData = (user) => {
     Type: "",
     Role: "",
     RangeTime: {
-      from: undefined,
-      to: undefined
+      from: subMonths(new Date(), 3), // <-- Set default 3 months ago
+      to: new Date()                  // <-- Set default to today
     },
     TimeLength: "",
   });
   const isToggleUser = user.user?.role === "admin" || user.user?.role === "fd";
+  const isAdmin = user.user?.role === "admin" ;
   const [filterClose, setFilterClose] = useState(true)
   const [filterFinish, setFilterFinish] = useState(true)
   const [adminViewDoneOnly, setAdminViewDoneOnly] = useState(false);
+  const [fetchNew, setFetchNew] = useState(false)
 
-  const fetchData = async () => {
-    setRenderer(true);
-    try {
-      const response = await ApiCustomer.get('/api/case-information');
-      const filtercases = response.data.data.filter(c => {
-      const mainfilter = (c?.caseinformation?.Owner === user.user?.id || c?.caseinformation?.CreatedBy === user.user?.id) && c?.CaseStatus !== 'Close' && c?.CaseStatus !== 'Cancel';
-        
-      if (isToggleUser && !filterClose) {
-        return (c?.CaseStatus === "Close" || c.CaseStatus === "Cancel")
-      }
-      if (isToggleUser && !filterFinish) {
-        return c?.CaseStatus === "FinishRepair"
-      }
 
-        return mainfilter;
-        });
-
-      const sortedCases = filtercases.sort((a, b) => {
-        const dateAraw = a.UpdateOn;
-        const dateBraw = b.UpdateOn;
-
-        const dateA = dateAraw ? (dateAraw instanceof Date ? dateAraw : new Date(dateAraw)) : new Date(0);
-        const dateB = dateBraw ? (dateBraw instanceof Date ? dateBraw : new Date(dateBraw)) : new Date(0);
-
-        return dateB - dateA; // newest first
-      });
-
-      setCaseData(sortedCases);
-      setError(false)
-      return response.data.data;
-    } catch (error) {
-      Swal.fire({
-        icon: 'error',
-        title: 'Error',
-        text: 'Gagal memuat data. Silakan coba lagi.',
-      });
-      toast.error('Error fetching case data:', error);
-      setError(true);
-      throw error;
-    } finally {
-      setRenderer(false);
+    function handleFetchnew(){
+      setFetchNew(prev => !prev)
     }
-  };
 
+const fetchData = async () => {
+  setRenderer(true);
+  try {
+    const apiParams = { mode: 'all' };
+
+    // 1. DATE RANGE LOGIC (Performance Protection)
+    // If user hasn't picked a date, default to last 3 months
+    const startDate = filters.RangeTime?.from || subMonths(new Date(), 3);
+    const endDate = filters.RangeTime?.to || new Date();
+
+    apiParams.startDate = format(startDate, "yyyy-MM-dd");
+    apiParams.endDate = format(endDate, "yyyy-MM-dd");
+
+    // 2. STATUS & OWNERSHIP LOGIC
+    if (isToggleUser && (!filterClose || !filterFinish)) {
+      /** * GLOBAL MODE: If a user toggles "View Closed" or "View Finish", 
+       * we assume they want to see everything globally.
+       * We DO NOT send apiParams.createdOrOwner
+       */
+      if (!filterClose) {
+         // Note: Assuming your state 'filterClose' being false means the switch is ON (to show them)
+         apiParams['includeStatuses[]'] = ['Close', 'Cancel'];
+      } else if (!filterFinish) {
+         apiParams['includeStatuses[]'] = ['FinishRepair'];
+      }
+    } else {
+      /** * PERSONAL/NORMAL MODE: 
+       * Show active cases for the specific user
+       */
+      if (!isAdmin) apiParams.createdOrOwner = user.user.id;
+      apiParams['excludeStatuses[]'] = ['Close', 'Cancel', 'FinishRepair'];
+    }
+
+    const response = await ApiCustomer.get('/api/case-information', { params: apiParams });
+
+    // API now handles the filtering, so we just sort and set
+    const sorted = (response.data.data || []).sort((a, b) => {
+      const dateA = a.UpdateOn ? new Date(a.UpdateOn) : new Date(0);
+      const dateB = b.UpdateOn ? new Date(b.UpdateOn) : new Date(0);
+      return dateB - dateA;
+    });
+
+    setCaseData(sorted);
+  } catch (error) {
+    console.error(error);
+  } finally {
+    setRenderer(false);
+  }
+};
   useEffect(() => {
     fetchData();
-  }, [user.user, filterClose, filterFinish]);
+  }, [user.user, filterClose, filterFinish, fetchNew]);
 
   function parseCreatedOn(dateStr) {
     const [datePart, timePart] = dateStr.split(', ');
@@ -125,16 +137,51 @@ export const FlowCaseData = (user) => {
       return createdOn >= rangeFrom && createdOn <= rangeTo;
     }
   }
+const handleRangeTimeChange = React.useCallback((val) => {
+    const from = val?.from;
+    const to   = val?.to;
+
+    // Both ends must be valid Dates before we allow the range to take effect
+    if (
+      from instanceof Date && isValid(from) &&
+      to   instanceof Date && isValid(to)
+    ) {
+      // Enforce max 3-month span
+      const spanMonths = differenceInCalendarMonths(to, from);
+      if (spanMonths > 3) {
+        toast.warning("Date range cannot exceed 3 months. Adjusting end date.");
+        const cappedTo = subMonths(to, spanMonths - 3);
+        setFilters((prev) => ({
+          ...prev,
+          RangeTime: { from, to: cappedTo },
+        }));
+        return;
+      }
+      setFilters((prev) => ({ ...prev, RangeTime: { from, to } }));
+    } else if (!from && !to) {
+      // User cleared the picker — reset to default window
+      setFilters((prev) => ({ ...prev, RangeTime: { from: undefined, to: undefined } }));
+    } else {
+      // Partial selection (e.g. only `from` picked) — update locally, no fetch yet
+      setFilters((prev) => ({ ...prev, RangeTime: val ?? { from: undefined, to: undefined } }));
+    }
+  }, []);
+
+const handleFilterChange = React.useCallback((field, value) => {
+    if (field === "RangeTime") {
+      handleRangeTimeChange(value);
+    } else {
+      setFilters((prev) => ({ ...prev, [field]: value }));
+    }
+  }, [handleRangeTimeChange]);
 
 
   // filter logic
-  const filteredCases = caseData
-    .filter(c => {
+  const filteredCases = caseData.filter(c => {
       const isCreatedBy = c?.caseinformation?.CreatedBy == user.user.id;
 
       const isOwner = c?.Owner == user.user.id;
-      const matchesStatus =
-        !filters.Status || c.CaseStatus === filters.Status || c.UpdatedActionLogs?.[0]?.dataNew === filters.Status;
+      const matchesStatus = !filters.Status || c.CaseStatus === filters.Status || c.UpdatedActionLogs?.[0]?.dataNew === filters.Status;
 
 
       const parseCreatedON = parseCreatedOn(c?.CreatedOn);
@@ -330,6 +377,8 @@ export const FlowCaseData = (user) => {
     return <Badge className={`${color} text-[10px]`}>{label}</Badge>
   }
 
+  // Reset to page 1 when filters or page size changes
+  useEffect(() => { setCurrentPage(1); }, [filters, filterClose, filterFinish, pageSize]);
   const  isLarge  = useMediaQuery({query: '(max-width: 1024px)'})
   return (
     <>
@@ -339,7 +388,21 @@ export const FlowCaseData = (user) => {
             <div className="sticky top-13 dark:bg-transparent bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60">
               <div className=" flex h-14 w-full items-center gap-3 px-4  place-content-between ">
                 {isToggleUser &&
-                <div className="flex gap-3 items-center bg-secondary px-3 py-2 rounded-md dark:bg-gradient-to-t dark:from-slate-800 dark:via-slate-600 dark:to-slate-800 dark:to-70% dark:via-6% dark:from-1%" id='case-toggle'>
+                <div className="flex gap-2 items-center bg-secondary px-3 py-2 rounded-md dark:bg-gradient-to-t dark:from-slate-800 dark:via-slate-600 dark:to-slate-800 dark:to-70% dark:via-6% dark:from-1%" id='case-toggle'>
+                  <Switch
+                    checked={filterClose === false}
+                    onCheckedChange={(checked) => {
+                      if (checked) {
+                        setFilterClose(true); // Turn off filterFinish if filterClose is unchecked
+                      }
+                      setFilterClose(checked ? false : true);
+                    }}
+                    className=" hover:bg-blue-500 hover:ring-1 hover:ring-blue-500 dark:bg-gradient-to-t dark:from-slate-800 dark:via-slate-600 dark:to-slate-800 dark:to-70% dark:via-6% dark:from-1%"
+                    id="Close"
+                  />
+                  <Label htmlFor="Close" className={"font-[700]"}>
+                    Show Status Extras
+                  </Label>
                   <Switch
                     checked={filterFinish === false}
                     onCheckedChange={(checked) => {
@@ -354,20 +417,16 @@ export const FlowCaseData = (user) => {
                   <Label htmlFor="Finish" className={"font-[700]"} >
                     Show Finished Case
                   </Label>
-                  <Switch
-                    checked={filterClose === false}
-                    onCheckedChange={(checked) => {
-                      if (checked) {
-                        setFilterFinish(true); // Turn off filterFinish if filterClose is unchecked
-                      }
-                      setFilterClose(checked ? false : true);
-                    }}
-                    className=" hover:bg-blue-500 hover:ring-1 hover:ring-blue-500 dark:bg-gradient-to-t dark:from-slate-800 dark:via-slate-600 dark:to-slate-800 dark:to-70% dark:via-6% dark:from-1%"
-                    id="Close"
-                  />
-                  <Label htmlFor="Close" className={"font-[700]"}>
-                    Show Closed Case
-                  </Label>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleFetchnew}
+              disabled={renderer}
+              className="gap-1.5"
+            >
+              <RefreshCw className={renderer ? "h-3.5 w-3.5 animate-spin" : "h-3.5 w-3.5"} />
+              Refresh
+            </Button>
                 </div>
                 }
                 <h1 className="lg:text-xl md:text-md font-semibold tracking-tight text-sm">
@@ -381,7 +440,7 @@ export const FlowCaseData = (user) => {
               {renderer ? (
                 Array.from({ length: 5 }).map((_, i) => (
                   <Card key={i} className="flex-col lg:flex-row p-4 shadow-sm dark:bg-gradient-to-r dark:from-slate-800 dark:via-slate-700 dark:to-slate-800 w-(screen-64)  dark:border-b-slate-600">
-                    <div>
+                    <div className='space-y-2'>
                     <Skeleton className="h-6 w-70 lg:w-122" />
                     <Skeleton className="h-6 w-70 lg:w-122" />
                     </div>
@@ -398,9 +457,10 @@ export const FlowCaseData = (user) => {
                 ))
               ) : (
                 currentPageData.map((c) => (
-                  <Link to={`/app/case/${c.CaseID}`}>
-                  <Card
+                  <Link to={`/app/case/${c.CaseID}`}
                     key={c.CaseID}
+                  >
+                  <Card
                     className={cn("flex-col lg:flex-row justify-between items-center p-4 shadow-md hover:shadow-md hover:border-amber-200 transition cursor-pointer border-l-4 dark:bg-gradient-to-r dark:from-slate-800 dark:via-slate-700 dark:to-slate-800 w-(screen-64)  dark:border-b-slate-600 dark:hover:border-purple-700 mt-3 gap-1",
                       c.CaseStatus === "FinishRepair" ? "border-green-300 dark:border-green-600 bg-gradient-to-r from-white via-emerald-100 to-emerald-300 " : 
                       (c.CaseStatus === "Close" || c.CaseStatus === "Cancel") ? "border-red-300 bg-fuchsia-100 dark:border-red-600" :
@@ -522,7 +582,18 @@ export const FlowCaseData = (user) => {
         </SidebarInset>
         <SearchBar
           filters={filters}
-          setFilters={setFilters}
+          // setFilters={setFilters}
+          setFilters={(updater) => {
+          // Support both direct object and functional updater from SearchBar
+          if (typeof updater === "function") {
+            setFilters(updater);
+          } else {
+            // SearchBar's handleChange calls setFilters({...prev, [field]: value})
+            // but we need to intercept RangeTime. Route through handleFilterChange.
+            setFilters(updater);
+          }
+        }}
+        onFilterChange={handleFilterChange}
           caseData={caseData}
           filterClose={filterClose}
           dataTime={dataTime}

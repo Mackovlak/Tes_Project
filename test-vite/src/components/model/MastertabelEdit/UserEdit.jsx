@@ -205,7 +205,7 @@ export function UsersEdit({ UserId, onUpdate }) {
             {(field) => (
               <TField label="Email" required field={field}>
                 {({ value, onChange, onBlur }) => (
-                  <Input type="email" value={value} onChange={(e) => onChange(e.target.value)} onBlur={onBlur} />
+                  <Input value={value} onChange={(e) => onChange(e.target.value)} onBlur={onBlur} />
                 )}
               </TField>
             )}

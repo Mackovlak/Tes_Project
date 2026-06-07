@@ -26,7 +26,8 @@ import {
   CoinsIcon,
   Trash2,
   ClipboardPenLine,
-  BadgeCheck
+  BadgeCheck,
+  Star
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -50,8 +51,8 @@ export const TabsServiceCaseDetails = () => {
   const caseDetails = useServiceCaseStore((s) => s.caseDetails);
   if (!caseDetails) {
     return (
-      <div className="p-4 text-sm text-gray-500">
-        Some thing went wrong please reload
+      <div className="p-4 text-lg text-gray-500 mx-auto">
+        Some thing went wrong please reload the page !!
       </div>
     );
   }
@@ -103,10 +104,15 @@ const requestSaveAll = useServiceCaseStore((s) => s.requestSaveAll);
 const continueSaveAllAfterNote = useServiceCaseStore((s) => s.continueSaveAllAfterNote);
 
 const [quickLogMode, setQuickLogMode] = useState("noteOnly");
+const [happyOpen, setHappyOpen] = useState(false)
 
 const openNoteOnly = () => {
   setQuickLogMode("noteOnly");
   setQuickLogOpen(true);
+};
+
+const openHappyCall = () => {
+  setHappyOpen(true);
 };
 
 const openSaveAll = () => {
@@ -443,9 +449,9 @@ const openSaveAll = () => {
           newWindow.document.body.appendChild(iframe);
           },
           roles: ["admin", "fd", "user", "spv", "cm"],
-          hidden: caseDetails.asset_information?.WarrantyOTCCode?.OTCCode === '01T' ? false : true,
-        },
-         {
+          hidden: caseDetails.asset_information?.WarrantyOTCCode?.OTCCode === '01T' || caseDetails.OTCCode === '01T' ? false : true,
+    },
+    {
           icon: CoinsIcon,
           label: "DP",
            onClick: async () => {
@@ -497,9 +503,9 @@ const openSaveAll = () => {
              newWindow.document.body.appendChild(iframe);
           },
           roles: ["admin", "fd", "user", "spv", "cm"],
-          hidden: caseDetails.asset_information?.WarrantyOTCCode?.OTCCode === '01T' ? false : true,
-        },
-         {
+          hidden: caseDetails.asset_information?.WarrantyOTCCode?.OTCCode === '01T' || caseDetails.OTCCode === '01T' ? false : true,
+    },
+    {
           icon: CoinsIcon,
           label: "Invoice",
            onClick: async () => {
@@ -551,9 +557,10 @@ const openSaveAll = () => {
              newWindow.document.body.appendChild(iframe);
           },
           roles: ["admin", "fd", "user", "spv", "cm"],
-          hidden: caseDetails.asset_information?.WarrantyOTCCode?.OTCCode === '01T' ? false : true,
-        },
-        { icon: ClipboardPenLine, label: "Quick Log Note", onClick: () => {openNoteOnly()}, roles: ["admin", "fd", "user", "apo", "ce", "lg", "celead", "ps", "cm","spv","apv"]},
+          hidden: caseDetails.asset_information?.WarrantyOTCCode?.OTCCode === '01T' || caseDetails.OTCCode === '01T' ? false : true,
+    },
+    { icon: ClipboardPenLine, label: "Quick Log Note", onClick: () => {openNoteOnly()}, roles: ["admin", "fd", "user", "apo", "ce", "lg", "celead", "ps", "cm","spv","apv"]},
+    { icon: Star, label: "Happy Call", onClick: () => {openHappyCall()}, roles: ["admin", "fd", "user", "spv"]},
   ];
 
 
@@ -1024,7 +1031,7 @@ function fieldMO(caseDetails) {
           )} */}
             {(isTechRole && caseDetails?.CaseStatus !== "Close") && (
               <div className="shrink-0">
-                <BtnModalsServiceCatalog
+                <ServiceCatalogModel
                   open={openWorkOrder}
                   setOpen={(open) => setOpenWorkOrder(open)}
                   caseDetails={caseDetails}
@@ -1037,7 +1044,6 @@ function fieldMO(caseDetails) {
       </div>
 
       {/* Main Content */}
-      <div className="w-full min-w-0">
         <QuotationDialog />
         <InvoiceDialog />
         <ServiceCase /> 
@@ -1045,11 +1051,14 @@ function fieldMO(caseDetails) {
           open={quickLogOpen}
           onOpenChange={setQuickLogOpen}
           caseId={caseDetails.CaseID}
-    createdBy={user?.id}
-    mode={quickLogMode}
-    onAfterSaveAll={continueSaveAllAfterNote}
+          createdBy={user?.id}
+          mode={quickLogMode}
+          onAfterSaveAll={continueSaveAllAfterNote}
         />
-      </div>
+        <HappyCall 
+          open={happyOpen}
+          onOpenChange={setHappyOpen}
+        />
     </div>
       {/* Quotation dialog, Invoice dialog, ServiceCase component, etc
           Here you can either:
@@ -1110,6 +1119,10 @@ import { DatePickertoDateOrNull, formatDateForInput } from "../lib/utils";
 import { EMPTY_DRAFT, EMPTY_NOTES, useCaseNotesStore } from "@/hooks/useCaseNoteStore";
 import { BASE_STATUS_KEYS, extractRoleFromStatus, ROLE_STATUS_EXTRAS, STATUS_ENUM_TO_LABEL, STATUS_ENUM_TO_LABEL_WO, STATUS_LABELS } from "@/hooks/useCaseStatus";
 import { CaseNotetable } from "@/components/table-data/CaseNotetable";
+import { ServiceCatalogModel } from "@/components/model/ServiceCatalogModal";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Label } from "@/components/ui/label";
+import { HappyCall } from "@/components/model/HappyCall";
 const suffixToRoleMap = {
   CE: "ce",
   APO: "apo",
@@ -1330,7 +1343,7 @@ useEffect(() => {
     [filteredStatusKeys]
   );
 
-  const RoleSelect = ["fd","ce","celead"]
+  const RoleSelect = ["fd","ce","celead","ps"]
 
   // ------ fetch assignable users by role when needed ------
   const fetchUserAssign = async (role) => {
@@ -1408,7 +1421,7 @@ useEffect(() => {
 
   // ---- compute hidden tab for OOW ----
   const hiddenOowTab = caseDetails.OTCCode ? caseDetails.OTCCode !== "01T" : caseDetails.asset_information?.WarrantyOTCCode?.OTCCode !== "01T";
-
+  
   const tabs = [
     { value: "case_info", label: "Case & Customer" },
     { value: "ci_asset", label: "Assets , WO and MO" },
@@ -1429,10 +1442,10 @@ useEffect(() => {
         </div>
       )}
 
-      <Card className="border-0 dark:rounded-none bg-gradient-to-t  dark:from-slate-800 dark:via-slate-600 dark:to-slate-800 dark:to-70% dark:via-6% dark:from-1%">
+      <Card className="border-0 dark:rounded-none bg-gradient-to-t  dark:from-slate-800 dark:via-slate-600 dark:to-slate-800 dark:to-70% dark:via-6% dark:from-1% py-0">
         <Tabs defaultValue="case_info" onValueChange={(value) => {window.location.hash = value.toLowerCase()}}>
           <CardHeader className="sticky top-24 z-5 w-full border-b bg-white shadow-sm flex flex-col dark:bg-gradient-to-r dark:from-slate-800 dark:via-slate-700 dark:to-slate-800 dark:border-b-slate-600">
-            <div className="flex flex-col sm:flex-row md:items-center md:justify-between gap-2 p-2 lg:gap-4 lg:p-4">
+            <div className="flex flex-col sm:flex-row md:items-center md:justify-between gap-2 p-2 lg:gap-4 lg:p-2">
               {/* LEFT SIDE - Case Info */}
               <div>
                 <h1 className="text-lg lg:text-2xl font-semibold">{caseDetails.CaseID}</h1>
@@ -1445,9 +1458,7 @@ useEffect(() => {
               <div className="flex flex-wrap items-center gap-2 lg:gap-4 text-sm">
                 {/* Owner */}
                 <div className="flex flex-col">
-                  <span className="text-blue-600 font-medium dark:text-white">
-                    {ownerUserData?.Name || "."}
-                  </span>
+                  <span className="text-blue-600 font-medium dark:text-white"> {ownerUserData?.Name || "."} </span>
                   <span className="text-muted-foreground">
                     {ownerUserData?.Role === "fd"
                       ? "Owner Fd"
@@ -2449,7 +2460,7 @@ useEffect(() => {
                     lock={!canEditWarranty}
                   >
                     {entitlementStatus?.POPDocument ? (
-                      <div className="flex flex-col gap-2">
+                      <div className="grid grid-cols-1 gap-2">
                         {typeof entitlementStatus?.POPDocument === "string" ? (
                           <a
                             href={`${import.meta.env.VITE_API_BASE_URL}${
@@ -2457,7 +2468,7 @@ useEffect(() => {
                             }`}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="text-blue-600 underline"
+                            className="text-blue-600 underline truncate"
                           >
                             {(entitlementStatus?.POPDocument).split("/").pop()}
                           </a>
@@ -2523,7 +2534,7 @@ useEffect(() => {
                     lock={!canEditWarranty}
                   >
                     {entitlementStatus.WarrantyCard ? (
-                      <div className="flex flex-col gap-2">
+                      <div className="grid grid-cols-1  gap-2">
                         {typeof entitlementStatus.WarrantyCard === "string" ? (
                           <a
                             href={`${import.meta.env.VITE_API_BASE_URL}${
@@ -2531,7 +2542,7 @@ useEffect(() => {
                             }`}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="text-blue-600 underline"
+                            className="text-blue-600 underline truncate"
                           >
                             {entitlementStatus.WarrantyCard.split("/").pop()}
                           </a>
@@ -2597,7 +2608,7 @@ useEffect(() => {
                     lock={!canEditWarranty}
                   >
                     {entitlementStatus?.PhotoUnit ? (
-                      <div className="flex flex-col gap-2">
+                      <div className="grid grid-cols-1 gap-2">
                         {typeof entitlementStatus?.PhotoUnit === "string" ? (
                           <a
                             href={`${import.meta.env.VITE_API_BASE_URL}${
@@ -2605,7 +2616,7 @@ useEffect(() => {
                             }`}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="text-blue-600 underline"
+                            className="text-blue-600 underline truncate"
                           >
                             {(entitlementStatus?.PhotoUnit).split("/").pop()}
                           </a>

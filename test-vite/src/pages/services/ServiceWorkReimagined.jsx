@@ -52,6 +52,7 @@ import debounce from "lodash.debounce";
 import { Switch } from "@/components/ui/switch";
 import { GOOD_RETURN_REASON_OPTIONS } from "./service-mo_detailApo";
 import { useMemo } from "react";
+import { ServiceCatalogModel } from "@/components/model/ServiceCatalogModal";
 
 export const ServiceWork = () => {
   const user = getUserFromToken();
@@ -882,7 +883,7 @@ export const ServiceWork = () => {
               </CardContent>
             </Card>
     {canEdit &&
-            <BtnModalsServiceCatalog
+            <ServiceCatalogModel
               open={openAddMO}
               setOpen={setOpenAddMO}
               caseDetails={caseDetails}

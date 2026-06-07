@@ -8,6 +8,7 @@ import {
   parseDate,
 } from "./helpers";
 import redis, { redisKey } from "../../../../lib/redis";
+import { STATUS_ENUM_TO_LABEL } from "@/utils/EnumToLabel";
 
 export async function GET(request) {
   try {
@@ -411,7 +412,7 @@ export async function POST(request) {
                 connect: { IDUser: createdBy },
               }
             : undefined,
-          logDescription: `Edit: change status from ${status} to ${targetStatusCase}`,
+          logDescription: `Edit: change status from ${STATUS_ENUM_TO_LABEL[status]} to ${STATUS_ENUM_TO_LABEL[targetStatusCase]}`,
         },
         include: includeChangedBy,
       });

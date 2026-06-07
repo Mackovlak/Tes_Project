@@ -923,6 +923,8 @@ import { Command, CommandGroup, CommandItem } from "@/components/ui/command";
 import { toast } from "sonner";
 import { data } from "react-router";
 import { id } from "date-fns/locale";
+import { ServiceCatalogWarrantyTable } from "../table-data/ServiceCatalogWarranty";
+// import { PartCatalogTable } from "../table-data/PartCatalogTable";
 
 
 function GenericSelector({ 
@@ -5423,14 +5425,19 @@ export function BtnModalsServiceCatalog({
   
   //part state
   const [partCatalog, setPartCatalog] = useState([])
+  const [loadingPart, setLoadingPart] = useState(false)
   //fetch data part catalog
   const fetchDataPartCatalog = async () => {
+    setLoadingPart(true);
     try{
       const response = await ApiCustomer.get(`/api/service-log/parts-catalog`)
       setPartCatalog(response.data.data)
+      setLoadingPart(false);
       return response.data.data
     }catch(e){
       toast.error("Err :",e)
+    } finally {
+      setLoadingPart(false)
     }
   }
 
@@ -5745,10 +5752,11 @@ export function BtnModalsServiceCatalog({
         return (
           <DialogContent  className="
             w-full max-w-full sm:max-w-md md:max-w-lg lg:max-w-7xl
-            max-h-[90vh] overflow-y-auto
+            max-h-[90vh] 
             flex flex-col justify-center
             gap-0 p-0 bg-white
             [&>button]:hidden
+            dark:bg-black
           " >
             <DialogHeader>
               <div className="flex items-end justify-end ">
@@ -5759,113 +5767,52 @@ export function BtnModalsServiceCatalog({
                 </Button>
                 </DialogClose>
               </div>
-              <DialogDescription className={'bg-red-200 p-3 font-bold '}>Click Here to Show Service Catalog Error / Warnings</DialogDescription>
-              <DialogTitle className={'text-blue-600 text-2xl'}>Service Catalog</DialogTitle>
+              {/* <DialogDescription className={'bg-red-200 p-3 font-bold '}>Click Here to Show Service Catalog Error / Warnings</DialogDescription> */}
+              <DialogTitle className={'text-blue-600 text-2xl  mx-auto'}>Service Catalog</DialogTitle>
+              <DialogDescription className={" mx-auto"}>Select From List of Service Options</DialogDescription>
             </DialogHeader>
-            <div className="flex justify-between gap-4 p-2 my-2 ">
-              <DialogTitle>Step 1: Select From List of Service Options</DialogTitle>
-              <div className="grid grid-cols-2 p-2 bg-gray-300 gap-2">
-                <CaseField label="Product Number">
+          <div className="grid overflow-y-auto">
+            <div className="flex justify-between  ">
+              {/* <DialogTitle>Step 1: Select From List of Service Options</DialogTitle> */}
+              <div className="grid grid-cols-2 p-2  gap-2  ">
+                <CaseField label="Product Number" lock>
                   <Input
                   value={assetForWorkOrderCreation?.ProductNumber || "-"}    
                   readOnly              
                   />
                 </CaseField>
-                <CaseField label="Product Name">
+                <CaseField label="Product Name" lock>
                   <Input
                   value={assetForWorkOrderCreation?.product_information?.ProductName || "-"}     
                   readOnly             
                   />
                 </CaseField>
-                <CaseField label="Serial Number">
+                <CaseField label="Serial Number" lock>
                   <Input
                   value={assetForWorkOrderCreation?.SerialNumber || "-"}
                   readOnly             
                   />
                 </CaseField>
-                <CaseField label="Warranty Status">
+                <CaseField label="Warranty Status" lock>
                   <Input
                     value={`${assetForWorkOrderCreation?.Warranty_Status ?? ""} - ${assetForWorkOrderCreation?.WarrantyOTCCode?.Description ?? ""}`}
                   />
                 </CaseField>
               </div>
             </div>
-  
-            <Table>
-              <TableCaption className="caption-top bg-blue-500 p-2 text-2xl text-left text-black">
-                Warranty Services
-              </TableCaption>
-
-              <TableHeader>
-                <TableRow className="bg-gray-300">
-                  <TableHead className="font-black text-black">Select</TableHead>
-                  <TableHead className="font-black text-black">Service OfferID</TableHead>
-                  <TableHead className="font-black text-black">Service Description</TableHead>
-                  <TableHead className="font-black text-black">Customer TAT</TableHead>
-                  <TableHead className="font-black text-black">Price</TableHead>
-                  <TableHead className="font-black text-black">Tax</TableHead>
-                  <TableHead className="font-black text-black">Total</TableHead>
-                </TableRow>
-              </TableHeader>
-
-              <TableBody>
-                {filteredWarrantyOffers.map((service, index) => {
-                  const selected =
-                    selectedWarrantyServices?.Service_offerID === service.Service_offerID;
-
-                  return (
-                    <TableRow
-                      key={service.Service_offerID ?? index}
-                      onClick={() => handlerWarrantyService(service)}
-                      onKeyDown={(e) => {
-                        // allow Enter or Space to select row for keyboard users
-                        if (e.key === "Enter" || e.key === " ") {
-                          e.preventDefault();
-                          handlerWarrantyService(service);
-                        }
-                      }}
-                      tabIndex={0} // make TR focusable for keyboard users
-                      aria-selected={selected}
-                      className={`cursor-pointer ${selected ? "bg-blue-100" : ""}`}
-                    >
-                      <TableCell>
-                        <input
-                          type="radio"
-                          name="warrantyService" // same name groups radios
-                          id={`service-${index}`}
-                          value={service.Service_offerID}
-                          checked={selected}
-                          onChange={() => handlerWarrantyService(service)}
-                          onClick={(e) => e.stopPropagation()}
-                          aria-label={`Select service ${service.Service_offerID}`}
-                        />
-                      </TableCell>
-
-                      <TableCell>{service.Service_offerID}</TableCell>
-                      <TableCell>{service.Service_description}</TableCell>
-                      <TableCell>{service.CTat_RTime}</TableCell>
-                      <TableCell>{service.Price}</TableCell>
-                      <TableCell>{service.Tax}</TableCell>
-                      <TableCell>{service.Total}</TableCell>
-                    </TableRow>
-                  );
-                })}
-              </TableBody>
-            </Table>
-
-  
-            <DialogFooter className={'p-4'}>
+            <ServiceCatalogWarrantyTable selectedWarrantyServices={selectedWarrantyServices} setSelectedWarrantyServices={setSelectedWarrantyServices} data={filteredWarrantyOffers}/>
+          </div>
+            <DialogFooter className={'p-2'}>
              <Button  className="" onClick={() => setOpen(false)}>Cancel</Button>
-            <Button 
-              
+             <Button 
               onClick={() => setCurrentStep(2)} 
               disabled={!selectedWarrantyServices}
               className={!selectedWarrantyServices ? "opacity-50 cursor-not-allowed" : ""}
-            >
+             >
               Next
-            </Button>
-            </DialogFooter>
-          </DialogContent>
+             </Button>
+             </DialogFooter>
+            </DialogContent>
         );
   
       case 2:  
@@ -5882,37 +5829,61 @@ export function BtnModalsServiceCatalog({
                   <Button
                     type="button"
                     variant="outline"
-                    className={"hover:bg-gray-200 active:bg-gray-700  border-none"}
+                    className={
+                      "hover:bg-gray-200 active:bg-gray-700  border-none"
+                    }
                   >
                     <XIcon />
                   </Button>
                 </DialogClose>
               </div>
-              <div className={"flex flex-col"}>
-              <DialogTitle className={"text-blue-600 text-2xl"}>
-                Service Catalog
-              </DialogTitle>
-              <DialogDescription>
-                Select parts required for the repair.
-              </DialogDescription>
-
+              <div className={"flex items-center flex-col"}>
+                <DialogTitle className={"text-blue-600 text-2xl"}>
+                  Service Catalog
+                </DialogTitle>
+                <DialogDescription>
+                  Select parts required for the repair.
+                </DialogDescription>
               </div>
             </DialogHeader>
-            <div className="">
+            <div className=" flex justify-between">
               {/* Kolom kiri  */}
-              <div className=" bg-gray-200 p-2">
-                <div className="flex">
-                  <p className="font-medium w-40">Service OfferID</p>
-                  <p>: {effectiveWarrantyService?.Service_offerID ?? "-"}</p>
-                </div>
-                <div className="flex">
-                  <p className="font-medium w-40">Service Description</p>
-                  <p>
-                    : {effectiveWarrantyService?.Service_description ?? "-"}
-                  </p>
-                </div>
-              </div>
 
+              <div className="grid grid-cols-2 p-2  gap-2">
+                <CaseField label="Service OfferID" lock>
+                  <Input
+                  value={effectiveWarrantyService?.Service_offerID ?? '-'}    
+                  readOnly              
+                  />
+                </CaseField>
+                <CaseField label="Description" lock>
+                  <Input
+                  value={effectiveWarrantyService?.Service_description || ""}     
+                  readOnly             
+                  />
+                </CaseField>
+                <CaseField label="Unit Price" lock>
+                  <Input
+                  value={effectiveWarrantyService?.CTat_RTime}
+                  readOnly             
+                  />
+                </CaseField>
+                {/* <CaseField label="Shipping Fee" lock> */}
+                {/*   <Input */}
+                {/*     value={effectiveWarrantyService.Shipping_Fee} */}
+                {/*   /> */}
+                {/* </CaseField> */}
+                {/* <CaseField label="Qty" lock> */}
+                {/*   <Input */}
+                {/*     value={1} */}
+                {/*   /> */}
+                {/* </CaseField> */}
+                <CaseField label="Price" lock>
+                  <Input
+                    value={assetForWorkOrderCreation?.WarrantyOTCCode?.WarrantyCondition === "OutWarranty" ? effectiveWarrantyService.Price : 0}
+                  />
+                </CaseField>
+              </div>
               {/* Kolom kanan  */}
               {/* <div className=" bg-gray-200 grid grid-cols-2 gap-x-2 gap-y-1 p-2">
                 <p>Product Number</p>
@@ -5936,318 +5907,33 @@ export function BtnModalsServiceCatalog({
             </div>
 
             <Tabs defaultValue="parts" className={"h-[50vh] "}>
-              <TabsList className={"py-5 px-0 bg-white"}>
-                <TabsTrigger
-                  variant={"fullsize"}
-                  value="parts"
-                  className={"cursor-pointer rounded-t-2xl"}
-                  hidden
-                >
-                  Parts
-                </TabsTrigger>
-                <TabsTrigger
-                  variant={"fullsize"}
-                  value="snr"
-                  className={"cursor-pointer  text-blue-500"}
-                  hidden
-                >
-                  SNR
-                </TabsTrigger>
-              </TabsList>
-              <TabsContent value="parts" className={"overflow-y-auto"}>
-                <Table className={"max-h-[400px] overflow-y-auto "}>
-                  <TableHeader>
-                    <TableRow className={"bg-gray-300 hover:bg-gray-300"}>
-                      <TableHead className={"font-black text-black"}>
-                        Select
-                      </TableHead>
-                      <TableHead className={"font-black text-black p-2"}>
-                        Parts #
-                        <span className="flex items-center mt-1">
-                          <Input
-                            className={"bg-white font-medium"}
-                            value={partNumberSearch}
-                            onChange={(e) =>
-                              setPartNumberSearch(e.target.value)
-                            }
-                          />
-                          {/* <XIcon
-                            className="cursor-pointer"
-                            onClick={() => setPartNumberSearch("")}
-                          /> */}
-                        </span>
-                      </TableHead>
-                      <TableHead
-                        className={
-                          "whitespace-break-spaces font-black text-black"
-                        }
-                      >
-                        Keyword
-                        <span className="flex items-center mt-1">
-                          <Input
-                            className={
-                              "  whitespace-break-spaces bg-white font-medium"
-                            }
-                            value={keywordSearch}
-                            onChange={(e) => setKeywordSearch(e.target.value)}
-                          />
-                          {/* <XIcon
-                            className="cursor-pointer"
-                            onClick={() => setKeywordSearch("")}
-                          /> */}
-                        </span>
-                      </TableHead>
-                      <TableHead
-                        className={
-                          "whitespace-break-spaces font-black text-black"
-                        }
-                      >
-                        Part Description
-                        <span className="flex items-center mt-1">
-                          <Input
-                            className={
-                              "whitespace-break-spaces bg-white font-medium"
-                            }
-                            value={descriptionSearch}
-                            onChange={(e) =>
-                              setDescriptionSearch(e.target.value)
-                            }
-                          />
-                          {/* <XIcon
-                            className="cursor-pointer"
-                            onClick={() => setDescriptionSearch("")}
-                          /> */}
-                        </span>
-                      </TableHead>
-                      {/* <TableHead
-                        className={
-                          "  whitespace-break-spaces font-black text-black"
-                        }
-                      >
-                        Orderability
-                      </TableHead>
-                      <TableHead
-                        className={
-                          "  whitespace-break-spaces font-black text-black "
-                        }
-                      >
-                        Restriction Reason
-                      </TableHead>
-                      <TableHead
-                        className={
-                          "  whitespace-break-spaces font-black text-black"
-                        }
-                      >
-                        CRS
-                      </TableHead>
-                      <TableHead
-                        className={
-                          "  whitespace-break-spaces font-black text-black"
-                        }
-                      >
-                        ROHS
-                      </TableHead>
-                      <TableHead
-                        className={
-                          "  whitespace-break-spaces font-black text-black"
-                        }
-                      >
-                        Retrunable
-                      </TableHead>
-                      <TableHead
-                        className={
-                          "  whitespace-break-spaces font-black text-black "
-                        }
-                      >
-                        Hard roll
-                      </TableHead>
-                      <TableHead
-                        className={
-                          "  whitespace-break-spaces font-black text-black "
-                        }
-                      >
-                        Dangerous Goods
-                      </TableHead>
-                      <TableHead
-                        className={
-                          "  whitespace-break-spaces font-black text-black "
-                        }
-                      >
-                        Lithium Battery
-                      </TableHead>
-                      <TableHead
-                        className={
-                          "  whitespace-break-spaces font-black text-black"
-                        }
-                      >
-                        Oversize
-                      </TableHead>
-                      <TableHead
-                        className={
-                          "  whitespace-break-spaces font-black text-black"
-                        }
-                      >
-                        Heavy
-                      </TableHead>
-                      <TableHead
-                        className={
-                          "  whitespace-break-spaces font-black text-black"
-                        }
-                      >
-                        Price
-                      </TableHead>
-                      <TableHead
-                        className={
-                          "  whitespace-break-spaces font-black text-black "
-                        }
-                      >
-                        Friegh Price
-                      </TableHead>
-                      <TableHead
-                        className={
-                          "  whitespace-break-spaces font-black text-black"
-                        }
-                      >
-                        Tax
-                      </TableHead>
-                      <TableHead
-                        className={
-                          "  whitespace-break-spaces font-black text-black"
-                        }
-                      >
-                        Total
-                      </TableHead> */}
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {currentPageData.map((part, index) => {
-                      const isChecked = selectedPartCatalog.some(
-                        (item) => item.PartNumber === part.PartNumber
-                      );
-
-                      const toggleRow = () => {
-                        handlerPartCatalog(part, !isChecked);
-                      };
-
-                      return (
-                        <TableRow
-                          key={index}
-                          onClick={toggleRow}
-                          className={`cursor-pointer ${
-                            isChecked ? "bg-blue-100" : ""
-                          }`}
-                        >
-                          <TableCell>
-                            <Checkbox
-                              checked={isChecked}
-                              onCheckedChange={(checked) =>
-                                handlerPartCatalog(part, checked)
-                              }
-                              onClick={(e) => e.stopPropagation()} // prevent double toggle
-                            />
-                          </TableCell>
-                          <TableCell>{part.PartNumber}</TableCell>
-                          <TableCell>{part.Keyword}</TableCell>
-                          <TableCell>{part.PartDescription}</TableCell>
-                          {/* <TableCell>
-                            {part.Orderability ? "Yes" : "No"}
-                          </TableCell>
-                          <TableCell>{part.ResistrictionReason}</TableCell>
-                          <TableCell>{part.Csr ? "Y" : "N"}</TableCell>
-                          <TableCell>{part.Rohs}</TableCell>
-                          <TableCell>
-                            {part.Returnable_Flag ? "true" : "false"}
-                          </TableCell>
-                          <TableCell>{part.Hardrolls}</TableCell>
-                          <TableCell>
-                            {part.Dangerousgoods ? "true" : "false"}
-                          </TableCell>
-                          <TableCell>
-                            {part.Lithiumbattry ? "true" : "false"}
-                          </TableCell>
-                          <TableCell>
-                            {part.Oversize ? "true" : "false"}
-                          </TableCell>
-                          <TableCell>{part.Heavy ? "true" : "false"}</TableCell>
-                          <TableCell>{part.Price}</TableCell>
-                          <TableCell>{part.Freightprice}</TableCell>
-                          <TableCell>{part.Tax}</TableCell>
-                          <TableCell>{part.Total}</TableCell> */}
-                        </TableRow>
-                      );
-                    })}
-
-                    {/* pagination row */}
-                    <TableRow>
-                      <TableCell colSpan="100%">
-                        <Pagination className="flex justify-start">
-                          <PaginationContent>
-                            <PaginationItem>
-                              <PaginationPrevious
-                                placeholder="First"
-                                href="#"
-                                onClick={(e) => {
-                                  e.preventDefault();
-                                  handlePageChange(1);
-                                }}
-                              />
-                            </PaginationItem>
-                            <PaginationItem>
-                              <PaginationPrevious
-                                href="#"
-                                onClick={(e) => {
-                                  e.preventDefault();
-                                  handlePageChange(currentPage - 1);
-                                }}
-                              />
-                            </PaginationItem>
-
-                            {paginationPages.map((pages) => (
-                              <PaginationItem key={pages}>
-                                <PaginationLink
-                                  href="#"
-                                  isActive={currentPage === pages}
-                                  onClick={(e) => {
-                                    e.preventDefault();
-                                    handlePageChange(pages);
-                                  }}
-                                >
-                                  {pages}
-                                </PaginationLink>
-                              </PaginationItem>
-                            ))}
-
-                            <PaginationItem>
-                              <PaginationNext
-                                href="#"
-                                onClick={(e) => {
-                                  e.preventDefault();
-                                  handlePageChange(currentPage + 1);
-                                }}
-                              />
-                            </PaginationItem>
-                            <PaginationItem>
-                              <PaginationNext
-                                placeholder="Last"
-                                href="#"
-                                onClick={(e) => {
-                                  e.preventDefault();
-                                  handlePageChange(totalPages);
-                                }}
-                              />
-                            </PaginationItem>
-                            <div className="flex gap-3 p-1 items-center">
-                              Total Page
-                              <span className="border-2 p-1 rounded-md shadow-2xl">
-                                {totalPages}
-                              </span>
-                            </div>
-                          </PaginationContent>
-                        </Pagination>
-                      </TableCell>
-                    </TableRow>
-                  </TableBody>
-                </Table>
+              {/* <TabsList className={"py-5 px-0 bg-white"}> */}
+              {/*   <TabsTrigger */}
+              {/*     variant={"fullsize"} */}
+              {/*     value="parts" */}
+              {/*     className={"cursor-pointer rounded-t-2xl"} */}
+              {/*     hidden */}
+              {/*   > */}
+              {/*     Parts */}
+              {/*   </TabsTrigger> */}
+              {/*   <TabsTrigger */}
+              {/*     variant={"fullsize"} */}
+              {/*     value="snr" */}
+              {/*     className={"cursor-pointer  text-blue-500"} */}
+              {/*     hidden */}
+              {/*   > */}
+              {/*     SNR */}
+              {/*   </TabsTrigger> */}
+              {/* </TabsList> */}
+              <TabsContent value="parts" className={" p-2 "}>
+                {/* Old table  This is just for Example of table i use before, When the code run i just delete it or comment it*/}
+                {/* New table */}
+                <PartCatalogTable
+                  data={partCatalog}
+                  selectedPartCatalog={selectedPartCatalog}
+                  setSelectedPartCatalog={setSelectedPartCatalog}
+                  loading={loadingPart}
+                />
               </TabsContent>
               <TabsContent value="snr">
                 <p>tes</p>
@@ -6255,16 +5941,10 @@ export function BtnModalsServiceCatalog({
             </Tabs>
 
             <DialogFooter className={"p-2"}>
-              <Button
-                className=""
-                onClick={() => setCurrentStep(1)}
-              >
+              <Button className="" onClick={() => setCurrentStep(1)}>
                 Previous
               </Button>
-              <Button
-                className=""
-                onClick={() => setCurrentStep(3)}
-              >
+              <Button className="" onClick={() => setCurrentStep(3)}>
                 Next
               </Button>
             </DialogFooter>
@@ -6287,64 +5967,77 @@ export function BtnModalsServiceCatalog({
                   </Button>
                 </DialogClose>
               </div>
-              <div className="space-y-2 p-2">
+              <div className="space-y-2 p-0 mx-auto text-center">
               <DialogTitle className={'text-blue-600 text-2xl'}>Service Catalog</DialogTitle>
-              <DialogDescription>SELECT PARTS REQUIRED FOR THE REPAIR.</DialogDescription>
+              <DialogDescription>Confirmation For Selected Warranty Type And Parts.</DialogDescription>
               </div>
 
             </DialogHeader>
-            <div className="flex justify-end gap-4 p-2 my-2">
-              <div className="grid grid-cols-2 p-2 bg-gray-300 gap-2">
-                <CaseField label="Product Number">
+          <div className="overflow-x-auto">
+            <div className="flex flex-col lg:flex-row justify-evenly gap-0 p-0 my-2">
+              <div className="grid grid-cols-2 p-2  gap-2">
+                <CaseField label="Product Number" lock>
                   <Input
                   value={assetForWorkOrderCreation?.ProductNumber || "-"}    
                   readOnly              
                   />
                 </CaseField>
-                <CaseField label="Product Name">
+                <CaseField label="Product Name" lock>
                   <Input
                   value={assetForWorkOrderCreation?.product_information?.ProductName || "-"}     
                   readOnly             
                   />
                 </CaseField>
-                <CaseField label="Serial Number">
+                <CaseField label="Serial Number" lock>
                   <Input
                   value={assetForWorkOrderCreation?.SerialNumber || "-"}
                   readOnly             
                   />
                 </CaseField>
-                <CaseField label="Warranty Status">
+                <CaseField label="Warranty Status" lock>
                   <Input
                     value={`${assetForWorkOrderCreation?.Warranty_Status ?? ""} - ${assetForWorkOrderCreation?.WarrantyOTCCode?.Description ?? ""}`}
+                  />
+                </CaseField>
+              </div>
+              <div className="grid grid-cols-2 p-2  gap-2">
+                <CaseField label="Service OfferID" lock>
+                  <Input
+                  value={effectiveWarrantyService?.Service_offerID ?? '-'}    
+                  readOnly              
+                  />
+                </CaseField>
+                <CaseField label="Description" lock>
+                  <Input
+                  value={effectiveWarrantyService.Service_description}     
+                  readOnly             
+                  />
+                </CaseField>
+                <CaseField label="Unit Price" lock>
+                  <Input
+                  value={effectiveWarrantyService.CTat_RTime}
+                  readOnly             
+                  />
+                </CaseField>
+                <CaseField label="Shipping Fee" lock>
+                  <Input
+                    value={effectiveWarrantyService.Shipping_Fee}
+                  />
+                </CaseField>
+                {/* <CaseField label="Qty" lock> */}
+                {/*   <Input */}
+                {/*     value={1} */}
+                {/*   /> */}
+                {/* </CaseField> */}
+                <CaseField label="Price" lock>
+                  <Input
+                    value={assetForWorkOrderCreation?.WarrantyOTCCode?.WarrantyCondition === "OutWarranty" ? effectiveWarrantyService.Price : 0}
                   />
                 </CaseField>
               </div>
             </div>
             <div className="overflow-auto max-h-[30dvh]">
               <Table>
-                <TableHeader>
-                  <TableRow className={'bg-blue-400'}>
-                    <TableHead className={'font-bold text-black'}>Service OfferID</TableHead>
-                    <TableHead className={'font-bold text-black'}>Description</TableHead>
-                    <TableHead className={'font-bold text-black'}>Unit Price</TableHead>
-                    <TableHead className={'font-bold text-black'}>Shipping Fee</TableHead>
-                    <TableHead className={'font-bold text-black'}>Qty</TableHead>
-                    {/* <TableHead className={'font-bold text-black'}>Tax</TableHead> */}
-                    <TableHead className={'font-bold text-black'} colSpan={5}>Price</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                      <TableRow>
-                        <TableCell>{effectiveWarrantyService?.Service_offerID ?? '-'}</TableCell>
-                        <TableCell>{effectiveWarrantyService.Service_description}</TableCell>
-                        <TableCell>{effectiveWarrantyService.CTat_RTime}</TableCell>
-                        <TableCell>{effectiveWarrantyService.Shipping_Fee}</TableCell>
-                        <TableCell>1</TableCell>
-                        <TableCell>{assetForWorkOrderCreation?.WarrantyOTCCode?.WarrantyCondition === "OutWarranty" ? effectiveWarrantyService.Price : 0}</TableCell>
-                      </TableRow>
-                    {/* )
-                  })} */}
-                </TableBody>
                 <TableHeader>
                   <TableRow className={'bg-blue-400'}>
                     <TableHead className={'font-bold text-black'}>Select</TableHead>
@@ -6434,39 +6127,37 @@ export function BtnModalsServiceCatalog({
               </Table>
               
             </div>
-            
+          </div>
   
-            <DialogFooter className={' sm:justify-start p-2 items-center gap-10'}>
-              <Button  className="" onClick={() => setCurrentStep(2)}>Previous</Button>
-              <Button  className="" onClick={() => setOpen(false)}>Cancel</Button>
-              <Button  className="" onClick={() => setModalPart(true)}>Add Part</Button>
-              <Button  className="" onClick={createOrder}>Create Order</Button>
-              
-              <Label htmlFor="incident" className={'font-bold whitespace-nowrap'}>Incident Type</Label>
-              
-              <Select value={selected} onValueChange={setSelected} defaultValue="DepotRepair">
-                <SelectTrigger className="w-fit">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectGroup>
-                    <SelectItem value="CE Assist-APJ-Computing">CE Assist-APJ-Computing</SelectItem>
-                    <SelectItem value="CE Assist-APJ-Printing">CE Assist-APJ-Printing</SelectItem>
-                    <SelectItem value="Cust Sat-Issue-APJ-Computing">Cust Sat Issue-APJ-Computing</SelectItem>
-                    <SelectItem value="Cust Sat-Issue-APJ-Printing">Cust Sat Issue-APJ-Printing</SelectItem>
-                    <SelectItem value="IMACD-APJ-Computing">IMACD-APJ-Computing</SelectItem>
-                    <SelectItem value="IMACD-APJ-Printing">IMACD-APJ-Printing</SelectItem>
-                    <SelectItem value="Installation Only-APJ-Computing">Installation Only-APJ-Computing</SelectItem>
-                    <SelectItem value="Installation Only-APJ-Printing">Installation Only-APJ-Printing</SelectItem>
-                    <SelectItem value="PC Problem-APJ-Computing">PC Problem-APJ-Computing</SelectItem>
-                    <SelectItem value="Print Problem-APJ-Printing">Print Problem-APJ-Printing</SelectItem>
-                    <SelectItem value="Print Quality-APJ-Printing">Print Quality-APJ-Printing</SelectItem>
-                    <SelectItem value="Prev Maint-APJ-Computing">Prev Maint-APJ-Computing</SelectItem>
-                    <SelectItem value="Prev Maint-APJ-Printing">Prev Maint-APJ-Printing</SelectItem>
-                    <SelectItem value="DepotRepair">Depot Repair</SelectItem>
-                  </SelectGroup>
-                </SelectContent>
-              </Select>
+            <DialogFooter className={'inline-flex  p-2  '}>
+
+              <div className="inline-flex items-center gap-2">
+                 <Label htmlFor="incident" className={'font-bold whitespace-nowrap'}>Incident Type :</Label>
+                 <Select value={selected} onValueChange={setSelected} defaultValue="DepotRepair">
+                   <SelectTrigger className="w-fit">
+                     <SelectValue />
+                   </SelectTrigger>
+                   <SelectContent>
+                     <SelectGroup>
+                       <SelectItem value="CE Assist-APJ-Computing">CE Assist-APJ-Computing</SelectItem>
+                       <SelectItem value="CE Assist-APJ-Printing">CE Assist-APJ-Printing</SelectItem>
+                       <SelectItem value="Cust Sat-Issue-APJ-Computing">Cust Sat Issue-APJ-Computing</SelectItem>
+                       <SelectItem value="Cust Sat-Issue-APJ-Printing">Cust Sat Issue-APJ-Printing</SelectItem>
+                       <SelectItem value="IMACD-APJ-Computing">IMACD-APJ-Computing</SelectItem>
+                       <SelectItem value="IMACD-APJ-Printing">IMACD-APJ-Printing</SelectItem>
+                       <SelectItem value="Installation Only-APJ-Computing">Installation Only-APJ-Computing</SelectItem>
+                       <SelectItem value="Installation Only-APJ-Printing">Installation Only-APJ-Printing</SelectItem>
+                       <SelectItem value="PC Problem-APJ-Computing">PC Problem-APJ-Computing</SelectItem>
+                       <SelectItem value="Print Problem-APJ-Printing">Print Problem-APJ-Printing</SelectItem>
+                       <SelectItem value="Print Quality-APJ-Printing">Print Quality-APJ-Printing</SelectItem>
+                       <SelectItem value="Prev Maint-APJ-Computing">Prev Maint-APJ-Computing</SelectItem>
+                       <SelectItem value="Prev Maint-APJ-Printing">Prev Maint-APJ-Printing</SelectItem>
+                       <SelectItem value="DepotRepair">Depot Repair</SelectItem>
+                     </SelectGroup>
+                   </SelectContent>
+                 </Select>
+              </div>
+
               {selectedPartCatalog.length > 0 && (
               <div className={"flex gap-2"}>
                 <Label htmlFor="Assign_APO" className={'font-bold whitespace-nowrap'}>SELECT {isOutWarranty ? "CM" : "APO"} : </Label>
@@ -6495,6 +6186,10 @@ export function BtnModalsServiceCatalog({
                 />
               </div>
               )}
+              <Button variant={"destructive"}  className="" onClick={() => setOpen(false)}>Cancel</Button>
+              <Button  className="" onClick={() => setCurrentStep(2)}>Previous</Button>
+              <Button  className="" onClick={() => setModalPart(true)}>Add Part</Button>
+              <Button  className="" onClick={createOrder}>Create Order</Button>
             </DialogFooter>
           </DialogContent>
         );
@@ -11823,7 +11518,6 @@ export function FailureDelete({ FailureId, isModalOpen, setIsModalOpen, onUpdate
   );
 }
 
-
 export function FindCase() {
   const [openInfo, setOpenInfo] = useState(false);
   const [findingCase, setFindingCase] = useState({ Caseid: "", Phoneno: "" });
@@ -11880,8 +11574,8 @@ export function FindCase() {
   return (
     <Dialog className={''}>
       <DialogTrigger asChild>
-        <Button className="bg-green-600 text-white hover:bg-emerald-700 ">
-          🔍 Search Case
+        <Button className="w-full bg-green-600 text-white hover:bg-emerald-700 ">
+           Search Case
         </Button>
       </DialogTrigger>
       

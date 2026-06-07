@@ -5,42 +5,100 @@ import fs from "fs";
 import path from "path";
 import crypto from "crypto"; 
 
+import redis, { deleteByPattern, redisKey } from "../../../../lib/redis";
+
 // 🔹 GET: ambil list user dengan filter search & role
 export async function GET(request) {
   try {
     const { searchParams } = new URL(request.url);
     const search = searchParams.get("search") || "";
-    const role = searchParams.get("role") || "";
-    const resource = searchParams.get("resource") || "";
 
+    const mode = searchParams.get("mode") ?? "paginated";
     const page = parseInt(searchParams.get("page")) || 1;
     const limit = parseInt(searchParams.get("limit")) || 10;
-    const skip = (page - 1) * limit;
+
+    if (mode === "distinct") {
+        const field = searchParams.get("field");
+        const q = searchParams.get("q")?.trim() || "";
+        const limit = Math.min(50, parseInt(searchParams.get("limit") || "30", 10));
+
+        const DISTINCT_FIELDS = {
+            Role: () => prisma.User.findMany({
+                where: q ? { Role: { contains: q } } : {},
+                select: { Role: true },
+                distinct: ["Role"],
+                orderBy: { Role: "asc" },
+                take: limit,
+            }).then(r => r.map(x => x.Role).filter(Boolean)),
+
+            Name: () => prisma.Resource.findMany({
+                where: q ? { Name: { contains: q } } : {},
+                select: { Name: true },
+                distinct: ["Name"],
+                orderBy: { Name: "asc" },
+                take: limit,
+            }).then(r => r.map(x => x.Name).filter(Boolean)),
+        };
+
+        if (!DISTINCT_FIELDS[field]) {
+            return NextResponse.json({ success: false, message: `Unknown field: ${field}` }, { status: 400 });
+        }
+
+        const values = await DISTINCT_FIELDS[field]();
+        return NextResponse.json({ success: true, values }, { status: 200 });
+    }
+
+    const skip = Math.max(0, parseInt(searchParams.get("skip") ?? "0", 10));
+    const take = Math.min(200, Math.max(1, parseInt(searchParams.get("take") ?? "20", 10)));
+
+    const sortBy = searchParams.get("sortBy") ?? "CreatedAt";
+    const sortDir = searchParams.get("sortDir") === "desc" ? "desc" : "asc";
+    const orderBy = { [sortBy]: sortDir };
 
     // 🔹 Kondisi pencarian
-    let whereCondition = {};
+    const baseConditions = [];
 
     if (search) {
-      whereCondition.OR = [
+      baseConditions.push({
+        OR: [
         { Email: { contains: search } },
         { Username: { contains: search } },
         { Name: { contains: search } },
         { Phone: { contains: search } },
         { Role: {contains: search }},
-      ];
+      ]
+      });
     }
 
+    const role = searchParams.get("role") || "";
     if (role) {
-      whereCondition.Role = role;
+      baseConditions.push({Role: role});
     }
-    if(resource) whereCondition.ResourceId = resource;
+
+    const resourceName = searchParams.get("resourceName") || "";
+    if(resourceName) baseConditions.push({resource : { Name: { equals : resourceName}}});
+
+    const resource = searchParams.get("resource") || "";
+    if(resource) baseConditions.push({ResourceId:  resource});
+
+    const whereCondition = baseConditions.length > 0
+        ? { AND: baseConditions }
+        : {};      
+
+    const sortedParams = new URLSearchParams([...searchParams.entries()].sort(([a], [b]) => a.localeCompare(b)));
+    const cacheKey = redisKey(`user:list:${sortedParams.toString()}`);
+    const cached = await redis.get(cacheKey);
+    
+    if (cached) {
+        return NextResponse.json(JSON.parse(cached), { status: 200 });
+    }
 
     const [users, total] = await Promise.all([
       prisma.user.findMany({
         where: whereCondition,
-        // skip,
-        // take: limit,
-        orderBy: { CreatedAt: "desc" },
+        skip: skip,
+        take: take,
+        orderBy: orderBy,
         include: {
           resource: {
             // Name: true,
@@ -53,16 +111,21 @@ export async function GET(request) {
       prisma.user.count({ where: whereCondition }),
     ]);
 
-    return NextResponse.json({
-      success: true,
-      message: "List Data User",
-      data: users,
-      pagination: {
-        page,
-        limit,
-        total,
-        totalPages: Math.ceil(total / limit),
-      },
+    const response = {
+        success: true,
+        message: "List Data User",
+        data: users,
+        total:total,
+        skip,
+        take,
+    };
+
+    await redis.set(cacheKey, JSON.stringify(response), "EX", 120);
+
+    return NextResponse.json(
+      response,
+      {
+      status: 200,
     });
   } catch (error) {
     console.error("🔥 ERROR in GET API:", error);

@@ -59,12 +59,8 @@ export const ServiceMaterialApo = () => {
   const lineItems = useMaterialOrderStore((s) => s.lineItems);
   const materialInfo = useMaterialOrderStore((s) => s.materialInfo);
   const updatedLineItems = useMaterialOrderStore((s) => s.updatedLineItems);
-  const setMaterialInfoField = useMaterialOrderStore(
-    (s) => s.setMaterialInfoField
-  );
-  const setLineItemStatus = useMaterialOrderStore(
-    (s) => s.setLineItemStatus
-  );
+  const setMaterialInfoField = useMaterialOrderStore((s) => s.setMaterialInfoField);
+  const setLineItemStatus = useMaterialOrderStore((s) => s.setLineItemStatus);
   // ----- permissions -----
   const allowedRoles = ["apo", "lg", "admin", "spv"];
   let canEditapo = false;

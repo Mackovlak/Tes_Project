@@ -1,25 +1,24 @@
 import * as React from "react"
 import { useForm } from "@tanstack/react-form"
-import { date, z } from "zod"
+import { z } from "zod"
 import { zodValidator } from "@tanstack/zod-form-adapter"
-import { useMutation, useQuery } from "@tanstack/react-query"
+import { useMutation } from "@tanstack/react-query"
+import { toast } from "sonner" // Or your specific toast import (e.g., from "@/components/ui/use-toast")
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { DialogTrigger } from "@/components/ui/dialog"
-import { Pencil, Plus } from "lucide-react"
+import { Plus } from "lucide-react"
 
 import { FormDialog } from "../config/form-dialog"
 import { TField } from "../config/tfield"
-import { AsyncComboboxField } from "../config/async-combobox-field"
 import ApiCustomer from "@/api"
 import { SearchCommandBlock } from "@/components/sc-select"
-import DatePicker from "@/components/date-picker"
 
+// 1. FIX: Add .min(1) so empty strings trigger validation errors
 const ProductTypeSchema = z.object({
-     ProductGroup: z.string(),
-     ProductTower: z.string(),
-     ProductType: z.string(),
+     ProductGroup: z.string().min(1, "Product Group is required"),
+     ProductTower: z.string().min(1, "Product Tower is required"),
+     ProductType: z.string().min(1, "Product Type is required"),
 })
 
 export function ProductTypeAdd() {
@@ -35,8 +34,19 @@ export function ProductTypeAdd() {
       await ApiCustomer.post(`/api/product-type`, payload)
     },
     onSuccess: () => {
+      // 2. NEW: Trigger success toast
+      toast.success("Success", {
+        description: "Product Type has been added successfully."
+      })
       setOpen(false)
+      form.reset() // Clear form data so it's fresh for the next entry
     },
+    onError: (error) => {
+      // NEW: Trigger error toast just in case the API fails
+      toast.error("Error", {
+        description: error?.message || "Failed to add Product Type."
+      })
+    }
   })
   
   const form = useForm({
@@ -45,7 +55,6 @@ export function ProductTypeAdd() {
         ProductGroup: "",
         ProductTower: "",
         ProductType: "",
-       
     },
     onSubmit: async ({ value }) => {
       const parsed = ProductTypeSchema.safeParse(value)
@@ -60,7 +69,10 @@ export function ProductTypeAdd() {
     <>
       <FormDialog
         open={open}
-        onOpenChange={setOpen}
+        onOpenChange={(isOpen) => {
+            setOpen(isOpen)
+            if (!isOpen) form.reset() // 3. FIX: Reset errors if user closes and reopens the dialog
+        }}
         title="Adding Product Type Information"
         description="Fields marked with * are required."
         submitting={updateMutation.isPending}
@@ -68,12 +80,14 @@ export function ProductTypeAdd() {
         onSubmit={() => form.handleSubmit()}
         trigger={
           <Button variant="outline" size="icon" onClick={() => setOpen(true)}>
-          <Plus className="w-4 h-4"/>
+            <Plus className="w-4 h-4"/>
           </Button>
         }
       >
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <form.Field name="ProductGroup" validators={{ required: "Product Group is required" }}>
+          
+          {/* 4. FIX: Use Zod validation via 'onChange' instead of 'required' */}
+          <form.Field name="ProductGroup" validators={{ onChange: ProductTypeSchema.shape.ProductGroup }}>
             {(field) => (
               <TField label="Product Group" required field={field} span={2}>
                 {({ value, onChange, onBlur }) => (
@@ -91,7 +105,7 @@ export function ProductTypeAdd() {
             )}
           </form.Field>
 
-          <form.Field name="ProductTower" validators={{ required: "Product Tower is required" }}>
+          <form.Field name="ProductTower" validators={{ onChange: ProductTypeSchema.shape.ProductTower }}>
             {(field) => (
               <TField label="Product Tower" required field={field} span={2}>
                 {({ value, onChange, onBlur }) => (
@@ -109,15 +123,16 @@ export function ProductTypeAdd() {
             )}
           </form.Field>
 
-          <form.Field name="ProductType" validators={{ required: "Product TYpe is required" }}>
+          <form.Field name="ProductType" validators={{ onChange: ProductTypeSchema.shape.ProductType }}>
             {(field) => (
               <TField label="Product Type" required field={field} span={2}>
                 {({ value, onChange, onBlur }) => (
-                  <Input  value={value} onChange={(e) => onChange(e.target.value)} onBlur={onBlur} />  
+                  <Input value={value} onChange={(e) => onChange(e.target.value)} onBlur={onBlur} />  
                 )}
               </TField>
             )}
           </form.Field>
+          
         </div>
       </FormDialog>
     </>

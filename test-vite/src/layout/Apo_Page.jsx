@@ -62,38 +62,38 @@ export default function ApoLanding() {
                 ProfilePhoto: fecthUserData.data.data.ProfilePhoto ? `${import.meta.env.VITE_API_BASE_URL}${fecthUserData.data.data.ProfilePhoto}` : null,
                 Signature: fecthUserData.data.data.Signature ? `${import.meta.env.VITE_API_BASE_URL}${fecthUserData.data.data.Signature}` : null,
             });
-             const valuefiltercases = response.data.data.filter(c => c?.caseinformation?.CreatedBy == user.id);
-      const valueFilterOpenCase = response.data.data.filter(c => c?.CaseStatus == 'Open' && c?.caseinformation?.CreatedBy == user.id)
-      const valueFilterInActiveCase = response.data.data.filter(c => c?.CaseStatus == 'InActive' && c?.caseinformation?.CreatedBy == user.id)
-      const valueFilterCloseCase = response.data.data.filter(c => c?.CaseStatus == 'Close' && c?.caseinformation?.CreatedBy == user.id)
-      const filtercases = response.data.data.filter(c => c?.CaseStatus !== 'Close' && c?.caseinformation?.Owner == user.id);
-      const sortedCases = filtercases.sort((a, b) => {
-          const dateAraw = a.UpdateOn;
-        const dateBraw = b.UpdateOn;
+            const valuefiltercases = response.data.data.filter(c => c?.caseinformation?.CreatedBy == user.id);
+            const valueFilterOpenCase = response.data.data.filter(c => c?.CaseStatus == 'Open' && c?.caseinformation?.CreatedBy == user.id)
+            const valueFilterInActiveCase = response.data.data.filter(c => c?.CaseStatus == 'InActive' && c?.caseinformation?.CreatedBy == user.id)
+            const valueFilterCloseCase = response.data.data.filter(c => c?.CaseStatus == 'Close' && c?.caseinformation?.CreatedBy == user.id)
+            const filtercases = response.data.data.filter(c => c?.CaseStatus !== 'Close' && c?.caseinformation?.Owner == user.id);
+            const sortedCases = filtercases.sort((a, b) => {
+                const dateAraw = a.UpdateOn;
+              const dateBraw = b.UpdateOn;
 
-        const dateA = dateAraw ? (dateAraw instanceof Date ? dateAraw : new Date(dateAraw)) : new Date(0);
-        const dateB = dateBraw ? (dateBraw instanceof Date ? dateBraw : new Date(dateBraw)) : new Date(0);
+            const dateA = dateAraw ? (dateAraw instanceof Date ? dateAraw : new Date(dateAraw)) : new Date(0);
+            const dateB = dateBraw ? (dateBraw instanceof Date ? dateBraw : new Date(dateBraw)) : new Date(0);
 
-        return dateB - dateA; // newest first
-      });
-      const recentCases = sortedCases.slice(0, 4);
-      
-      setCaseData(recentCases);
-      setCasevaluedata(valueFilterOpenCase?.length);
-      setInactivecasevaluedata(valueFilterInActiveCase?.length)
-      setClosecasevaluedata(valueFilterCloseCase?.length);
-      return response.data.data;
-        } catch (err) {
-            Swal.fire({
-                   icon: 'error',
-                   title: 'Error',
-                   text: 'Gagal memuat data. Silakan coba lagi.',
-                 });
-                 console.error('Error fetching case data:', err);
-                 throw err;
-               } finally {
-                 setLoading(false);
-               }
+            return dateB - dateA; // newest first
+          });
+          const recentCases = sortedCases.slice(0, 4);
+          
+          setCaseData(recentCases);
+          setCasevaluedata(valueFilterOpenCase?.length);
+          setInactivecasevaluedata(valueFilterInActiveCase?.length)
+          setClosecasevaluedata(valueFilterCloseCase?.length);
+          return response.data.data;
+      } catch (err) {
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Gagal memuat data. Silakan coba lagi.',
+          });
+          console.error('Error fetching case data:', err);
+          throw err;
+      } finally {
+        setLoading(false);
+      }
     }
     useEffect(() => {
         fetchData();

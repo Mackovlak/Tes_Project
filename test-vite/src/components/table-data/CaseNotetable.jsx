@@ -57,7 +57,8 @@ export const CaseNotetable = ({notesList}) => {
   return (
             <DataTable
               data={notesList}
-              cellName={' p-1 lg:p-2'}
+              cellClassName={' p-1 lg:p-2'}
+              containerClassName={"max-h-60"}
               columns={columns}
               loading={loading}
               sorting={sorting}

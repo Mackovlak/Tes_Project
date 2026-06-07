@@ -16,6 +16,41 @@ import { UserAdd,} from "../model/MastertabelAdd/UserAdd"
 import { UsersEdit } from "../model/MastertabelEdit/UserEdit"
 import { Trash } from "lucide-react"
 import { ConfirmDialog } from "../model/config/ConfirmDialog"
+import { useServerPageTable } from "./config/data-use-table"
+
+function makeFetch(field) {
+  return async (q) => {
+    const res = await ApiCustomer.get("/api/user", {
+      params: { mode: "distinct", field, q: q ?? "", limit: 30 },
+    });
+    return (res.data.values ?? []).map((v) => ({ label: v, value: v }));
+  };
+}
+
+const fetchRole = makeFetch("Role");
+const fetchResource = makeFetch("Name");
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Parameter Parsers
+// ─────────────────────────────────────────────────────────────────────────────
+function userFiltersToParams(filters) {
+  const p = { mode: "paginated" };
+  for (const f of filters) {
+    const v = Array.isArray(f.value) ? f.value[0] : f.value;
+    if (!v) continue;
+    switch (f.id) {
+      case "Role":           p.role = v; break;
+      case "Resource":        p.resourceName = v; break;
+      default: break;
+    }
+  }
+  return p;
+}
+
+function userSortToParams(s) {
+  if (!s[0]) return { sortBy: "CreatedAt", sortDir: "asc" };
+  return { sortBy: s[0].id, sortDir: s[0].desc ? "desc" : "asc" };
+}
 
 function usersColums(opts) {
     return [
@@ -134,36 +169,18 @@ function usersColums(opts) {
 }
 
 export function UsersTable() {
-    const [data, setData] = React.useState([])
-    const [loading, setLoading] = React.useState(false)
-    const [error, setError] = React.useState(null)
     const [selecetedId, setSelectedId] = React.useState(null)
     const [isDeleting, setIsDeleting] = React.useState(false)
     const [isDialogOpen, setIsDialogOpen] = React.useState(false)
-    const [sorting, setSorting] = React.useState([])
-    const [refresh, setRefresh] = React.useState(false) 
 
-    function handleRefresh(){
-      setRefresh(prev => !prev)
-    }
-
-    const fetchUsers = React.useCallback(async () => {
-        setLoading(true)
-        setError(null)
-        try {
-        const res = await ApiCustomer.get(`/api/user`)
-        setData(res.data.data)
-        } catch (error) {
-            toast.error("Failed to fetch User data")
-            setError("Failed to fetch data")
-        } finally {
-            setLoading(false)
-        }
-    }, [])
-
-    React.useEffect(() => {
-        fetchUsers()
-    }, [fetchUsers, refresh])
+    const hook = useServerPageTable({
+      url:               "/api/user",
+      pageSize:          20,
+      defaultSorting:    [{ id: "CreatedAt", desc: true }],
+      filtersToParams:   userFiltersToParams,
+      sortToParams:      userSortToParams,
+      globalSearchParam: "search",
+    });
 
     const HandleDeleteUser = React.useCallback(async () => {
         if (!selecetedId) return;
@@ -171,7 +188,7 @@ export function UsersTable() {
         try {
             const res = await ApiCustomer.delete(`/api/user/${selecetedId}`);
             toast.success("User deleted successfully");
-            fetchUsers();
+            hook.refresh();
             setIsDialogOpen(false);
             setSelectedId(null);
         } catch (error) {
@@ -179,12 +196,12 @@ export function UsersTable() {
         } finally {
             setIsDeleting(false);
         }
-    }, [selecetedId, fetchUsers]);
+    }, [selecetedId, hook]);
 
     const columns = React.useMemo(
         () => 
             usersColums({
-                onEdit: (id) => <UsersEdit UserId={id} onUpdate={fetchUsers}/>,
+                onEdit: (id) => <UsersEdit UserId={id} onUpdate={hook.refresh}/>,
                 onDelete: (id) => <Button className={"text-red-500 hover:text-red-700"} variant={"outline"} onClick={() => {
                     setSelectedId(id)
                     setIsDialogOpen(true)
@@ -192,29 +209,45 @@ export function UsersTable() {
                     <Trash/>
                 </Button>
             }),
-        [fetchUsers]
+        [hook.refresh]
     )
     return (
         <div className="p-4 grid grid-cols-1 w-full rounded-2xl">
             <DataTable
                 title={<h2 className="text-xl sm:text-2xl font-bold">📊 User Management</h2>}
-                data={data}
+                data={hook.data}
                 columns={columns}
-                sorting={sorting}
-                setSorting={setSorting}
-                handleRefresh={handleRefresh}
-                loading={loading}
-                error={error}
-                toolbar={(table) => (
-                    <DataTableToolbar table={table} searchPlaceholder="🔍 Search user..." loading={loading} handleRefresh={handleRefresh}>
+                sorting={hook.sorting}
+                setSorting={hook.setSorting}
+                handleRefresh={hook.refresh}
+                loading={hook.loading}
+                error={hook.error}
+                columnFilters={hook.columnFilters}
+                setColumnFilters={hook.setColumnFilters}
+                globalSearch={hook.globalSearch}
+                onGlobalSearchChange={hook.setGlobalSearch}
+                serverPagination={{
+                  pageIndex:        hook.pageIndex,
+                  pageCount:        hook.pageCount,
+                  pageSize:         hook.pageSize,
+                  total:            hook.total,
+                  onPageChange:     hook.setPageIndex,
+                  onPageSizeChange: hook.setPageSize,
+                }}
+                toolbar={(table, serverProps) => (
+                    <DataTableToolbar table={table} searchPlaceholder=" Search user..." loading={hook.loading} handleRefresh={hook.refresh} total={hook.total} {...serverProps}>
                         <UserAdd/>
                         <DataTableFacetedFilter
+                            mode="server"
                             title={"All Role"}
                             column={table.getColumn("Role")}
+                            fetchOptions={fetchRole}
                         />
                         <DataTableFacetedFilter
+                            mode="server"
                             title={"All Resources"}
                             column={table.getColumn("Resource")}
+                            fetchOptions={fetchResource}
                         />
                     </DataTableToolbar>
                 )}

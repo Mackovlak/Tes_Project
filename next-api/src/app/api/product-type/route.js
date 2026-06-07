@@ -7,11 +7,23 @@ export async function GET(request) {
     const { searchParams } = new URL(request.url);
     const tower = searchParams.get("ProductTower") || "";
     const group = searchParams.get("ProductGroup") || "";
+    const q = searchParams.get("q") || "";
 
     
     const whereCondition = {};
     if (tower) whereCondition.ProductTower = { equals: tower };
     if (group) whereCondition.ProductGroup = { equals: group };
+
+    if (q) {
+      whereCondition.OR = [
+        { ProductType: { contains: q } }
+      ];
+
+      const parsedNumber = parseInt(q);
+      if (!isNaN(parsedNumber)) {
+        whereCondition.OR.push({ ProductTypeID: { equals: parsedNumber } });
+      }
+    }
 
     const product_types = await prisma.product_type.findMany({
         where: whereCondition,

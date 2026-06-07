@@ -15,7 +15,7 @@ import { NotificationCard } from './NotificationCard'
 import { useNotifications } from '@/hooks/useNotification'
 // import { AppAccordion } from './app-accordion'
  
-export function SheetBar({
+export function NotifBar({
 }) {
 
   const { sheetopen, setSheetOpen } = useSheet();

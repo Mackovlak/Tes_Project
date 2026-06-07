@@ -387,6 +387,8 @@ export async function POST(request) {
         ContactID: contactId,
         AssetID: assetId,
         CaseSubject: caseData.CaseSubject,
+        CaseID_Manual: caseData.CaseID_Manual,
+        CaseID_Manual_Date: toDateOrNull(caseData.CaseID_Manual_Date),
         CaseType: caseData.CaseType,
         KCI_Flag: Boolean(caseData.KCI_Flag),
         IncomingChannel: caseData.IncomingChannel ?? "Email",

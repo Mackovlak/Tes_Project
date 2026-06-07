@@ -127,9 +127,9 @@ export const useMaterialOrderStore = create<MaterialOrderStore>((set, get) => ({
       ),
     })),
 
-     saveMaterialOrder: async (userId: string) => {
+    saveMaterialOrder: async (userId: string) => {
     const { materialOrder, materialInfo, updatedLineItems } = get();
-
+  
     if (!materialOrder?.MOID) {
       return {
         success: false,
@@ -201,6 +201,7 @@ export const useMaterialOrderStore = create<MaterialOrderStore>((set, get) => ({
           MOID: materialOrder.MOID,
           WOID: materialOrder.WOID,
           userId,
+          ResourceId: materialOrder.owner?.ResourceId,
           SalesOrderNumber: soNumber || null,
           RMANumber: rmaNumber || null,
         };

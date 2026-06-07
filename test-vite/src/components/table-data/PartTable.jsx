@@ -16,6 +16,39 @@ import { PartAdd } from "../model/MastertabelAdd/PartAdd"
 import { PartEdit } from "../model/MastertabelEdit/PartEdit"
 import { Trash } from "lucide-react"
 import { ConfirmDialog } from "../model/config/ConfirmDialog"
+import { useServerPageTable } from "./config/data-use-table"
+
+function makeFetch(field) {
+  return async (q) => {
+    const res = await ApiCustomer.get("/api/service-log/parts-catalog", {
+      params: { mode: "distinct", field, q: q ?? "", limit: 30 },
+    });
+    return (res.data.values ?? []).map((v) => ({ label: v, value: v }));
+  };
+}
+
+const fetchCatagory = makeFetch("Keyword");
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Parameter Parsers
+// ─────────────────────────────────────────────────────────────────────────────
+function partFiltersToParams(filters) {
+  const p = { mode: "paginated" };
+  for (const f of filters) {
+    const v = Array.isArray(f.value) ? f.value[0] : f.value;
+    if (!v) continue;
+    switch (f.id) {
+      case "Keyword":           p.keyword = v; break;
+      default: break;
+    }
+  }
+  return p;
+}
+
+function partSortToParams(s) {
+  if (!s[0]) return { sortBy: "PartNumber", sortDir: "asc" };
+  return { sortBy: s[0].id, sortDir: s[0].desc ? "desc" : "asc" };
+}
 
 function partColums(opts) {
     return [
@@ -53,7 +86,7 @@ function partColums(opts) {
         {
             accessorKey: "Orderability",
             header: ({ column }) => (
-                <DataTableColumnHeader column={column} title={"Orderability"}/>
+                <DataTableColumnHeader column={column} title={"Orderability"} ableToSort={false}/>
             ),
             cell: ({ getValue }) => {
                 const rawOrderability = getValue()
@@ -71,7 +104,7 @@ function partColums(opts) {
         {
             accessorKey: "CSR_Flag",
             header: ({ column }) => (
-                <DataTableColumnHeader column={column} title={"CSR Flag"}/>
+                <DataTableColumnHeader column={column} title={"CSR Flag"} ableToSort={false}/>
             ),
              cell: ({ getValue }) => {
                 const rawCSR_Flag = getValue()
@@ -83,7 +116,7 @@ function partColums(opts) {
         {
             accessorKey: "ROHS_Flag",
             header: ({ column }) => (
-                <DataTableColumnHeader column={column} title={"ROHS Flag"}/>
+                <DataTableColumnHeader column={column} title={"ROHS Flag"} ableToSort={false}/>
             ),
                cell: ({ getValue }) => {
                 const rawROHS_Flag = getValue()
@@ -95,7 +128,7 @@ function partColums(opts) {
         {
             accessorKey: "Returnable_Flag",
             header: ({ column }) => (
-                <DataTableColumnHeader column={column} title={"Returnable Flag"}/>
+                <DataTableColumnHeader column={column} title={"Returnable Flag"} ableToSort={false}/>
             ),
             cell: ({ getValue }) => {
                 const rawReturnable_Flag = getValue()
@@ -107,7 +140,7 @@ function partColums(opts) {
         {
             accessorKey: "HardRoll_Flag",
             header: ({ column }) => (
-                <DataTableColumnHeader column={column} title={"Hard Roll Flag"}/>
+                <DataTableColumnHeader column={column} title={"Hard Roll Flag"} ableToSort={false}/>
             ),
             cell: ({ getValue }) => {
                 const rawHardRoll_Flag = getValue()
@@ -119,7 +152,7 @@ function partColums(opts) {
         {
             accessorKey: "LithiumBattery_Flag",
             header: ({ column }) => (
-                <DataTableColumnHeader column={column} title={"Lithium Battery Flag"}/>
+                <DataTableColumnHeader column={column} title={"Lithium Battery Flag"} ableToSort={false}/>
             ),
             cell: ({ getValue }) => {
                 const rawLithiumBattery_Flag = getValue()
@@ -131,7 +164,7 @@ function partColums(opts) {
         {
             accessorKey: "Heavy_Flag",
             header: ({ column }) => (
-                <DataTableColumnHeader column={column} title={"Heavy Flag"}/>
+                <DataTableColumnHeader column={column} title={"Heavy Flag"} ableToSort={false}/>
             ),
             cell: ({ getValue }) => {
                 const rawHeavy_Flag = getValue()
@@ -187,42 +220,24 @@ function partColums(opts) {
 }
 
 export function PartTable() {
-    const [data, setData] = React.useState([])
-    const [loading, setLoading] = React.useState(false)
-    const [error, setError] = React.useState(null)
     const [selectedId, setSelectedId] = React.useState(null)
     const [isDialogOpen, setIsDialogOpen] = React.useState(false)
     const [isDeleting, setIsDeleting] = React.useState(false)
-    const [sorting, setSorting] = React.useState([])
-    const [refresh, setRefresh] = React.useState(false) 
 
-    function handleRefresh(){
-      setRefresh(prev => !prev)
-    }
-
-    const fetchPart = React.useCallback(async () => {
-        setLoading(true)
-        setError(null)
-        try {
-        const res = await ApiCustomer.get(`/api/service-log/parts-catalog`)
-        setData(res.data.data)
-        } catch (error) {
-            toast.error("Failed to fetch Part data")
-            setError("Failed to fetch data")
-        } finally {
-            setLoading(false)
-        }
-    }, [])
-
-    React.useEffect(() => {
-        fetchPart()
-    }, [fetchPart, refresh])
+    const hook = useServerPageTable({
+      url:               "/api/service-log/parts-catalog",
+      pageSize:          20,
+      defaultSorting:    [{ id: "PartNumber", desc: false }],
+      filtersToParams:   partFiltersToParams,
+      sortToParams:      partSortToParams,
+      globalSearchParam: "search",
+    });
 
     const HandleDeletePart = React.useCallback(async () => {
         try {
             await ApiCustomer.delete(`/api/service-log/parts-catalog/${selectedId}`)
             toast.success("Delete part success")
-            fetchPart()
+            hook.refresh()
             setIsDialogOpen(false)
             setSelectedId(null)
         } catch (error) {
@@ -230,12 +245,12 @@ export function PartTable() {
         }finally {
             setIsDeleting(false)
         }
-    },[selectedId, fetchPart])
+    },[selectedId, hook])
 
     const columns = React.useMemo(
         () => 
             partColums({
-                onEdit: (id) => <PartEdit PartId={id}  onUpdate={fetchPart}/>,
+                onEdit: (id) => <PartEdit PartId={id}  onUpdate={hook.refresh}/>,
                 onDelete: (id) => <Button variant={"outline"} className={"text-red-500 hover:text-red-700"} onClick={() => {
                     setIsDialogOpen(true)
                     setSelectedId(id)
@@ -243,25 +258,39 @@ export function PartTable() {
                     <Trash/>
                 </Button>
             }),
-        [fetchPart]
+        [hook.refresh]
     )
     return (
         <div className="p-4 grid grid-cols-1 w-full rounded-2xl">
             <DataTable
                 title={<h2 className="text-xl sm:text-2xl font-bold">📊 Part Management</h2>}
-                data={data}
+                data={hook.data}
                 columns={columns}
-                sorting={sorting}
-                setSorting={setSorting}
-                handleRefresh={handleRefresh}
-                loading={loading}
-                error={error}
-                toolbar={(table) => (
-                    <DataTableToolbar table={table} searchPlaceholder="🔍 Search part..." loading={loading} handleRefresh={handleRefresh}>
+                sorting={hook.sorting}
+                setSorting={hook.setSorting}
+                handleRefresh={hook.refresh}
+                loading={hook.loading}
+                error={hook.error}
+                columnFilters={hook.columnFilters}
+                setColumnFilters={hook.setColumnFilters}
+                globalSearch={hook.globalSearch}
+                onGlobalSearchChange={hook.setGlobalSearch}
+                serverPagination={{
+                  pageIndex:        hook.pageIndex,
+                  pageCount:        hook.pageCount,
+                  pageSize:         hook.pageSize,
+                  total:            hook.total,
+                  onPageChange:     hook.setPageIndex,
+                  onPageSizeChange: hook.setPageSize,
+                }}
+                toolbar={(table, serverProps) => (
+                    <DataTableToolbar table={table} searchPlaceholder=" Search part..." loading={hook.loading} handleRefresh={hook.refresh} total={hook.total} {...serverProps}>
                         <PartAdd/>
                         <DataTableFacetedFilter
+                            mode="server"
                             title={"All Category"}
                             column={table.getColumn("Keyword")}
+                            fetchOptions={fetchCatagory}
                         />
                     </DataTableToolbar>
                 )}
